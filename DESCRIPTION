@@ -17,5 +17,5 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports: 
-  RcppEigen, miscTools, magrittr, plyr, gtools, car, dplyr, pryr
+  RcppEigen, miscTools, magrittr, plyr, gtools, car, dplyr, pryr, pkgdown
 RoxygenNote: 6.1.1
