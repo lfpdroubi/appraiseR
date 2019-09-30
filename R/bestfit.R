@@ -94,8 +94,8 @@ bestfit.default <- function(X, y, t = list(), p = list(), response, ...){
 #'
 #' # There are two ways to handle with them:
 #'
-#' # Recalling bestfit via update with a subset argument ...
-#' best_fit <- update(best_fit, subset = -outliers)
+#' # Recalling bestfit with a subset argument ...
+#' best_fit <- bestfit(valor ~ ., data = dados, subset = -outliers)
 #'
 #' # Or assigning a subset argument directly into summary.bestfit
 #'  s <- summary(best_fit, fit = 1, subset = -outliers)
@@ -105,7 +105,7 @@ bestfit.default <- function(X, y, t = list(), p = list(), response, ...){
 #' # bestfit again without the outliers.
 #'
 #' @rdname bestfit
-#' @export bestfit.formula
+#' @export
 #'
 bestfit.formula <- function(formula, data, subset,
                             transf = c('rsqrt', 'log', 'sqrt'), ...){

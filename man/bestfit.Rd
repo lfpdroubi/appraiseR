@@ -62,8 +62,8 @@ outliers <- match(names(out$p), rownames(dados))
 
 # There are two ways to handle with them:
 
-# Recalling bestfit via update with a subset argument ...
-best_fit <- update(best_fit, subset = -outliers)
+# Recalling bestfit with a subset argument ...
+best_fit <- bestfit(valor ~ ., data = dados, subset = -outliers)
 
 # Or assigning a subset argument directly into summary.bestfit
  s <- summary(best_fit, fit = 1, subset = -outliers)
