@@ -2,7 +2,10 @@ Package: appraiseR
 Type: Package
 Title: R Package For Real Estate Appraisals
 Version: 0.1.0
-Authors@R: person("Luiz F. P.", "Droubi", email = "lfpdroubi@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-5971-7220"))
+Authors@R: person("Luiz F. P.", "Droubi", 
+                  email = "lfpdroubi@gmail.com", 
+                  role = c("aut", "cre"), 
+                  comment = c(ORCID = "0000-0002-5971-7220"))
 URL: https://github.com/lfpdroubi/appraiseR
 BugReports: https://github.com/lfpdroubi/appraiseR/issues
 Description: A set of tools that solves a common set of problems for Real
@@ -10,9 +13,9 @@ Description: A set of tools that solves a common set of problems for Real
   in brazilian standard NBR-14.653-2.
 Depends: 
   R (>= 3.4)
-License: APACHE 2.0 + file LICENSE
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports: 
-  RcppEigen, miscTools, magrittr, readr, stringi, plyr, gtools, car, dplyr
+  RcppEigen, miscTools, magrittr, plyr, gtools, car, dplyr
 RoxygenNote: 6.1.1

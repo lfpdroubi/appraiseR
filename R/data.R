@@ -1,6 +1,6 @@
 library(magrittr)
 
-centro_2015 <- readr::read_csv2("./inst/centro_2015.csv")
+centro_2015 <- read.csv2("./inst/centro_2015.csv")
 
 ## Tidying data
 
@@ -8,13 +8,6 @@ centro_2015 <- readr::read_csv2("./inst/centro_2015.csv")
 centro_2015 <- centro_2015[,-1]
 colnames(centro_2015) <- c("valor", "area_total", "quartos", "suites",
                            "garagens", "dist_b_mar", "padrao", "E", "N")
-
-centro_2015$padrao <-
-  stringi::stri_trans_general(centro_2015$padrao, "latin-ascii")
-
-padrao_levels <- c("baixo", "medio", "alto")
-
-centro_2015$padrao %<>% readr::parse_factor(padrao_levels)
 
 #' Prices of 50 Florianopolis' downtown apartaments
 #'
