@@ -41,40 +41,6 @@ bestfitEst <- function(X, y, t, p, response){
 #'
 #' Find best transformations of the parameters for Linear Regression.
 #'
-#' \code{bestfit} is a generic function for finding best transformations of the
-#' parameters for Linear Regression.
-#' @param X a design matrix for a regression model
-#' @param y the vector of the response variable
-#' @param t The transformed data
-#' @param p The combinations of transformed variables to be tested
-#' @param response The name of the response variable
-#' @param transf A family of functions to be used to transform the variables in
-#'   the data frame, in order to find the best combination of transformation to
-#'   be applied to the data - usually functions of the box-cox family.
-#' @param \dots not used
-#' @return a vector with adjusted R2 to each fit
-#' @export
-
-bestfit <- function(X, ...) UseMethod("bestfit")
-
-#' @rdname bestfit
-#' @export
-
-bestfit.default <- function(X, y, t = list(), p = list(), response, ...){
-
-  X <- as.matrix(X)
-  y <- as.numeric(y)
-  t <- as.data.frame(t)
-  p <- as.matrix(p)
-  response <- as.character(response)
-
-  est <- bestfitEst(X, y, t, p, response)
-
-  class(est) <- "bestfit"
-
-  return(est)
-}
-
 #' @param formula A standard linear regression formula, with no transformation
 #'   in the parameters.
 #' @param data A data frame containing the variables in the model.
@@ -82,6 +48,9 @@ bestfit.default <- function(X, y, t = list(), p = list(), response, ...){
 #'   This can be any valid indexing vector (see \link{[.data.frame}) for the
 #'   rows of data or if that is not supplied, a data frame made up of the
 #'   variables used in \code{formula}.
+#' @param transf A family of functions to be used to transform the variables in
+#'   the data frame, in order to find the best combination of transformation to
+#'   be applied to the data - usually functions of the box-cox family.
 #' @examples
 #' dados <- centro_2015@data
 #' best_fit <- bestfit(valor ~ ., data = dados)
@@ -107,8 +76,8 @@ bestfit.default <- function(X, y, t = list(), p = list(), response, ...){
 #' @rdname bestfit
 #' @export
 #'
-bestfit.formula <- function(formula, data, subset,
-                            transf = c('rsqrt', 'log', 'sqrt'), ...){
+bestfit <- function(formula, data, subset,
+                            transf = c('rsqrt', 'log', 'sqrt')){
   mf <- stats::model.frame(formula = formula, data = data)
   preds <- attr(stats::terms.formula(formula, data = data), "term.labels")
   response <- colnames(mf)[attr(stats::terms.formula(formula, data = data),
@@ -134,7 +103,17 @@ bestfit.formula <- function(formula, data, subset,
 
   newdata <-  data[which(is.na(data[, response])), ]
 
-  z <- bestfit.default(X, y, t, p, response)
+  #z <- bestfit.default(X, y, t, p, response)
+
+  X <- as.matrix(X)
+  y <- as.numeric(y)
+  t <- as.data.frame(t)
+  p <- as.matrix(p)
+  response <- as.character(response)
+
+  z <- bestfitEst(X, y, t, p, response)
+
+  class(z) <- "bestfit"
 
   ## Join combinations with adj.R2 vector in a single data frame
   z$tab <- data.frame(id = seq(nrow(p)), p)

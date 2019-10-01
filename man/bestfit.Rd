@@ -2,30 +2,11 @@
 % Please edit documentation in R/bestfit.R
 \name{bestfit}
 \alias{bestfit}
-\alias{bestfit.default}
-\alias{bestfit.formula}
 \title{Best fit models}
 \usage{
-bestfit(X, ...)
-
-\method{bestfit}{default}(X, y, t = list(), p = list(), response, ...)
-
-\method{bestfit}{formula}(formula, data, subset, transf = c("rsqrt",
-  "log", "sqrt"), ...)
+bestfit(formula, data, subset, transf = c("rsqrt", "log", "sqrt"))
 }
 \arguments{
-\item{X}{a design matrix for a regression model}
-
-\item{\dots}{not used}
-
-\item{y}{the vector of the response variable}
-
-\item{t}{The transformed data}
-
-\item{p}{The combinations of transformed variables to be tested}
-
-\item{response}{The name of the response variable}
-
 \item{formula}{A standard linear regression formula, with no transformation
 in the parameters.}
 
@@ -40,15 +21,8 @@ variables used in \code{formula}.}
 the data frame, in order to find the best combination of transformation to
 be applied to the data - usually functions of the box-cox family.}
 }
-\value{
-a vector with adjusted R2 to each fit
-}
 \description{
 Find best transformations of the parameters for Linear Regression.
-}
-\details{
-\code{bestfit} is a generic function for finding best transformations of the
-parameters for Linear Regression.
 }
 \examples{
 dados <- centro_2015@data
