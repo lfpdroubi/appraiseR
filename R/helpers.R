@@ -246,6 +246,7 @@ new_data <- function(object) {
     dplyr::select(parameters)
   aval
 }
+
 #' Wrapper around format
 #'
 #' This function is only a wrapper around \link{format} function that uses standard
@@ -259,6 +260,11 @@ brformat <- function(x, decimal.mark = ",", big.mark = ".", digits = 2,
   format(x, decimal.mark = decimal.mark, big.mark = big.mark, digits = digits,
          nsmall = nsmall, scientific = scientific, ...)
 }
+
+#' @rdname brformat
+#' @export
+brf <- brformat
+
 #' Wrapper around brformat
 #'
 #' This is a wrapper around \link{brformat}.
@@ -270,3 +276,23 @@ brformat <- function(x, decimal.mark = ",", big.mark = ".", digits = 2,
 reais <- function(prefix = "R$", ...) {
   function(x) paste(prefix, brformat(x, ...), sep = "")
 }
+
+#' Write in percentage form
+#'
+#' This function transforms any number to percentage format for reporting purposes.
+#' @param x a real number
+#' @examples
+#' porcento(0.25)
+#' pct(0.25)
+#' @export
+#'
+porcento <- function (x) {
+  if (length(x) == 0)
+    return(character())
+  x <- plyr::round_any(x, scales:::precision(x)/100)
+  paste0(x * 100, "\\%")
+}
+
+#' @rdname porcento
+#' @export
+pct <- porcento
