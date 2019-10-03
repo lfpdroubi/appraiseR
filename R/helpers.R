@@ -1,5 +1,7 @@
 #' @import ggplot2
 
+precision = getFromNamespace("precision", "scales")
+
 #' @importFrom magrittr %>%
 #' @export
 magrittr::`%>%`
@@ -269,12 +271,26 @@ brf <- brformat
 #'
 #' This is a wrapper around \link{brformat}.
 #'
+#' @param x a real number
 #' @param prefix currency units. Defaults for brazilian reais.
 #' @param \ldots further arguments to be passed to \link{brformat}.
-#'
+#' @return text in Reais.
+#' @examples
+#' Reais(100)
 #' @export
-reais <- function(prefix = "R$", ...) {
-  function(x) paste(prefix, brformat(x, ...), sep = "")
+#'
+Reais <- function(x, prefix = "R$", ...) {
+  paste(prefix, brformat(x, ...), sep = "")
+}
+
+#' @rdname Reais
+#' @examples
+#' library(ggplot2)
+#' p <- ggplot(centro_2015@data, aes(x = area_total, y = valor)) + geom_point()
+#' p + scale_y_continuous(labels = reais(nsmall = 0))
+#' @export
+reais <- function(...) {
+  function(x) Reais(x, ...)
 }
 
 #' Write in percentage form
@@ -289,7 +305,7 @@ reais <- function(prefix = "R$", ...) {
 porcento <- function (x) {
   if (length(x) == 0)
     return(character())
-  x <- plyr::round_any(x, scales:::precision(x)/100)
+  x <- plyr::round_any(x, precision(x)/100)
   paste0(x * 100, "\\%")
 }
 
