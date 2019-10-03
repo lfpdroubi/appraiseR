@@ -327,13 +327,11 @@ equacoes <- function(object){
 
   coefs <- coef(z)
   parametros <- parameters(z)
-  predictors <- parametros$predictors
-  response <- parametros$response
 
   lhs <- format(parametros$lhs)
   rhs <-  paste(round(coefs[1], 2), "+",
                        paste(round(coefs[-1], 4), "\\cdot",
-                             predictors,
+                             names(coefs[-1]),
                              collapse = " + ")
                 )
   rhs <- gsub("\\_", "\\\\_", rhs)
