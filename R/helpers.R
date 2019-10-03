@@ -315,24 +315,25 @@ pct <- porcento
 #'
 #' Givens a \link{lm} object, returns its regression equation
 #' @param object object of class \code{lm}
+#' @param precision the precision required for coefficients
 #' @examples
 #' dados <- centro_2015@data
 #' fit <- lm(log(valor) ~ ., dados)
 #' equacoes(fit)
 #' @export
-equacoes <- function(object){
+equacoes <- function(object, precision = 10000){
   z <- object
   myformula <- stats::formula(z)
   lhs <- myformula[[2]]
 
   coefs <- coef(z)
+  coefs <- plyr::round_any(coefs, precision(coefs/precision))
   parametros <- parameters(z)
 
   lhs <- format(parametros$lhs)
-  rhs <-  paste(round(coefs[1], 2), "+",
-                       paste(round(coefs[-1], 4), "\\cdot",
-                             names(coefs[-1]),
-                             collapse = " + ")
+  rhs <-  paste(coefs[1], "+", paste(coefs[-1], "\\cdot",
+                                     names(coefs[-1]),
+                                     collapse = " + ")
                 )
   rhs <- gsub("\\_", "\\\\_", rhs)
   rhs <- gsub("\\+ -", "- ", rhs)
