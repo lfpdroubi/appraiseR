@@ -26,5 +26,5 @@ This is a wrapper around \link{brformat}.
 Reais(100)
 library(ggplot2)
 p <- ggplot(centro_2015@data, aes(x = area_total, y = valor)) + geom_point()
-p + scale_y_continuous(labels = reais(nsmall = 0))
+suppressWarnings(print(p + scale_y_continuous(labels = reais(nsmall = 0))))
 }

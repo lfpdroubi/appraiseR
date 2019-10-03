@@ -4,10 +4,12 @@
 \alias{equacoes}
 \title{Regression equation}
 \usage{
-equacoes(object)
+equacoes(object, precision = 10000)
 }
 \arguments{
 \item{object}{object of class \code{lm}}
+
+\item{precision}{the precision required for coefficients}
 }
 \description{
 Givens a \link{lm} object, returns its regression equation
