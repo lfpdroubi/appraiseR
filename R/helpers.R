@@ -1,3 +1,4 @@
+#' @import stats
 #' @import ggplot2
 
 precision = getFromNamespace("precision", "scales")
@@ -9,10 +10,6 @@ magrittr::`%>%`
 #' @importFrom magrittr %<>%
 #' @export
 magrittr::`%<>%`
-
-#' @importFrom stats predict
-#' @export
-stats::predict
 
 #' Parent Function: Power of a number.
 #'
@@ -115,7 +112,6 @@ inverse <- function(x, func) {
   )
 }
 
-
 #' Return the median value or the modal value of a vector, depending on whether
 #' the vector is numeric or a factor.
 #'
@@ -177,21 +173,23 @@ parameters <- function(object, ...) {
 parameters.lm <- function(object, ...) {
   z <- object
   cl <- stats::getCall(z)
+  myformula <- stats::formula(z)
   data <- eval(cl$data)
-  vars <- all.vars(stats::formula(z))
-  termsLabels <- attr(stats::terms.formula(stats::formula(z),
-                                           data = data
-  ),
-  "term.labels"
-  )
-  x <- sapply(vars, grepl, termsLabels)
-  preds <- vars[apply(x, 2, any)]
-  resp <- vars[!apply(x, 2, any)]
+  vars <- all.vars(myformula)
+  tt <- terms(myformula)
+
+  resp <- all.vars(update(myformula, . ~ 1))
+  preds <- setdiff(vars, resp)
+
+  lhs <- myformula[[2]]
+  rhs <- myformula[[3]]
 
   param <-
     list(parameters = c(resp, preds),
          predictors = preds,
          response = resp,
+         lhs = lhs,
+         rhs = rhs,
          data = data,
          call = cl)
 
@@ -312,3 +310,35 @@ porcento <- function (x) {
 #' @rdname porcento
 #' @export
 pct <- porcento
+
+#' Regression equation
+#'
+#' Givens a \link{lm} object, returns its regression equation
+#' @param object object of class \code{lm}
+#' @examples
+#' dados <- centro_2015@data
+#' fit <- lm(log(valor) ~ ., dados)
+#' equacoes(fit)
+#' @export
+equacoes <- function(object){
+  z <- object
+  myformula <- stats::formula(z)
+  lhs <- myformula[[2]]
+
+  coefs <- coef(z)
+  parametros <- parameters(z)
+  predictors <- parametros$predictors
+  response <- parametros$response
+
+  lhs <- format(parametros$lhs)
+  rhs <-  paste(round(coefs[1], 2), "+",
+                       paste(round(coefs[-1], 4), "\\cdot",
+                             predictors,
+                             collapse = " + ")
+                )
+  rhs <- gsub("\\_", "\\\\_", rhs)
+  rhs <- gsub("\\+ -", "- ", rhs)
+  rhs <- gsub("[.]", ",", rhs)
+  Formula <- paste(lhs, "=", rhs)
+  cat('$', Formula, '$', sep = "")
+}
