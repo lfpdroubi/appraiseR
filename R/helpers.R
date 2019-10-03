@@ -284,8 +284,9 @@ Reais <- function(x, prefix = "R$", ...) {
 #' @rdname Reais
 #' @examples
 #' library(ggplot2)
-#' p <- ggplot(centro_2015@data, aes(x = area_total, y = valor)) + geom_point()
-#' suppressWarnings(print(p + scale_y_continuous(labels = reais(nsmall = 0))))
+#' p <- ggplot(centro_2015@data, aes(x = area_total, y = valor)) +
+#'       geom_point(na.rm = TRUE)
+#' p + scale_y_continuous(labels = reais(nsmall = 0))
 #' @export
 reais <- function(...) {
   function(x) Reais(x, ...)
