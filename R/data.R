@@ -162,4 +162,5 @@ jurere_2017 <-
 #' }
 "jurere_2017"
 
-usethis::use_data(centro_2015, trindade, jungles, loteamento, jurere_2017, overwrite = TRUE)
+# usethis::use_data(centro_2015, trindade, jungles, loteamento, jurere_2017,
+#                   overwrite = TRUE)

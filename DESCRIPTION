@@ -17,10 +17,25 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports: 
-  RcppEigen, miscTools, magrittr, plyr, gtools, car, dplyr, pryr, raster, ggplot2, gridExtra, reshape2, usethis, sp, readr, stringi
+  car, 
+  dplyr,
+  ggplot2, 
+  gridExtra,
+  gtools, 
+  magrittr, 
+  miscTools, 
+  plyr,  
+  pryr, 
+  raster, 
+  RcppEigen, 
+  readr, 
+  reshape2, 
+  sp
 RoxygenNote: 6.1.1
 Suggests: 
     knitr,
     rmarkdown,
-    scales
+    scales,
+    stringi, 
+    usethis
 VignetteBuilder: knitr

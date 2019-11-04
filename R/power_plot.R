@@ -33,7 +33,8 @@ power_plot.lm <- function(object, ...) {
     geom_point(alpha=0.5) +
     xlab(bquote(~hat(Y))) +
     geom_abline(color="red") +
-    geom_smooth(se=FALSE)
+    geom_smooth(method = "lm", se=FALSE) +
+    coord_fixed()
   p
 }
 
