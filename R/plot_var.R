@@ -39,7 +39,7 @@ plotvar <- function(object, variable, func,
   df %<>% dplyr::as_tibble() %>% dplyr::mutate_if(is.character, as.factor)
 
   if (is.factor(dplyr::pull(df[, variable]))){
-    grid <- levels(dplyr::pull(df[, variable]))
+    grid <- unique(dplyr::pull(df[, variable]))
     if (missing(local)) {
       new <- data.frame(grid, lapply(df[setdiff(preds, variable)], centre))
       p_local <- NULL
@@ -48,7 +48,6 @@ plotvar <- function(object, variable, func,
       p_local <- predict(z, newdata = local)
     }
     names(new)[1] <- variable
-    new[, variable] <- as.factor(new[, variable])
     Y <- stats::predict.lm(object = z, newdata = remove_missing_levels(z, new),
                            interval = interval, level = level, ...)
     if (!missing(func)) Y <- inverse(Y, func)
