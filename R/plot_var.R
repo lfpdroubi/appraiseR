@@ -21,7 +21,9 @@
 #'         local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'         dist_b_mar = 250, padrao = "medio"))
 #' plotvar(fit, "padrao", interval = "confidence")
-#' plotvar(fit, "padrao", "log", interval = "confidence")
+#' plotvar(fit, "padrao", "log", interval = "confidence",
+#' local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+#'         dist_b_mar = 250, padrao = "medio"))
 
 plotvar <- function(object, variable, func,
                     interval = c("none", "confidence", "prediction"),
@@ -42,12 +44,13 @@ plotvar <- function(object, variable, func,
       new <- data.frame(grid, lapply(df[setdiff(preds, variable)], centre))
       p_local <- NULL
     } else {
-      new <- data.frame(grid, local)
+      new <- data.frame(grid, local[setdiff(preds, variable)])
       p_local <- predict(z, newdata = local)
     }
     names(new)[1] <- variable
-    Y <- stats::predict.lm(object = z, newdata = new, interval = interval,
-                           level = level, ...)
+    new[, variable] <- as.factor(new[, variable])
+    Y <- stats::predict.lm(object = z, newdata = remove_missing_levels(z, new),
+                           interval = interval, level = level, ...)
     if (!missing(func)) Y <- inverse(Y, func)
     pred <- data.frame(grid, Y)
     colnames(pred)[1] <- variable
