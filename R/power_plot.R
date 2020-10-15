@@ -15,27 +15,47 @@ power_plot <- function(object, ...) {
 
 #' @rdname power_plot
 #' @examples
+#' library(ggplot2)
 #' dados <- centro_2015@data
 #' fit <- lm(log(valor) ~ ., dados)
 #' power_plot(fit)
+#' p <- power_plot(fit, func = "log")
+#' p + labs(title = "Poder de Predição", subtitle = "Em milhões de Reais")
 #' @export
 #'
-power_plot.lm <- function(object, ...) {
+power_plot.lm <- function(object, func, ...) {
   z <- object
   attr(z$terms, "variables")
   data <- stats::model.frame(z)
 
+  if (missing(func)) {
+    Y <- data[, attr(z$terms, "response")]
+    Y_ajustado <- z$fitted.values
+    invres <- data.frame(Y, Y_ajustado)
+  } else {
+    Y <- data[, attr(z$terms, "response")]
+    Y <- inverse(Y, func)
+    Y_ajustado <- z$fitted.values
+    Y_ajustado <- inverse(Y_ajustado, func)
+    invres <- data.frame(Y, Y_ajustado)
+  }
 
-  Y <- data[, attr(z$terms, "response")]
-  Y_ajustado <- z$fitted.values
-  invres <- data.frame(Y, Y_ajustado)
   p <- ggplot(data = invres, aes(x = Y_ajustado, y = Y)) +
     geom_point(alpha=0.5) +
     xlab(bquote(~hat(Y))) +
     geom_abline(color="red") +
     geom_smooth(method = "lm", se=FALSE) +
     coord_fixed()
-  p
+
+  if (missing(func)) {
+    return(p)
+  } else {
+    p <- p +
+      scale_y_continuous(labels = scales::label_number_si()) +
+      scale_x_continuous(labels = scales::label_number_si())
+    return(p)
+  }
+
 }
 
 #' @rdname power_plot
