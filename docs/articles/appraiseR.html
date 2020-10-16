@@ -84,13 +84,13 @@
 <div id="introdução" class="section level1">
 <h1 class="hasAnchor">
 <a href="#introdu%C3%A7%C3%A3o" class="anchor"></a>Introdução</h1>
-<p><code>appraiseR</code> é um pacote <strong>R</strong> para facilitar a prática da Engenharia de Avaliações segundo a NBR 14.653-02 <span class="citation">[@NBR1465302]</span>.</p>
+<p><code>appraiseR</code> é um pacote <strong>R</strong> para facilitar a prática da Engenharia de Avaliações segundo a NBR 14.653-02 <span class="citation">(<em>NBR 14653-2: Avaliação de Bens Parte 2: Imóveis Urbanos</em> 2011)</span>.</p>
 </div>
 <div id="conjuntos-de-dados-disponíveis" class="section level1">
 <h1 class="hasAnchor">
 <a href="#conjuntos-de-dados-dispon%C3%ADveis" class="anchor"></a>Conjuntos de dados disponíveis</h1>
 <p>Foram disponibilizados alguns conjuntos de dados visando possibilitar a confecção de testes dos algoritmos.</p>
-<p>Uns destes conjuntos é um conjunto de 50 dados de apartamentos em Florianópolis. Este conjunto de dados é proveniente de <span class="citation">@hochheim2015</span>.</p>
+<p>Uns destes conjuntos é um conjunto de <a href="https://lfpdroubi.github.io/appraiseR/reference/centro_2015.html">50 dados de apartamentos em Florianópolis</a> <span class="citation">(Hochheim 2015)</span>, que será utilizado neste texto:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit">
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"centro_2015"</span><span class="op">)</span>
 <span class="va">dados</span> <span class="op">&lt;-</span> <span class="va">centro_2015</span><span class="op">@</span><span class="va">data</span></pre></div>
@@ -196,7 +196,8 @@
 <p>Por exemplo, pode-se selecionar apenas os modelos cuja transformação da variável resposta foi a transformação logaritmica.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit">
 <span class="va">df</span> <span class="op">&lt;-</span> <span class="va">best_fits</span><span class="op">$</span><span class="va">tab</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">df</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">valor</span> <span class="op">==</span> <span class="st">"log"</span><span class="op">)</span>, <span class="op">]</span><span class="op">)</span></pre></div>
+<span class="va">logs</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">valor</span> <span class="op">==</span> <span class="st">"log"</span><span class="op">)</span>, <span class="op">]</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">logs</span><span class="op">)</span></pre></div>
 <pre><code>##     id valor area_total  quartos   suites garagens dist_b_mar    adj_R2
 ## 335 32   log   identity     sqrt identity     sqrt      rsqrt 0.9425135
 ## 327 34   log   identity      log identity     sqrt      rsqrt 0.9422108
@@ -254,32 +255,69 @@
 <div id="diagnósticos" class="section level1">
 <h1 class="hasAnchor">
 <a href="#diagn%C3%B3sticos" class="anchor"></a>Diagnósticos</h1>
+<p>Uma das vantagens de utilizar o <strong>R</strong> é que existem diversos pacotes com funções disponíveis para elaborar uma série de diagnósticos sobre os modelos de avaliação ajustados.</p>
+<p>Abaixo ilustramos alguns testes de normalidade previstos pela NBR 14.653-02:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit">
+<span class="co"># Modelo adotado (96)</span>
+<span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">best_fits</span>, fit <span class="op">=</span> <span class="fl">96</span><span class="op">)</span><span class="op">$</span><span class="va">fit</span></pre></div>
+<div class="sourceCode" id="cb18"><pre class="downlit">
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">nortest</span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">normtest</span><span class="op">)</span></pre></div>
+<ol style="list-style-type: lower-alpha">
+<li>Teste do <span class="math inline">\(\chi^2\)</span>:</li>
+</ol>
+<div class="sourceCode" id="cb19"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/pkg/nortest/man/pearson.test.html">pearson.test</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/residuals.html">resid</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span></pre></div>
+<pre><code>## 
+##  Pearson chi-square normality test
+## 
+## data:  resid(fit)
+## P = 5.6, p-value = 0.5872</code></pre>
+<ol start="2" style="list-style-type: lower-alpha">
+<li>Teste de Jarque-Bera:</li>
+</ol>
+<div class="sourceCode" id="cb21"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/pkg/normtest/man/jb.norm.test.html">jb.norm.test</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/residuals.html">resid</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span></pre></div>
+<pre><code>## 
+##  Jarque-Bera test for normality
+## 
+## data:  resid(fit)
+## JB = 0.80106, p-value = 0.6105</code></pre>
+<p>Existe uma infinidade de testes, alguns não citados pela norma, porém de grande poder, como o de Shapiro-Wilk:</p>
+<div class="sourceCode" id="cb23"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/stats/shapiro.test.html">shapiro.test</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/residuals.html">resid</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span></pre></div>
+<pre><code>## 
+##  Shapiro-Wilk normality test
+## 
+## data:  resid(fit)
+## W = 0.98885, p-value = 0.9158</code></pre>
+<p>Além dos testes já existentes no <strong>R</strong>, procurou-se criar funções que auxiliem na verificação da razoabilidade dos modelos ajustados, conforme solicita a NBR 14.653-02.</p>
 <div id="gráficos-do-modelo" class="section level2">
 <h2 class="hasAnchor">
 <a href="#gr%C3%A1ficos-do-modelo" class="anchor"></a>Gráficos do modelo</h2>
 <p>É possíve elaborar gráficos do modelo através da função <code>plotmod</code>:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit">
-<span class="fu"><a href="../reference/plotmod.html">plotmod</a></span><span class="op">(</span><span class="va">best_fits</span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb25"><pre class="downlit">
+<span class="fu"><a href="../reference/plotmod.html">plotmod</a></span><span class="op">(</span><span class="va">best_fits</span>, fit <span class="op">=</span> <span class="fl">96</span><span class="op">)</span></pre></div>
 <div class="figure" style="text-align: center">
-<img src="appraiseR_files/figure-html/unnamed-chunk-10-1.png" alt="Gráficos do modelo com outras variáveis em seus valores medianos." width="100%"><p class="caption">
+<img src="appraiseR_files/figure-html/modelsPlot1-1.png" alt="Gráficos do modelo com outras variáveis em seus valores medianos." width="100%"><p class="caption">
 Gráficos do modelo com outras variáveis em seus valores medianos.
 </p>
 </div>
 <p>Para adicionar intervalos de confiança ou predição e escolher o nível adequado, faz-se:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit">
-<span class="fu"><a href="../reference/plotmod.html">plotmod</a></span><span class="op">(</span><span class="va">best_fits</span>, interval <span class="op">=</span> <span class="st">"confidence"</span>, level <span class="op">=</span> <span class="fl">0.80</span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb26"><pre class="downlit">
+<span class="fu"><a href="../reference/plotmod.html">plotmod</a></span><span class="op">(</span><span class="va">best_fits</span>, fit <span class="op">=</span> <span class="fl">96</span>, interval <span class="op">=</span> <span class="st">"confidence"</span>, level <span class="op">=</span> <span class="fl">0.80</span><span class="op">)</span></pre></div>
 <div class="figure" style="text-align: center">
-<img src="appraiseR_files/figure-html/unnamed-chunk-11-1.png" alt="Gráficos do modelo com intervalos de confiança (80%)." width="100%"><p class="caption">
+<img src="appraiseR_files/figure-html/modelsPlot2-1.png" alt="Gráficos do modelo com intervalos de confiança (80%)." width="100%"><p class="caption">
 Gráficos do modelo com intervalos de confiança (80%).
 </p>
 </div>
 <p>É possível visualizar o comportamento do modelo no ponto de previsão de valores:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit">
-<span class="fu"><a href="../reference/plotmod.html">plotmod</a></span><span class="op">(</span><span class="va">best_fits</span>, interval <span class="op">=</span> <span class="st">"confidence"</span>, level <span class="op">=</span> <span class="fl">0.80</span>,
+<div class="sourceCode" id="cb27"><pre class="downlit">
+<span class="fu"><a href="../reference/plotmod.html">plotmod</a></span><span class="op">(</span><span class="va">best_fits</span>, fit <span class="op">=</span> <span class="fl">96</span>, interval <span class="op">=</span> <span class="st">"confidence"</span>, level <span class="op">=</span> <span class="fl">0.80</span>,
          local <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>area_total <span class="op">=</span> <span class="fl">205</span>, quartos <span class="op">=</span> <span class="fl">3</span>, suites <span class="op">=</span> <span class="fl">1</span>, garagens <span class="op">=</span> <span class="fl">2</span>,
          dist_b_mar <span class="op">=</span> <span class="fl">250</span>, padrao <span class="op">=</span> <span class="st">"medio"</span><span class="op">)</span><span class="op">)</span></pre></div>
 <div class="figure" style="text-align: center">
-<img src="appraiseR_files/figure-html/unnamed-chunk-12-1.png" alt="Gráficos do modelo no ponto de previsão de valores." width="100%"><p class="caption">
+<img src="appraiseR_files/figure-html/modelsPlot3-1.png" alt="Gráficos do modelo no ponto de previsão de valores." width="100%"><p class="caption">
 Gráficos do modelo no ponto de previsão de valores.
 </p>
 </div>
@@ -288,47 +326,67 @@ Gráficos do modelo no ponto de previsão de valores.
 <h2 class="hasAnchor">
 <a href="#poder-de-predi%C3%A7%C3%A3o" class="anchor"></a>Poder de Predição</h2>
 <p>A função <code>power_plot</code> ajusta o gráfico do poder de predição do modelo. Por padrão, a função <code>power_plot</code> ajusta o poder de predição do modelo de maior <span class="math inline">\(R^2_{ajustado}\)</span>.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit">
+<div class="sourceCode" id="cb28"><pre class="downlit">
 <span class="fu"><a href="../reference/power_plot.html">power_plot</a></span><span class="op">(</span><span class="va">best_fits</span><span class="op">)</span></pre></div>
 <pre><code>## `geom_smooth()` using formula 'y ~ x'</code></pre>
-<p><img src="appraiseR_files/figure-html/unnamed-chunk-13-1.png" width="700" style="display: block; margin: auto;"></p>
+<div class="figure" style="text-align: center">
+<img src="appraiseR_files/figure-html/powerPlot1-1.png" alt="Poder de Predição do modelo." width="700"><p class="caption">
+Poder de Predição do modelo.
+</p>
+</div>
 <p>Porém, é possível selecionar outros modelos da tabela:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit">
-<span class="fu"><a href="../reference/power_plot.html">power_plot</a></span><span class="op">(</span><span class="va">best_fits</span>, <span class="fl">32</span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb30"><pre class="downlit">
+<span class="fu"><a href="../reference/power_plot.html">power_plot</a></span><span class="op">(</span><span class="va">best_fits</span>, fit <span class="op">=</span> <span class="fl">96</span><span class="op">)</span></pre></div>
 <pre><code>## `geom_smooth()` using formula 'y ~ x'</code></pre>
-<p><img src="appraiseR_files/figure-html/unnamed-chunk-14-1.png" width="700" style="display: block; margin: auto;"></p>
+<div class="figure" style="text-align: center">
+<img src="appraiseR_files/figure-html/powerPlot2-1.png" alt="Poder de Predição: modelo escolhido." width="700"><p class="caption">
+Poder de Predição: modelo escolhido.
+</p>
+</div>
 <p>Assim como também é possível elaborar o gráfico na escala de valores original:</p>
-<div class="sourceCode" id="cb24"><pre class="downlit">
-<span class="fu"><a href="../reference/power_plot.html">power_plot</a></span><span class="op">(</span><span class="va">best_fits</span>, <span class="fl">32</span>, func <span class="op">=</span> <span class="st">"log"</span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb32"><pre class="downlit">
+<span class="fu"><a href="../reference/power_plot.html">power_plot</a></span><span class="op">(</span><span class="va">best_fits</span>, fit <span class="op">=</span> <span class="fl">96</span>, func <span class="op">=</span> <span class="st">"log"</span><span class="op">)</span></pre></div>
 <pre><code>## `geom_smooth()` using formula 'y ~ x'</code></pre>
-<p><img src="appraiseR_files/figure-html/unnamed-chunk-15-1.png" width="700" style="display: block; margin: auto;"></p>
+<div class="figure" style="text-align: center">
+<img src="appraiseR_files/figure-html/powerPlot3-1.png" alt="Poder de Predição: escala original." width="700"><p class="caption">
+Poder de Predição: escala original.
+</p>
+</div>
 </div>
 <div id="grau-de-precisão" class="section level2">
 <h2 class="hasAnchor">
 <a href="#grau-de-precis%C3%A3o" class="anchor"></a>Grau de precisão</h2>
 <p>As previsões podem ser feitas pela função <code>predict</code> aplicada ao método <code>bestfit</code>. Ao imprimí-las no console, serão mostrados os limites do intervalo escolhido, do campo de arbítrio, bem como a amplitude do intervalo e seu grau de precisão, segundo a NBR 14.653-02:</p>
 <p>É possível fornecer parâmetros para a escolha das características dos imóveis a serem previstos através do argumento <code>newdata</code> (não mostrado). Caso não sejam fornecidos novos dados para ajuste, a função automaticamente irá procurar pelos avaliando no conjunto de dados (dados cuja variável resposta não tenha valores):</p>
-<div class="sourceCode" id="cb26"><pre class="downlit">
-<span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">best_fits</span>, interval <span class="op">=</span> <span class="st">"confidence"</span><span class="op">)</span>
+<div class="sourceCode" id="cb34"><pre class="downlit">
+<span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">best_fits</span>, fit <span class="op">=</span> <span class="fl">96</span>, interval <span class="op">=</span> <span class="st">"confidence"</span><span class="op">)</span>
 <span class="va">p</span></pre></div>
 <pre><code>## Predictions:
-##         fit       lwr      upr   AMP G.P.   C.A.I.    C.A.S.     L.I.      L.S.
-## 1  650202.4  717559.8 591902.6 19.33  III 552672.1  747732.8 591902.6  717559.8
-## 2  963580.5 1021476.7 910470.5 11.52  III 819043.4 1108117.6 910470.5 1021476.7
-## 3 1035927.9 1105696.8 972560.0 12.85  III 880538.7 1191317.0 972560.0 1105696.8</code></pre>
-<div class="sourceCode" id="cb28"><pre class="downlit">
-<span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">best_fits</span>, interval <span class="op">=</span> <span class="st">"prediction"</span><span class="op">)</span>
+##         fit      lwr       upr   AMP G.P.   C.A.I.    C.A.S.     L.I.      L.S.
+## 1  718398.7 650463.1  793429.7 19.90  III 610638.9  826158.5 650463.1  793429.7
+## 2  976728.8 924746.2 1031633.6 10.94  III 830219.5 1123238.2 924746.2 1031633.6
+## 3 1039121.6 978093.4 1103957.6 12.11  III 883253.4 1194989.8 978093.4 1103957.6</code></pre>
+<div class="sourceCode" id="cb36"><pre class="downlit">
+<span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">best_fits</span>, fit <span class="op">=</span> <span class="fl">96</span>, interval <span class="op">=</span> <span class="st">"prediction"</span><span class="op">)</span>
 <span class="va">p1</span></pre></div>
 <pre><code>## Predictions:
-##         fit       lwr      upr   AMP G.P.   C.A.I.    C.A.S.     L.I.      L.S.
-## 1  650202.4  803989.5 536663.0 41.11    I 552672.1  747732.8 552672.1  747732.8
-## 2  963580.5 1220578.2 779964.9 45.73    I 819043.4 1108117.6 819043.4 1108117.6
-## 3 1035927.9 1326247.1 831463.4 47.76    I 880538.7 1191317.0 880538.7 1191317.0</code></pre>
+##         fit      lwr       upr   AMP G.P.   C.A.I.    C.A.S.     L.I.      L.S.
+## 1  718398.7 573397.7  900067.7 45.47    I 610638.9  826158.5 610638.9  826158.5
+## 2  976728.8 792007.8 1204532.6 42.24    I 830219.5 1123238.2 830219.5 1123238.2
+## 3 1039121.6 841255.6 1283526.3 42.56    I 883253.4 1194989.8 883253.4 1194989.8</code></pre>
 </div>
 </div>
 <div id="referências" class="section level1 unnumbered">
 <h1 class="hasAnchor">
 <a href="#refer%C3%AAncias" class="anchor"></a>Referências</h1>
+<div id="refs" class="references">
+<div id="ref-hochheim2015">
+<p>Hochheim, Norberto. 2015. <em>Engenharia de Avaliações - Módulo Básico</em>. Florianópolis: IBAPE - SC.</p>
+</div>
+<div id="ref-NBR1465302">
+<p><em>NBR 14653-2: Avaliação de Bens Parte 2: Imóveis Urbanos</em>. 2011. Rio de Janeiro: Associação Brasileira de Normas Técnicas.</p>
+</div>
+</div>
 </div>
   </div>
 

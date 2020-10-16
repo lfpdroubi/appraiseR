@@ -133,20 +133,20 @@ NBR 14.653-02.
 
 É possíve elaborar gráficos do modelo através da função `plotmod`:
 
-```{r, fig.cap="Gráficos do modelo com outras variáveis em seus valores medianos.", out.width="100%", fig.width=9, fig.height=6}
+```{r modelsPlot1, fig.cap="Gráficos do modelo com outras variáveis em seus valores medianos.", out.width="100%", fig.width=9, fig.height=6}
 plotmod(best_fits, fit = 96)
 ```
 
 Para adicionar intervalos de confiança ou predição e escolher o nível adequado, 
 faz-se:
 
-```{r, fig.cap = "Gráficos do modelo com intervalos de confiança (80%).", out.width="100%", fig.width=9, fig.height=6}
+```{r modelsPlot2, fig.cap = "Gráficos do modelo com intervalos de confiança (80%).", out.width="100%", fig.width=9, fig.height=6}
 plotmod(best_fits, fit = 96, interval = "confidence", level = 0.80)
 ```
 
 É possível visualizar o comportamento do modelo no ponto de previsão de valores:
 
-```{r, fig.cap = "Gráficos do modelo no ponto de previsão de valores.", out.width="100%", fig.width=9, fig.height=6}
+```{r modelsPlot3, fig.cap = "Gráficos do modelo no ponto de previsão de valores.", out.width="100%", fig.width=9, fig.height=6}
 plotmod(best_fits, fit = 96, interval = "confidence", level = 0.80,
          local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
          dist_b_mar = 250, padrao = "medio"))
@@ -159,19 +159,19 @@ A função `power_plot` ajusta o gráfico do poder de predição do modelo.
 Por padrão, a função `power_plot` ajusta o poder de predição do modelo de maior
 $R^2_{ajustado}$. 
 
-```{r}
+```{r powerPlot1, fig.cap="Poder de Predição do modelo."}
 power_plot(best_fits)
 ```
 
 Porém, é possível selecionar outros modelos da tabela:
 
-```{r}
+```{r powerPlot2, fig.cap="Poder de Predição: modelo escolhido."}
 power_plot(best_fits, fit = 96)
 ```
 
 Assim como também é possível elaborar o gráfico na escala de valores original:
 
-```{r}
+```{r powerPlot3, fig.cap="Poder de Predição: escala original."}
 power_plot(best_fits, fit = 96, func = "log")
 ```
 
