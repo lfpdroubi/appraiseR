@@ -2,6 +2,7 @@
 title: "appraiseR"
 subtitle: "Engenharia de Avaliações no R"
 output: rmarkdown::html_vignette
+bibliography: references.bib
 vignette: >
   %\VignetteIndexEntry{appraiseR}
   %\VignetteEngine{knitr::rmarkdown}
@@ -23,8 +24,8 @@ de Avaliações segundo a NBR 14.653-02 [@NBR1465302].
 Foram disponibilizados alguns conjuntos de dados visando possibilitar a confecção
 de testes dos algoritmos.
 
-Uns destes conjuntos é um conjunto de 50 dados de apartamentos em Florianópolis.
-Este conjunto de dados é proveniente de @hochheim2015.
+Uns destes conjuntos é um conjunto de [50 dados de apartamentos em Florianópolis](https://lfpdroubi.github.io/appraiseR/reference/centro_2015.html) [@hochheim2015],
+que será utilizado neste texto:
 
 ```{r}
 data("centro_2015")
@@ -79,7 +80,8 @@ resposta foi a transformação logaritmica.
 
 ```{r}
 df <- best_fits$tab
-head(df[which(df$valor == "log"), ])
+logs <- df[which(df$valor == "log"), ]
+head(logs)
 ```
 Pode-se, então, selecionar o sumário de um modelo diferente, através da escolha
 apropriada do `id` na tabela acima.
@@ -90,25 +92,62 @@ summary(best_fits, fit = 32)
 
 # Diagnósticos
 
+Uma das vantagens de utilizar o **R** é que existem diversos pacotes com funções
+disponíveis para elaborar uma série de diagnósticos sobre os modelos de
+avaliação ajustados.
+
+Abaixo ilustramos alguns testes de normalidade previstos pela NBR 14.653-02:
+
+```{r}
+# Modelo adotado (96)
+fit <- summary(best_fits, fit = 96)$fit
+```
+
+```{r}
+library(nortest)
+library(normtest)
+```
+
+a.  Teste do $\chi^2$:
+
+```{r}
+pearson.test(resid(fit))
+```
+b. Teste de Jarque-Bera:
+
+```{r jarquebera}
+jb.norm.test(resid(fit))
+```
+
+Existe uma infinidade de testes, alguns não citados pela norma, porém de grande
+poder, como o de Shapiro-Wilk:
+
+```{r}
+shapiro.test(resid(fit))
+```
+Além dos testes já existentes no **R**, procurou-se criar funções que auxiliem
+na verificação da razoabilidade dos modelos ajustados, conforme solicita a
+NBR 14.653-02.
+
 ## Gráficos do modelo
 
 É possíve elaborar gráficos do modelo através da função `plotmod`:
 
 ```{r, fig.cap="Gráficos do modelo com outras variáveis em seus valores medianos.", out.width="100%", fig.width=9, fig.height=6}
-plotmod(best_fits)
+plotmod(best_fits, fit = 96)
 ```
 
 Para adicionar intervalos de confiança ou predição e escolher o nível adequado, 
 faz-se:
 
 ```{r, fig.cap = "Gráficos do modelo com intervalos de confiança (80%).", out.width="100%", fig.width=9, fig.height=6}
-plotmod(best_fits, interval = "confidence", level = 0.80)
+plotmod(best_fits, fit = 96, interval = "confidence", level = 0.80)
 ```
 
 É possível visualizar o comportamento do modelo no ponto de previsão de valores:
 
 ```{r, fig.cap = "Gráficos do modelo no ponto de previsão de valores.", out.width="100%", fig.width=9, fig.height=6}
-plotmod(best_fits, interval = "confidence", level = 0.80,
+plotmod(best_fits, fit = 96, interval = "confidence", level = 0.80,
          local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
          dist_b_mar = 250, padrao = "medio"))
 ```
@@ -127,13 +166,13 @@ power_plot(best_fits)
 Porém, é possível selecionar outros modelos da tabela:
 
 ```{r}
-power_plot(best_fits, 32)
+power_plot(best_fits, fit = 96)
 ```
 
 Assim como também é possível elaborar o gráfico na escala de valores original:
 
 ```{r}
-power_plot(best_fits, 32, func = "log")
+power_plot(best_fits, fit = 96, func = "log")
 ```
 
 ## Grau de precisão
@@ -150,16 +189,13 @@ pelos avaliando no conjunto de dados (dados cuja variável resposta não tenha
 valores):
 
 ```{r}
-p <- predict(best_fits, interval = "confidence")
+p <- predict(best_fits, fit = 96, interval = "confidence")
 p
 ```
 
 ```{r}
-p1 <- predict(best_fits, interval = "prediction")
+p1 <- predict(best_fits, fit = 96, interval = "prediction")
 p1
 ```
-
-
-
 
 # Referências {-}
