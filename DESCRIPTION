@@ -2,10 +2,14 @@ Package: appraiseR
 Type: Package
 Title: R Package For Real Estate Appraisals
 Version: 0.1.0
-Authors@R: person("Luiz F. P.", "Droubi", 
+Authors@R: c(person("Luiz F. P.", "Droubi", 
                   email = "lfpdroubi@gmail.com", 
                   role = c("aut", "cre"), 
-                  comment = c(ORCID = "0000-0002-5971-7220"))
+                  comment = c(ORCID = "0000-0002-5971-7220")),
+             person("Augusto", "Oliveira",
+                  email = "augusto.oliveira@sefin.fortaleza.ce.gov.br", 
+                  role = "ctb"
+                  ))
 URL: https://github.com/lfpdroubi/appraiseR
 BugReports: https://github.com/lfpdroubi/appraiseR/issues
 Description: A set of tools that solves a common set of problems for Real
@@ -19,6 +23,7 @@ LazyData: true
 Imports: 
   car, 
   dplyr,
+  gdata,
   ggplot2, 
   gridExtra,
   gtools, 
@@ -30,12 +35,14 @@ Imports:
   RcppEigen, 
   readr, 
   reshape2, 
-  sp
-RoxygenNote: 6.1.1
+  sp,
+  stringr
+RoxygenNote: 7.1.1
 Suggests: 
-    knitr,
-    rmarkdown,
-    scales,
-    stringi, 
-    usethis
+  broom,
+  knitr,
+  rmarkdown,
+  scales,
+  stringi, 
+  usethis
 VignetteBuilder: knitr
