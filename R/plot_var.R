@@ -17,11 +17,11 @@
 #' fit <- lm(log(valor) ~ ., data = data)
 #' plotvar(fit, "area_total", interval = "confidence")
 #' plotvar(fit, "area_total", "log", interval = "confidence")
-#' plotvar(fit, "area_total", interval = "confidence",
+#' plotvar(fit, "area_total", func = "log", interval = "confidence",
 #'         local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'         dist_b_mar = 250, padrao = "medio"))
 #' plotvar(fit, "padrao", interval = "confidence")
-#' plotvar(fit, "padrao", "log", interval = "confidence",
+#' plotvar(fit, "padrao", func = "log", interval = "confidence",
 #' local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'         dist_b_mar = 250, padrao = "medio"))
 
@@ -56,7 +56,8 @@ plotvar <- function(object, variable, func,
     pred_plot <- reshape2::melt(pred, id.var = variable, value.name = response)
     p <- ggplot(data = pred_plot, aes_(x = as.name(variable), y = as.name(response))) +
       geom_boxplot(aes_(fill = as.name(variable))) +
-      theme(legend.position="bottom")
+      theme(legend.position="bottom") +
+      scale_y_continuous(labels = scales::label_number_si())
     if(!missing(local)) {
       p_local <- ifelse(missing(func), p_local, inverse(p_local, func))
       p_local <- data.frame(y = p_local, local)
@@ -85,7 +86,10 @@ plotvar <- function(object, variable, func,
     colnames(pred)[1] <- variable
     colnames(pred)[2] <- response
     p <- ggplot(data = pred, aes_(x = as.name(variable), y = as.name(response))) +
-      geom_line() + theme(legend.position="bottom")
+      geom_line() +
+      theme(legend.position="bottom") +
+      scale_y_continuous(labels = scales::label_number_si()) +
+      scale_x_continuous(labels = scales::label_number_si())
     if(!missing(local)) {
       p_local <- ifelse(missing(func), p_local, inverse(p_local, func))
       p_local <- data.frame(y = p_local, local)
