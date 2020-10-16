@@ -282,7 +282,7 @@
 ##  Jarque-Bera test for normality
 ## 
 ## data:  resid(fit)
-## JB = 0.80106, p-value = 0.6105</code></pre>
+## JB = 0.80106, p-value = 0.601</code></pre>
 <p>Existe uma infinidade de testes, alguns não citados pela norma, porém de grande poder, como o de Shapiro-Wilk:</p>
 <div class="sourceCode" id="cb23"><pre class="downlit">
 <span class="fu"><a href="https://rdrr.io/r/stats/shapiro.test.html">shapiro.test</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/residuals.html">resid</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span></pre></div>
@@ -357,7 +357,7 @@ Poder de Predição: escala original.
 <h2 class="hasAnchor">
 <a href="#grau-de-precis%C3%A3o" class="anchor"></a>Grau de precisão</h2>
 <p>As previsões podem ser feitas pela função <code>predict</code> aplicada ao método <code>bestfit</code>. Ao imprimí-las no console, serão mostrados os limites do intervalo escolhido, do campo de arbítrio, bem como a amplitude do intervalo e seu grau de precisão, segundo a NBR 14.653-02:</p>
-<p>É possível fornecer parâmetros para a escolha das características dos imóveis a serem previstos através do argumento <code>newdata</code> (não mostrado). Caso não sejam fornecidos novos dados para ajuste, a função automaticamente irá procurar pelos avaliando no conjunto de dados (dados cuja variável resposta não tenha valores):</p>
+<p>É possível fornecer parâmetros para a escolha das características dos imóveis a serem previstos através do argumento <code>newdata</code> (não mostrado). Caso não sejam fornecidos novos dados para ajuste, a função automaticamente irá procurar pelo(s) avaliando(s) no próprio conjunto de dados utilizado para ajustar o modelo (dados cuja variável resposta não tenha valores):</p>
 <div class="sourceCode" id="cb34"><pre class="downlit">
 <span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">best_fits</span>, fit <span class="op">=</span> <span class="fl">96</span>, interval <span class="op">=</span> <span class="st">"confidence"</span><span class="op">)</span>
 <span class="va">p</span></pre></div>

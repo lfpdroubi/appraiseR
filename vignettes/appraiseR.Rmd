@@ -185,8 +185,8 @@ segundo a NBR 14.653-02:
 É possível fornecer parâmetros para a escolha das características dos imóveis
 a serem previstos através do argumento `newdata` (não mostrado). Caso não 
 sejam fornecidos novos dados para ajuste, a função automaticamente irá procurar
-pelos avaliando no conjunto de dados (dados cuja variável resposta não tenha
-valores):
+pelo(s) avaliando(s) no próprio conjunto de dados utilizado para ajustar o 
+modelo (dados cuja variável resposta não tenha valores):
 
 ```{r}
 p <- predict(best_fits, fit = 96, interval = "confidence")
