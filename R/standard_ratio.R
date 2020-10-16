@@ -5,11 +5,23 @@
 #'
 #' @param AssessedValue vector of assessed values (valores venais ou valores preditos do modelo)
 #' @param SalePrice vector of sale prices (preços de mercado ou preços reais do modelo)
-#' @param OutlierTrimming boolean for outliers trimming or not 
+#' @param OutlierTrimming boolean for outliers trimming or not
+#' @return COD and PRD Ratios according to IAOO
 #' @export
+#' @examples
+#' library(appraiseR)
+#' library(broom)
+#'
+#' dados <- centro_2015@data
+#' fit <- lm(log(valor) ~ area_total + quartos + suites + garagens +
+#' log(dist_b_mar) + padrao, data = dados)
+#'
+#' dados <- augment(fit)
+#' iaao_Ratio(dados$.fitted, dados$`log(valor)`)
+
 iaao_Ratio <- function(AssessedValue, SalePrice, OutlierTrimming = FALSE) {
   df_sale <-  data.frame(AssessedValue = AssessedValue, SalePrice = SalePrice)
-  df_sale["Ratio"] <- df_sale$AssessedValue / df_sale$SalePrice 
+  df_sale["Ratio"] <- df_sale$AssessedValue / df_sale$SalePrice
   if (OutlierTrimming)
   {
     df_sale <- df_sale[order(df_sale$Ratio),]
@@ -18,22 +30,22 @@ iaao_Ratio <- function(AssessedValue, SalePrice, OutlierTrimming = FALSE) {
     iqr <- q3 - q1
 
     df_sale.ouliers <- df_sale[df_sale$Ratio < q1 - 3*iqr | df_sale$Ratio > q3 + 3*iqr , ]
-    
+
     cat("Total de dados antes do saneamento = ", length(df_sale$Ratio),  "\n" )
-    
+
     cat("Total de outliers = ",length(df_sale.ouliers$Ratio),  "\n" )
-    
+
     df_sale <- df_sale[df_sale$Ratio >= q1 - 3*iqr & df_sale$Ratio <= q3 + 3*iqr,]
-    
+
     cat("Total de dados APÓS o saneamento = ", length(df_sale$Ratio),  "\n\n" )
   }
-  
+
   MeanRatio <- mean(df_sale$Ratio)
-  
+
   MedianRatio <- median(df_sale$Ratio)
-  
+
   df_sale["Difference_Ratio_MedianRatio"] <- abs(df_sale$Ratio - MedianRatio)
-  
+
   if(MedianRatio < .70)
   {
     nivelMedianRatio <- "Valor Venal baixo em relação ao valor de mercado: necessidade de atualização dos valores venais (mínimo deve ser 70%)."
@@ -42,17 +54,17 @@ iaao_Ratio <- function(AssessedValue, SalePrice, OutlierTrimming = FALSE) {
   {
     nivelMedianRatio <- "Valor Venal compatível com valor de mercado"
   }
-  else 
+  else
   {
     nivelMedianRatio <- "Valor Venal SUPERIOR ao valor de mercado: necessidade de atualização dos valores venais."
   }
-  
+
   cat("Razão das medianas (Median Ratio) = ", MedianRatio, "\nNível: ", nivelMedianRatio , "\n\n" )
-  
+
   AverageOfDifferences <- mean(df_sale$Difference_Ratio_MedianRatio)
-  
+
   COD <- AverageOfDifferences / MedianRatio
-  
+
   if(COD <= 10)
   {
     nivelCOD <- "Equidade de Valor Venal EXCELENTE (COD menor igual a 10%)"
@@ -69,17 +81,17 @@ iaao_Ratio <- function(AssessedValue, SalePrice, OutlierTrimming = FALSE) {
   {
     nivelCOD <- "Equidade de Valor Venal RUIM (COD entre 20% e 30%)"
   }
-  else 
+  else
   {
     nivelCOD <- "Equidade de Valor Venal RUIM - falta de homogeneidade nos valores e a necessidade de atualiza??o (COD > 30%). "
   }
-  
-  cat("COD (Coefficient of Dispersion) = ",COD, "\nNível: ", nivelCOD , "\n\n" )
-  
+
+  cat("COD (Coefficient of Dispersion) = ", pct(COD), "\nNível: ", nivelCOD , "\n\n" )
+
   TotalOfAssessedValues <- sum(df_sale$AssessedValue)
   TotalOfSalesPrices <- sum(df_sale$SalePrice)
-  WeightedMean <- TotalOfAssessedValues / TotalOfSalesPrices  
-  PRD <- MeanRatio / WeightedMean 
+  WeightedMean <- TotalOfAssessedValues / TotalOfSalesPrices
+  PRD <- MeanRatio / WeightedMean
   if(PRD < .98)
   {
     nivelPRD <- "Tendência PROGRESSIVA de Valor Venal FORA do intervalo recomendado (98% a 103%)"
@@ -96,12 +108,12 @@ iaao_Ratio <- function(AssessedValue, SalePrice, OutlierTrimming = FALSE) {
   {
     nivelPRD <- "Tendência REGRESSIVA de Valor Venal DENTRO do intervalo recomendado (98% a 103%)"
   }
-  else 
+  else
   {
     nivelPRD <- "Tendência REGRESSIVA de Valor Venal FORA do intervalo recomendado (98% a 103%)"
   }
-  
-  cat("PRD (Price-Related Differential) = ",PRD, "\nNível: ", nivelPRD , "\n\n" )    
-  
+
+  cat("PRD (Price-Related Differential) = ", pct(PRD), "\nNível: ", nivelPRD , "\n\n" )
+
 }
 
