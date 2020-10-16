@@ -8,7 +8,7 @@
 \usage{
 power_plot(object, ...)
 
-\method{power_plot}{lm}(object, ...)
+\method{power_plot}{lm}(object, func, ...)
 
 \method{power_plot}{bestfit}(object, fit = 1, ...)
 }
@@ -27,9 +27,12 @@ a power plot
 \code{\link{bestfit}} objects with \code{\link{ggplot2}}.
 }
 \examples{
+library(ggplot2)
 dados <- centro_2015@data
 fit <- lm(log(valor) ~ ., dados)
 power_plot(fit)
+p <- power_plot(fit, func = "log")
+p + labs(title = "Poder de PrediÃ§Ã£o", subtitle = "Em milhÃµes de Reais")
 dados <- centro_2015@data
 best_fit <- bestfit(valor ~ ., dados)
 power_plot(best_fit, fit = 257)

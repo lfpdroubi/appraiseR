@@ -4,10 +4,12 @@
 \name{trindade}
 \alias{trindade}
 \title{Prices of 15 Florianopolis' apartaments with 2 rooms in Trindade neighbourhood}
-\format{a tibble with 15 rows and 1 variable:
+\format{
+a tibble with 15 rows and 1 variable:
 \itemize{
   \item VU unitary value per squared meter.
-}}
+}
+}
 \source{
 \strong{HOCHHEIM, Norberto}. \emph{Engenharia de Avaliacoes I}.
 Florianopolis: IBAPE/SC, 2005, p.18

@@ -1,0 +1,165 @@
+---
+title: "appraiseR"
+subtitle: "Engenharia de Avaliações no R"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{appraiseR}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(appraiseR)
+```
+
+# Introdução
+
+`appraiseR` é um pacote **R** para facilitar a prática da Engenharia
+de Avaliações segundo a NBR 14.653-02 [@NBR1465302].
+
+# Conjuntos de dados disponíveis
+
+Foram disponibilizados alguns conjuntos de dados visando possibilitar a confecção
+de testes dos algoritmos.
+
+Uns destes conjuntos é um conjunto de 50 dados de apartamentos em Florianópolis.
+Este conjunto de dados é proveniente de @hochheim2015.
+
+```{r}
+data("centro_2015")
+dados <- centro_2015@data
+```
+
+```{r}
+dados
+```
+
+# Seleção de modelos
+
+A seleção de modelos pode ser feita através da função `bestfit`, fornecendo-se 
+uma fórmula com as variáveis desejadas, sem qualquer transformação (o algoritmo
+se encarrega de testar as transformações).
+
+```{r}
+best_fits <- bestfit(valor~area_total + quartos + suites + garagens + 
+                       dist_b_mar + padrao, data = dados)
+```
+
+O pacote gera um objeto da classe bestfit
+
+```{r}
+class(best_fits)
+```
+
+Uma vez feitas as combinações de transformações, elas podem ser vistas no
+console do **R**:
+
+```{r}
+print(best_fits)
+```
+Através do comando `summary` é impresso no console um sumário do modelo mais
+ajustado:
+
+```{r}
+summary(best_fits)
+```
+
+É possível explorar melhor a tabelas das transformações, que está armazenada sob
+o nome de tabs dentro do objeto.
+
+```{r}
+names(best_fits)
+```
+
+
+Por exemplo, pode-se selecionar apenas os modelos cuja transformação da variável
+resposta foi a transformação logaritmica.
+
+
+```{r}
+df <- best_fits$tab
+head(df[which(df$valor == "log"), ])
+```
+Pode-se, então, selecionar o sumário de um modelo diferente, através da escolha
+apropriada do `id` na tabela acima.
+
+```{r}
+summary(best_fits, fit = 32)
+```
+
+# Diagnósticos
+
+## Gráficos do modelo
+
+É possíve elaborar gráficos do modelo através da função `plotmod`:
+
+```{r}
+plotmod(best_fits)
+```
+
+Para adicionar intervalos de confiança ou predição e escolher o nível adequado, 
+faz-se:
+
+```{r}
+plotmod(best_fits, interval = "confidence", level = 0.80)
+```
+
+É possível visualizar o comportamento do modelo no ponto de previsão de valores:
+
+```{r}
+plotmod(best_fits, interval = "confidence", level = 0.80,
+         local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+         dist_b_mar = 250, padrao = "medio"))
+```
+
+
+## Poder de Predição
+
+A função `power_plot` ajusta o gráfico do poder de predição do modelo. 
+Por padrão, a função `power_plot` ajusta o poder de predição do modelo de maior
+$R^2_{ajustado}$. 
+
+```{r}
+power_plot(best_fits)
+```
+
+Porém, é possível selecionar outros modelos da tabela:
+
+```{r}
+power_plot(best_fits, 32)
+```
+
+Assim como também é possível elaborar o gráfico na escala de valores original:
+
+```{r}
+power_plot(best_fits, 32, func = "log")
+```
+
+## Grau de precisão
+
+As previsões podem ser feitas pela função `predict` aplicada ao método `bestfit`.
+Ao imprimí-las no console, serão mostrados os limites do intervalo escolhido, 
+do campo de arbítrio, bem como a amplitude do intervalo e seu grau de precisão,
+segundo a NBR 14.653-02:
+
+É possível fornecer parâmetros para a escolha das características dos imóveis
+a serem previstos através do argumento `newdata` (não mostrado). Caso não 
+sejam fornecidos novos dados para ajuste, a função automaticamente irá procurar
+pelos avaliando no conjunto de dados (dados cuja variável resposta não tenha
+valores):
+
+```{r}
+p <- predict(best_fits, interval = "confidence")
+p
+```
+
+```{r}
+p1 <- predict(best_fits, interval = "prediction")
+p1
+```
+
+
+
+
+# Referências {-}

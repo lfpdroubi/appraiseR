@@ -4,7 +4,8 @@
 \name{centro_2015}
 \alias{centro_2015}
 \title{Prices of 50 Florianopolis' downtown apartaments}
-\format{A tibble with 53 rows (50 samples and 3 apartments to be
+\format{
+A tibble with 53 rows (50 samples and 3 apartments to be
   appraised) and 7 variables:
 \itemize{
   \item valor: price, in brazilian Reais
@@ -15,7 +16,8 @@
   \item dist_b_mar: Distance to the beach
   \item padrao: Building Standard - baixo, medio, alto
   (i.e. low, normal, high)
-}}
+}
+}
 \source{
 \strong{HOCHHEIM, Norberto}. \emph{Engenharia de avaliacoes
 imobiliarias: Modulo Basico}. Florianopolis: IBAPE/SC, 2015, p.21-22

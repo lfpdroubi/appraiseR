@@ -4,7 +4,8 @@
 \name{loteamento}
 \alias{loteamento}
 \title{Land division data}
-\format{A tibble with 20 rows and 8 variables:
+\format{
+A tibble with 20 rows and 8 variables:
 \itemize{
   \item valor: price, in brazilian Reais
   \item area: land area in squared meters
@@ -17,7 +18,8 @@
   \item inclinacao: slope
   \item pedologia: pedology -
   seco, pantanoso (i.e. dry, marshy)
-}}
+}
+}
 \source{
 \strong{HOCHHEIM, Norberto}. \emph{Engenharia de Avaliacoes I}.
 Florianopolis: IBAPE/SC, 2005, p.74

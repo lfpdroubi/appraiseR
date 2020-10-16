@@ -4,8 +4,15 @@
 \alias{plotvar}
 \title{Plot model predictors against the response variable with intervals}
 \usage{
-plotvar(object, variable, func, interval = c("none", "confidence",
-  "prediction"), level = 0.8, local, ...)
+plotvar(
+  object,
+  variable,
+  func,
+  interval = c("none", "confidence", "prediction"),
+  level = 0.8,
+  local,
+  ...
+)
 }
 \arguments{
 \item{object}{object of class lm}
@@ -37,5 +44,7 @@ plotvar(fit, "area_total", interval = "confidence",
         local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
         dist_b_mar = 250, padrao = "medio"))
 plotvar(fit, "padrao", interval = "confidence")
-plotvar(fit, "padrao", "log", interval = "confidence")
+plotvar(fit, "padrao", "log", interval = "confidence",
+local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+        dist_b_mar = 250, padrao = "medio"))
 }

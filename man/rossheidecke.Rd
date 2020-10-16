@@ -4,10 +4,14 @@
 \alias{rossheidecke}
 \title{Computes the depreciation parameter according to the Ross-Heidecke method}
 \usage{
-rossheidecke(VU, IA, Conservacao = c("Novo", "Entre novo e regular",
-  "Regular", "Entre regular e reparos simples", "Reparos simples",
-  "Entre reparos simples e importantes", "Reparos importantes",
-  "Entre reparos importantes e sem valor", "Sem valor"))
+rossheidecke(
+  VU,
+  IA,
+  Conservacao = c("Novo", "Entre novo e regular", "Regular",
+    "Entre regular e reparos simples", "Reparos simples",
+    "Entre reparos simples e importantes", "Reparos importantes",
+    "Entre reparos importantes e sem valor", "Sem valor")
+)
 }
 \arguments{
 \item{VU}{lifespan}

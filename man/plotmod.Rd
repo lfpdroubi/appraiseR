@@ -8,11 +8,23 @@
 \usage{
 plotmod(object, ...)
 
-\method{plotmod}{bestfit}(object, fit = 1, interval = c("none",
-  "confidence", "prediction"), level = 0.8, local, ...)
+\method{plotmod}{bestfit}(
+  object,
+  fit = 1,
+  interval = c("none", "confidence", "prediction"),
+  level = 0.8,
+  local,
+  ...
+)
 
-\method{plotmod}{lm}(object, interval = c("none", "confidence",
-  "prediction"), level = 0.8, func = "identity", local, ...)
+\method{plotmod}{lm}(
+  object,
+  interval = c("none", "confidence", "prediction"),
+  level = 0.8,
+  func = "identity",
+  local,
+  ...
+)
 }
 \arguments{
 \item{object}{Object of class \code{\link{bestfit}}}

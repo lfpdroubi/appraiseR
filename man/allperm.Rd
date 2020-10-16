@@ -4,8 +4,12 @@
 \alias{allperm}
 \title{Computes all the combinations of the transformed parameters}
 \usage{
-allperm(data, subset, select = colnames(data), transf = c("rsqrt",
-  "log", "sqrt"))
+allperm(
+  data,
+  subset,
+  select = colnames(data),
+  transf = c("rsqrt", "log", "sqrt")
+)
 }
 \arguments{
 \item{data}{A data frame}

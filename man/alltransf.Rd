@@ -5,8 +5,12 @@
 \title{Computes all the chosen transformations to the input data frame in the chosen
 parameters.}
 \usage{
-alltransf(data, subset, select = colnames(data), transf = c("rsqrt",
-  "log", "sqrt"))
+alltransf(
+  data,
+  subset,
+  select = colnames(data),
+  transf = c("rsqrt", "log", "sqrt")
+)
 }
 \arguments{
 \item{data}{A data frame}

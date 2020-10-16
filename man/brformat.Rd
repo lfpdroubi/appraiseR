@@ -5,29 +5,43 @@
 \alias{brf}
 \title{Wrapper around format}
 \usage{
-brformat(x, decimal.mark = ",", big.mark = ".", digits = 2,
-  nsmall = 2, scientific = FALSE, ...)
+brformat(
+  x,
+  decimal.mark = ",",
+  big.mark = ".",
+  digits = 2,
+  nsmall = 2,
+  scientific = FALSE,
+  ...
+)
 
-brf(x, decimal.mark = ",", big.mark = ".", digits = 2, nsmall = 2,
-  scientific = FALSE, ...)
+brf(
+  x,
+  decimal.mark = ",",
+  big.mark = ".",
+  digits = 2,
+  nsmall = 2,
+  scientific = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{a number to be formatted by \code{format}}
 
 \item{decimal.mark}{%
     used for prettying (longish) numerical and complex sequences.
-    Passed to \code{\link{prettyNum}}: that help page explains the details.}
+    Passed to \code{\link[base]{prettyNum}}: that help page explains the details.}
 
 \item{big.mark}{%
     used for prettying (longish) numerical and complex sequences.
-    Passed to \code{\link{prettyNum}}: that help page explains the details.}
+    Passed to \code{\link[base]{prettyNum}}: that help page explains the details.}
 
 \item{digits}{how many significant digits are to be used for
     numeric and complex \code{x}.  The default, \code{NULL}, uses
-    \code{\link{getOption}("digits")}.  This is a suggestion: enough decimal
+    \code{\link[base]{getOption}("digits")}.  This is a suggestion: enough decimal
     places will be used so that the smallest (in magnitude) number has
     this many significant digits, and also to satisfy \code{nsmall}.
-    (For the interpretation for complex numbers see \code{\link{signif}}.)}
+    (For the interpretation for complex numbers see \code{\link[base]{signif}}.)}
 
 \item{nsmall}{the minimum number of digits to the right of the decimal
     point in formatting real/complex numbers in non-scientific formats.
@@ -35,7 +49,7 @@ brf(x, decimal.mark = ",", big.mark = ".", digits = 2, nsmall = 2,
 
 \item{scientific}{Either a logical specifying whether
     elements of a real or complex vector should be encoded in scientific
-    format, or an integer penalty (see \code{\link{options}("scipen")}).
+    format, or an integer penalty (see \code{\link[base]{options}("scipen")}).
     Missing values correspond to the current default penalty.}
 
 \item{...}{further arguments passed to or from other methods.}

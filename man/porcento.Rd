@@ -5,9 +5,9 @@
 \alias{pct}
 \title{Write in percentage form}
 \usage{
-porcento(x)
+porcento(x, ...)
 
-pct(x)
+pct(x, ...)
 }
 \arguments{
 \item{x}{a real number}

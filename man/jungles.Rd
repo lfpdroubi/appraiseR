@@ -5,7 +5,9 @@
 \alias{jungles}
 \title{Parametrized optimals costs percentages per period according to Jungles and
 Avila (2009)}
-\format{a tibble with 24 rows and 25 columns}
+\format{
+a tibble with 24 rows and 25 columns
+}
 \source{
 \strong{JUNGLES, A. E.; AVILA, A. V.}. \emph{Gestao do controle e
 planejamento de empreendimentos}. 2009.

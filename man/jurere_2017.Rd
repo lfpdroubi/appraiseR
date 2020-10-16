@@ -4,7 +4,8 @@
 \name{jurere_2017}
 \alias{jurere_2017}
 \title{Land division data}
-\format{A tibble with 20 rows and 8 variables:
+\format{
+A tibble with 20 rows and 8 variables:
 \itemize{
   \item VALOR TOTAL: price, in brazilian Reais
   \item VU: unitary value per sq. meters
@@ -24,7 +25,8 @@
   PLANO = flat
   \item DATA: date
   \item FONTE: source
-}}
+}
+}
 \usage{
 jurere_2017
 }

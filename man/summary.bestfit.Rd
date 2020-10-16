@@ -30,6 +30,7 @@ containing the formula for the best (chosen) fit and the \code{summary.lm}
 for that fit.
 }
 \examples{
+library(appraiseR)
 dados <- centro_2015@data
 best_fit <- bestfit(valor ~ ., data = dados)
 summary(best_fit)
