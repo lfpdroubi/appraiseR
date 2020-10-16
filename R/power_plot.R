@@ -69,6 +69,6 @@ power_plot.lm <- function(object, func, ...) {
 power_plot.bestfit <- function(object, fit = 1, ...) {
   s <- summary(object, fit = fit)
   z <- s$fit
-  p <- power_plot.lm(z)
+  p <- power_plot.lm(z, ...)
   p
 }
