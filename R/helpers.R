@@ -301,11 +301,11 @@ reais <- function(...) {
 #' pct(0.25)
 #' @export
 #'
-porcento <- function (x) {
+porcento <- function (x, ...) {
   if (length(x) == 0)
     return(character())
-  x <- plyr::round_any(x, precision(x)/100)
-  paste0(x * 100, "\\%")
+  x <- brf(100*x, ...)
+  paste0(x, "%")
 }
 
 #' @rdname porcento
