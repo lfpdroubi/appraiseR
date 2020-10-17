@@ -4,6 +4,7 @@
 \alias{power_plot}
 \alias{power_plot.lm}
 \alias{power_plot.bestfit}
+\alias{power_plot.lmerMod}
 \title{Power plots with ggplot2}
 \usage{
 power_plot(object, ...)
@@ -11,6 +12,8 @@ power_plot(object, ...)
 \method{power_plot}{lm}(object, func, ...)
 
 \method{power_plot}{bestfit}(object, fit = 1, ...)
+
+\method{power_plot}{lmerMod}(object, func, ...)
 }
 \arguments{
 \item{object}{object of class \code{\link{lm}} or \code{\link{bestfit}}}
@@ -36,4 +39,10 @@ p + labs(title = "Poder de PrediÃ§Ã£o", subtitle = "Em milhÃµes de Reais")
 dados <- centro_2015@data
 best_fit <- bestfit(valor ~ ., dados)
 power_plot(best_fit, fit = 257)
+library(lme4)
+data(centro_2015)
+dados <- centro_2015@data
+Mfit <- lmer(log(valor) ~ area_total + quartos + suites + garagens +
+dist_b_mar + (1|padrao), dados)
+power_plot(Mfit)
 }

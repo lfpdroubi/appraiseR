@@ -72,3 +72,50 @@ power_plot.bestfit <- function(object, fit = 1, ...) {
   p <- power_plot.lm(z, ...)
   p
 }
+
+#' @rdname power_plot
+#' @param fit chosen fit
+#' @examples
+#' library(lme4)
+#' data(centro_2015)
+#' dados <- centro_2015@data
+#' Mfit <- lmer(log(valor) ~ area_total + quartos + suites + garagens +
+#' dist_b_mar + (1|padrao), dados)
+#' power_plot(Mfit)
+#' power_plot(Mfit, func = "log")
+#' @export
+#'
+power_plot.lmerMod <-  function(object, func, ...){
+  require(broom.mixed)
+  z <- object
+  df <- data.frame(.fitted = z@resp$mu, Y = z@resp$y)
+
+  if (missing(func)) {
+    p <- ggplot(df, aes(x = .fitted, y = Y)) +
+      geom_point(alpha=0.5) +
+      xlab(bquote(~hat(Y))) +
+      geom_abline(color = "red") +
+      geom_smooth(method = "lm", se=FALSE) +
+      coord_fixed()
+    return(p)
+  } else {
+    df <- data.frame(.fitted = inverse(df$.fitted, func),
+                     Y = inverse(df$Y, func))
+    p <- ggplot(df, aes(x = .fitted, y = Y)) +
+      geom_point(alpha=0.5) +
+      xlab(bquote(~hat(Y))) +
+      geom_abline(color = "red") +
+      geom_smooth(method = "lm", se=FALSE) +
+      coord_fixed()
+  }
+
+  if (missing(func)) {
+    return(p)
+  } else {
+    p <- p +
+      scale_y_continuous(labels = scales::label_number_si()) +
+      scale_x_continuous(labels = scales::label_number_si())
+    return(p)
+  }
+  return(p)
+}

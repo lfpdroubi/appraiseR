@@ -40,11 +40,11 @@ data <- centro_2015@data
 fit <- lm(log(valor) ~ ., data = data)
 plotvar(fit, "area_total", interval = "confidence")
 plotvar(fit, "area_total", "log", interval = "confidence")
-plotvar(fit, "area_total", interval = "confidence",
+plotvar(fit, "area_total", func = "log", interval = "confidence",
         local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
         dist_b_mar = 250, padrao = "medio"))
 plotvar(fit, "padrao", interval = "confidence")
-plotvar(fit, "padrao", "log", interval = "confidence",
+plotvar(fit, "padrao", func = "log", interval = "confidence",
 local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
         dist_b_mar = 250, padrao = "medio"))
 }
