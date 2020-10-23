@@ -16,16 +16,18 @@ library(appraiseR)
 
 # Introdução
 
-`appraiseR` é um pacote **R** para facilitar a prática da Engenharia
-de Avaliações segundo a NBR 14.653-02 [@NBR1465302].
+`appraiseR` é um pacote de funções que busca facilitar a prática da Engenharia
+de Avaliações no **R**, de acordo com os padrões estabelecidos pela 
+NBR 14.653-02 [@NBR1465302].
 
 # Conjuntos de dados disponíveis
 
-Foram disponibilizados alguns conjuntos de dados visando possibilitar a confecção
-de testes dos algoritmos.
+Foram disponibilizados alguns conjuntos de dados visando possibilitar a
+confecção de testes dos algoritmos implementdos.
 
-Uns destes conjuntos é um conjunto de [50 dados de apartamentos em Florianópolis](https://lfpdroubi.github.io/appraiseR/reference/centro_2015.html) [@hochheim2015],
-que será utilizado neste texto:
+Uns destes conjuntos é um conjunto de [50 dados de apartamentos em
+Florianópolis](https://lfpdroubi.github.io/appraiseR/reference/centro_2015.html)
+[@hochheim2015], que será utilizado neste texto:
 
 ```{r}
 data("centro_2015")

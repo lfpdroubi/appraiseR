@@ -23,7 +23,7 @@ power_plot <- function(object, ...) {
 #' p + labs(title = "Poder de Predição", subtitle = "Em milhões de Reais")
 #' @export
 #'
-power_plot.lm <- function(object, func, ...) {
+power_plot.lm <- function(object, func, axis = c("inverted", "standard"), ...) {
   z <- object
   attr(z$terms, "variables")
   data <- stats::model.frame(z)
@@ -46,6 +46,10 @@ power_plot.lm <- function(object, func, ...) {
     geom_abline(color="red") +
     geom_smooth(method = "lm", se=FALSE) +
     coord_fixed()
+
+  if (axis == "standard"){
+    p <- p + coord_flip()
+  }
 
   if (missing(func)) {
     return(p)
