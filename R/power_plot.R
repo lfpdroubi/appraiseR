@@ -17,13 +17,16 @@ power_plot <- function(object, ...) {
 #' @examples
 #' library(ggplot2)
 #' dados <- centro_2015@data
-#' fit <- lm(log(valor) ~ ., dados)
+#' dados$padrao <- as.numeric(dados$padrao)
+#' fit <- lm(log(valor) ~ area_total + quartos + suites + garagens +
+#' log(dist_b_mar) + I(1/padrao), dados, subset = -c(31, 39))
 #' power_plot(fit)
-#' p <- power_plot(fit, func = "log")
+#' power_plot(fit, axis = "inverted")
+#' p <- power_plot(fit, func = "log", axis = "inverted")
 #' p + labs(title = "Poder de Predição", subtitle = "Em milhões de Reais")
 #' @export
 #'
-power_plot.lm <- function(object, func, axis = c("inverted", "standard"), ...) {
+power_plot.lm <- function(object, func, axis = c("standard", "inverted"), ...) {
   z <- object
   attr(z$terms, "variables")
   data <- stats::model.frame(z)
@@ -40,15 +43,16 @@ power_plot.lm <- function(object, func, axis = c("inverted", "standard"), ...) {
     invres <- data.frame(Y, Y_ajustado)
   }
 
-  p <- ggplot(data = invres, aes(x = Y_ajustado, y = Y)) +
+  p <- ggplot(data = invres, aes(x = Y, y = Y_ajustado)) +
     geom_point(alpha=0.5) +
-    xlab(bquote(~hat(Y))) +
+    ylab(bquote(~hat(Y))) +
+    xlab("Y") +
     geom_abline(color="red") +
     geom_smooth(method = "lm", se=FALSE) +
     coord_fixed()
 
-  if (axis == "standard"){
-    p <- p + coord_flip()
+  if (axis == "inverted"){
+    p <- p + coord_flip() + theme(aspect.ratio = 1)
   }
 
   if (missing(func)) {
