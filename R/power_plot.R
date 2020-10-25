@@ -30,6 +30,7 @@ power_plot.lm <- function(object, func, axis = c("standard", "inverted"), ...) {
   z <- object
   attr(z$terms, "variables")
   data <- stats::model.frame(z)
+  axis <- match.arg(axis)
 
   if (missing(func)) {
     Y <- data[, attr(z$terms, "response")]

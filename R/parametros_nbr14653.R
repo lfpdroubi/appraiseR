@@ -68,6 +68,10 @@ g_precisao <- function(amplitude) {
 #'@rdname parametros_NBR
 #'@export
 campo_arbitrio <- function(Y){
+  if(is.vector(Y)) {
+    Y <- as.matrix(Y)
+    dimnames(Y) <- list(NULL, "fit")
+  }
   ca <- matrix(data = c(0.85*Y[,"fit"], 1.15*Y[,"fit"]), nrow = nrow(Y),
                dimnames = list(rownames(Y), c("C.A.I.", "C.A.S.")))
   return(ca)

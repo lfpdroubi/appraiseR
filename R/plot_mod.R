@@ -24,6 +24,7 @@
 #'         dist_b_mar = 250, padrao = "medio"))
 #'
 #' fit <- lm(log(valor) ~ ., data = data)
+#' plotmod(fit)
 #' plotmod(fit, interval = "confidence")
 #' plotmod(fit, interval = "confidence", func = "log")
 #' plotmod(fit, interval = "confidence",
@@ -38,10 +39,7 @@ plotmod <- function(object, ...) UseMethod("plotmod")
 #' @rdname plotmod
 #' @export
 
-plotmod.bestfit <- function(object, fit = 1,
-                            interval = c("none", "confidence", "prediction"),
-                            level = 0.80,
-                            local, ...){
+plotmod.bestfit <- function(object, fit = 1, ...){
   s <- summary(object, fit = fit)
   z <- s$fit
   func <- as.character(s$bestfit[, object$response])
@@ -53,13 +51,7 @@ plotmod.bestfit <- function(object, fit = 1,
   p <- list()
 
   for (i in terms) {
-    if (missing(local)) {
-      p[[i]] <- plotvar(object = z, variable = i, func = func,
-                        interval = interval)
-    } else {
-      p[[i]] <- plotvar(object = z, variable = i, func = func,
-                        interval = interval, local = local)
-    }
+    p[[i]] <- plotvar(object = z, variable = i, ...)
   }
 
   est <- list(plots = p,
@@ -71,11 +63,7 @@ plotmod.bestfit <- function(object, fit = 1,
 
 #' @rdname plotmod
 #' @export
-plotmod.lm <- function(object,
-                       interval = c("none", "confidence", "prediction"),
-                       level = 0.80,
-                       func = "identity",
-                       local, ...){
+plotmod.lm <- function(object, func = "identity", ...){
   z <- object
   preds <- parameters(z)$predictors
 
@@ -85,13 +73,7 @@ plotmod.lm <- function(object,
   p <- list()
 
   for (i in preds) {
-    if (missing(local)) {
-      p[[i]] <- plotvar(object = z, variable = i, func = func,
-                        interval = interval)
-    } else {
-      p[[i]] <- plotvar(object = z, variable = i, func = func,
-                        interval = interval, local = local)
-    }
+   p[[i]] <- plotvar(object = z, variable = i, ...)
   }
 
   est <- list(plots = p,

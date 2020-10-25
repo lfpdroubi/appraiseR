@@ -10,7 +10,7 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, fig.align = "center")
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, fig.align = "center")
 library(appraiseR)
 ```
 
@@ -127,6 +127,21 @@ poder, como o de Shapiro-Wilk:
 ```{r}
 shapiro.test(resid(fit))
 ```
+Também alguns testes de verificação da homoscedasticidade podem ser facilmente aplicados:
+
+a. Breusch-Pagan:
+
+```{r}
+library(lmtest)
+bptest(fit)
+```
+
+A linguagem **R** ainda é reconhecida pela alta qualidade dos gráficos que podem ser produzidos com ela. Para o diagnóstico dos modelos de regressão linear, por exemplo:
+
+```{r plotFit, fig.cap="Diagnóstico do modelo de regressão adotado.", fig.show = "hold", out.width="30%"}
+plot(fit, which = 1:6)
+```
+
 Além dos testes já existentes no **R**, procurou-se criar funções que auxiliem
 na verificação da razoabilidade dos modelos ajustados, conforme solicita a
 NBR 14.653-02.
@@ -139,19 +154,36 @@ NBR 14.653-02.
 plotmod(best_fits, fit = 96)
 ```
 
-Para adicionar intervalos de confiança ou predição e escolher o nível adequado, 
-faz-se:
+É possível adicionar intervalos de confiança ou predição e escolher o nível desejado:
 
-```{r modelsPlot2, fig.cap = "Gráficos do modelo com intervalos de confiança (80%).", out.width="100%", fig.width=9, fig.height=6}
+```{r modelsPlot2, fig.cap = "Gráficos do modelo com intervalos de predição (80%).", out.width="100%", fig.width=9, fig.height=6}
 plotmod(best_fits, fit = 96, interval = "confidence", level = 0.80)
 ```
 
-É possível visualizar o comportamento do modelo no ponto de previsão de valores:
+É possível também visualizar o comportamento do modelo no ponto de previsão de 
+valores, como mostra a figura abaixo, com os intervalos de predição:
 
 ```{r modelsPlot3, fig.cap = "Gráficos do modelo no ponto de previsão de valores.", out.width="100%", fig.width=9, fig.height=6}
-plotmod(best_fits, fit = 96, interval = "confidence", level = 0.80,
+plotmod(best_fits, fit = 96, interval = "prediction", level = 0.80,
          local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
          dist_b_mar = 250, padrao = "medio"))
+```
+
+Também é possível a plotagem de ambos os intervalos simultaneamente:
+
+```{r modelsPlot4, fig.cap = "Gráficos do modelo no ponto de previsão de valores. Ambos os intervalos.", out.width="100%", fig.width=9, fig.height=6}
+plotmod(best_fits, fit = 96, interval = "both", level = 0.80, 
+         local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+         dist_b_mar = 250, padrao = "medio"))
+```
+
+Finalmente, é possível, ainda, plotar também os limites superior e inferior do 
+Campo de Arbítrio do avaliador, como na figura abaixo:
+
+```{r modelsPlot5, fig.cap = "Gráficos do modelo no ponto de previsão de valores. Ambos os intervalos e limites do Campo de Arbítrio.", out.width="100%", fig.width=9, fig.height=6}
+plotmod(best_fits, fit = 96, interval = "both", level = 0.80, func = "log", 
+        ca = TRUE, local = list(area_total = 205, quartos = 3, suites = 1, 
+                                   garagens = 2, dist_b_mar = 250, padrao = "medio"))
 ```
 
 
@@ -171,11 +203,24 @@ Porém, é possível selecionar outros modelos da tabela:
 power_plot(best_fits, fit = 96)
 ```
 
+Existe ainda um argumento que possibilita a inversão dos eixos do gráfico do poder de predição, o que vai de encontro ao que recomenda a NBR 14.653-02, porém é recomendado pelos estatísticos, dado o fenômeno do encolhimentos dos valores ajustados:
+
+```{r}
+power_plot(best_fits, fit = 96, axis = "inverted")
+```
+
 Assim como também é possível elaborar o gráfico na escala de valores original:
 
 ```{r powerPlot3, fig.cap="Poder de Predição: escala original."}
-power_plot(best_fits, fit = 96, func = "log")
+power_plot(best_fits, fit = 96, func = "log", axis = "inverted")
 ```
+
+
+
+```{r}
+
+```
+
 
 ## Grau de precisão
 
