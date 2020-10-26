@@ -75,7 +75,7 @@ print.summary.bestfit <- function(x, ...){
   cat("\nBest (Chosen) fit LM summary:\n")
   print(summary(x$fit))
   cat("NBR-14.653-2 check:\n")
-  cat("Minimum number of market data:\n")
+  cat("Number of market data used:\n")
   print(x$nmin)
   cat("Max significance level allowed for each predictor:\n")
   print(x$tmax)
