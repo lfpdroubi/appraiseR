@@ -9,7 +9,7 @@
 #'@return a vector containing the amplitudes of the \emph{Y_hat} in \%
 #'
 #'@examples
-#'dados <- centro_2015@data
+#'dados <- st_drop_geometry(centro_2015)
 #'fit <- lm(log(valor) ~ ., data = dados)
 #'require(dplyr)
 #'aval <- dados %>% filter(is.na(valor))

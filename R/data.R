@@ -23,6 +23,8 @@ centro_2015 <-
                              data = subset(centro_2015, select = -c(E,N)),
                              proj4string = sp::CRS("+proj=utm +zone=22 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"))
 
+centro_2015 <- sf::st_as_sf(centro_2015)
+
 #' Prices of 50 Florianopolis' downtown apartaments
 #'
 #' A SpatialPointsDataFrame containing a sample of 50 apartaments with
@@ -134,6 +136,8 @@ jurere_2017 <-
                              data = subset(jurere_2017, select = -c(E,N)),
                              proj4string = sp::CRS("+proj=utm +zone=22 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"))
 
+jurere_2017 <- sf::st_as_sf(jurere_2017)
+
 #' Land division data
 #'
 #' A tibble containing a sample of 20 plots in subdivision in Florianopolis.
@@ -162,5 +166,57 @@ jurere_2017 <-
 #' }
 "jurere_2017"
 
-# usethis::use_data(centro_2015, trindade, jungles, loteamento, jurere_2017,
-#                   overwrite = TRUE)
+trivelloni_2005 <- readr::read_csv2("./inst/trivelloni_2005.csv")
+
+# trivelloni_2005
+colnames(trivelloni_2005) <- c("Obs", "E", "N", "valor", "tipo", "area_total",
+                               "area_terreno", "garagens", "novo",
+                               "P_2", "P_3", "P_4")
+
+trivelloni_2005$novo %<>% as.factor()
+
+trivelloni_2005$novo %<>%
+  forcats::fct_recode(usado = "0", novo = "1")
+
+trivelloni_2005$garagens %<>% as.factor()
+
+trivelloni_2005$garagens %<>%
+  forcats::fct_recode(nao = "0", sim = "1")
+
+trivelloni_2005$padrao <-
+  with(trivelloni_2005, ifelse(P_2 == 1, "alto",
+                               ifelse(P_3 == 1, "medio",
+                                      ifelse(P_4 == 1, "baixo", NA))))
+
+trivelloni_2005$padrao %<>%
+  readr::parse_factor(levels = padrao_levels)
+
+trivelloni_2005 %<>% dplyr::select(-c(P_2, P_3, P_4))
+
+trivelloni_2005$tipo %<>%
+  readr::parse_factor(levels = c("Apartame", "Kitinete",
+                                 "Comercia", "terreno",
+                                 "casa")
+  )
+
+trivelloni_2005$tipo %<>%
+  forcats::fct_recode(casa = "casa",
+                      apartamento = "Apartame", kitinete = "Kitinete",
+                      comercial = "Comercia", terreno = "terreno")
+
+trivelloni_2005 %<>%
+  dplyr::mutate_at(dplyr::vars(area_terreno), function(x) ifelse(x == 0, 0.1, x))
+
+trivelloni_2005 <- trivelloni_2005[, -1]
+
+trivelloni_2005 <-
+  sp::SpatialPointsDataFrame(coords = trivelloni_2005[c("E", "N")],
+                             data = subset(trivelloni_2005, select = -c(E, N)),
+                             proj4string = sp::CRS("+proj=utm +zone=22 +south
+                                                   +units=m +ellps=aust_SA
+                                                   +towgs84=-67.35,3.88,-38.22"))
+
+trivelloni_2005 <- sf::st_as_sf(trivelloni_2005)
+
+usethis::use_data(centro_2015, trindade, jungles, loteamento, jurere_2017,
+                  trivelloni_2005, overwrite = TRUE)

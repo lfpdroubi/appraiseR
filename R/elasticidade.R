@@ -10,7 +10,7 @@
 #' @param factor factor applied to calculate elasticity
 #' @export
 #' @examples
-#' data <- centro_2015@data
+#' data <- st_drop_geometry(centro_2015)
 #' fit <- lm(log(valor) ~ ., data = data)
 #' new <- data.frame(area_total = 205, quartos = 3, suites = 1,
 #'              garagens = 2, dist_b_mar = 250, padrao = "medio")

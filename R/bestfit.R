@@ -52,7 +52,7 @@ bestfitEst <- function(X, y, t, p, response){
 #'   the data frame, in order to find the best combination of transformation to
 #'   be applied to the data - usually functions of the box-cox family.
 #' @examples
-#' dados <- centro_2015@data
+#' dados <- st_drop_geometry(centro_2015)
 #' best_fit <- bestfit(valor ~ ., data = dados)
 #' print(best_fit, n = 20)
 #' s <- summary(best_fit)
@@ -78,6 +78,7 @@ bestfitEst <- function(X, y, t, p, response){
 #'
 bestfit <- function(formula, data, subset,
                             transf = c('rsqrt', 'log', 'sqrt')){
+  data <- as.data.frame(data)
   mf <- stats::model.frame(formula = formula, data = data)
   preds <- attr(stats::terms.formula(formula, data = data), "term.labels")
   response <- colnames(mf)[attr(stats::terms.formula(formula, data = data),

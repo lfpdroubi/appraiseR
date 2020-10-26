@@ -13,10 +13,10 @@
 #'   passed.help
 #' @export
 #' @examples
-#'
-#' vars <- colnames(centro_2015@data)
-#' alltransf(centro_2015@data, select = vars)
-#' alltransf(centro_2015@data, 1:10, c("valor", "area_total"))
+#' dados <- st_drop_geometry(centro_2015)
+#' vars <- colnames(dados)
+#' alltransf(dados, select = vars)
+#' alltransf(dados, 1:10, c("valor", "area_total"))
 #'
 
 alltransf <- function(data, subset, select = colnames(data),

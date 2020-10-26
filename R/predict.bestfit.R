@@ -16,8 +16,8 @@
 #' @param \dots further arguments passed to predict.lm.
 #' @export
 #' @examples
-#' data <- centro_2015@data
-#' best_fit <- bestfit(valor ~ .,  data = data)
+#' dados <- st_drop_geometry(centro_2015)
+#' best_fit <- bestfit(valor ~ .,  data = dados)
 #' p <- predict(best_fit, interval = "confidence")
 #' p
 #'

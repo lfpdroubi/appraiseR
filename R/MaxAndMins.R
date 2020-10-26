@@ -9,7 +9,7 @@
 #' @export
 #'
 #' @examples
-#' dados <- centro_2015@data
+#' dados <- st_drop_geometry(centro_2015)
 #' fit <- lm(log(valor) ~ ., data = dados)
 #' newdata <- new_data(fit)
 #' MaxsAndMins(newdata, dados)

@@ -6,19 +6,19 @@
 #'@param object object of class "lm"
 #'@export
 #' @examples
-#' dados <- centro_2015@data
+#' dados <- st_drop_geometry(centro_2015)
 #' fit <- lm(log(valor) ~ ., data = dados)
 #' grau(fit)
 
 grau <- function(object){
   z <- object
-  s <- summary(z)
-  param <- parameters(z)
-  preds <- param$predictors
-  resp <- param$response
-  data <- param$data
+  params <- parameters(z)
 
-  n <- nrow(na.omit(data))
+  s <- summary(z)
+  preds <- params$predictors
+  resp <- params$response
+
+  n <- nrow(z$model)
   k <- length(preds)
 
   nmin <- ifelse(n >= 6*(k+1), sprintf("n = %i >= %i --> Grau III", n, 6*(k+1)),

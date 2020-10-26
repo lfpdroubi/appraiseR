@@ -1,0 +1,37 @@
+\usepackage[brazil]{babel}
+%\usepackage{titling}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subfig}
+\usepackage{caption}
+\usepackage{lastpage}
+\usepackage{rotating}
+\usepackage{mathrsfs}
+\usepackage{bm}
+\usepackage{dcolumn}
+\setlength{\parindent}{1.25cm} % Default is 15pt.
+\usepackage{indentfirst}
+% \usepackage{helvet}
+% \renewcommand{\familydefault}{\sfdefault}
+% \usepackage{newtxtext,newtxmath} % mais nova para Times.
+%\usepackage{mathptmx} % para Times New Roman (preferível newtxtext)
+% \usepackage{Times} % para Times New Roman (obsoleto)
+\usepackage{fontspec} % para Arial e/ou Times (xelatex ou luatex)
+\setmainfont{Arial}
+\newcommand{\pkg}[1]{{\normalfont\fontseries{b}\selectfont #1}}
+\let\proglang=\textsf
+\let\code=\texttt
+\usepackage{fancyhdr}
+% Turn on the style
+\pagestyle{fancy}
+\fancyhf{}
+% Clear the header and footer
+\fancyhead{}
+\fancyfoot{}
+% Set the right side of the footer to be the page number
+\fancyhead[CO, CE]{
+  \textbf{IX SIMPÓSIO DA SOCIEDADE BRASILEIRA DE ENGENHARIA DE AVALIAÇÕES}
+}
+\fancyfoot[CO, CE]{\pkg{appraiseR}: Engenharia de Avaliações no \proglang{R}}
+\fancyfoot[R]{\thepage~/~\pageref{LastPage}}

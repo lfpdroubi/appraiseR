@@ -19,8 +19,8 @@
 #' @export
 #' @examples
 #' library(appraiseR)
-#' dados <- centro_2015@data
-#' best_fit <- bestfit(valor ~ ., data = dados)
+#' dados <- st_drop_geometry(centro_2015)
+#' best_fit <- bestfit(valor ~ ., data = dados, subset = -c(31, 39))
 #' summary(best_fit)
 #' summary(best_fit, fit = 2)
 summary.bestfit <- function(object, fit = 1, subset, ...){

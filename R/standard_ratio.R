@@ -12,7 +12,7 @@
 #' library(appraiseR)
 #' library(broom)
 #'
-#' dados <- centro_2015@data
+#' dados <- st_drop_geometry(centro_2015)
 #' fit <- lm(log(valor) ~ area_total + quartos + suites + garagens +
 #' log(dist_b_mar) + padrao, data = dados)
 #'

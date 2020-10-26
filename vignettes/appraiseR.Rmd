@@ -1,8 +1,22 @@
 ---
-title: "appraiseR"
-subtitle: "Engenharia de Avaliações no R"
-output: rmarkdown::html_vignette
+title: "\\pkg{appraiseR}"
+subtitle: "Engenharia de Avaliações no \\proglang{R}"
+output: 
+  pdf_document:
+    includes:
+      in_header: preamble.tex
+    latex_engine: xelatex
+    number_sections: yes
+    toc: no
 bibliography: references.bib
+classoption: a4paper, 11pt
+documentclass: article
+geometry: left=2.5cm,right=2.5cm,top=3cm,bottom=2.5cm
+link-citations: yes
+linkcolor: red
+urlcolor: magenta
+citecolor: green
+csl: ABNT_UFPR_2011-Mendeley.csl
 vignette: >
   %\VignetteIndexEntry{appraiseR}
   %\VignetteEngine{knitr::rmarkdown}
@@ -10,100 +24,198 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, fig.align = "center")
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, 
+                      fig.align = "center", fig.pos = "H", fig.path = "images/", 
+                      out.width = "65%", dev = "CairoPNG", dpi = 600)
 library(appraiseR)
+library(knitr)
+library(ggplot2)
+library(car)
+library(sf)
 ```
 
 # Introdução
 
-`appraiseR` é um pacote de funções que busca facilitar a prática da Engenharia
-de Avaliações no **R**, de acordo com os padrões estabelecidos pela 
-NBR 14.653-02 [@NBR1465302].
+\pkg{appraiseR} é um pacote de software \proglang{R} que busca facilitar a
+prática da Engenharia de Avaliações utilizando-se *software* livre, de acordo
+com os padrões estabelecidos pela NBR 14.653-02 [-@NBR1465302]. 
+
+A introdução deste pacote também busca facilitar o ensino da Engenharia de
+Avaliações, assim como da Ciência Estatística aos novos avaliadores, haja vista
+que o ensino normalmente depende da utilização de um *software* comercial, haja
+vista as dificuldades para tratamento dos dados, ajuste de modelos e
+verificações das hipóteses básicas com a utilização das planilhas eletrônicas
+comuns.
+
+Foi escolhida a linguagem \proglang{R} devido à facilidade de programação nesta
+linguagem, à disponibilidade de uma infinidade de métodos e testes estatísticos
+pré-programados e à disponibilidade de poderosas ferramentas gráficas dentro do
+ambiente \proglang{R}, seja através dos gráficos do pacote básico, seja através
+dos gráficos gerados com os pacotes \pkg{ggplot2} e \pkg{lattice}.
 
 # Conjuntos de dados disponíveis
 
 Foram disponibilizados alguns conjuntos de dados visando possibilitar a
-confecção de testes dos algoritmos implementdos.
+confecção de testes dos algoritmos implementados, bem como a avaliação da 
+possibilidade de aplicação de novos métodos estatísticos na Engenharia de
+Avaliações.
+
+Trivelloni [-@trivelloni]...
 
 Uns destes conjuntos é um conjunto de [50 dados de apartamentos em
 Florianópolis](https://lfpdroubi.github.io/appraiseR/reference/centro_2015.html)
 [@hochheim2015], que será utilizado neste texto:
 
 ```{r}
-data("centro_2015")
-dados <- centro_2015@data
-```
-
-```{r}
+dados <- centro_2015
 dados
 ```
+
+Os modelos podem ser ajustados com ou sem a presença de fatores (variáveis 
+qualitativas), como a variável `padrao` na tabela acima.
+
+Por uma questão de compatibilidade com o exemplo disponível em @hochheim2015, no
+entanto, efetua-se a transformação da variável qualitativa para o formato 
+numérico:
+
+```{r}
+dados <- within(dados, padrao <- as.numeric(padrao))
+```
+
+# Análise exploratória de dados
+
+Em relação à análise exploratória de dados, a NBR 14.653-2 [-@NBR1465302] 
+recomenda, em seu item A.2.1.1:
+
+> Recomenda-se ser analisado, primeiramente, o comportamento gráfico da variável
+dependente em relação a cada variável independente, em escala original. Isto
+pode orientar o avaliador na transformação a adotar.
+
+```{r graficoDF, fig.cap = "Comportamento gráfico da variável dependente em relação a cada variável independente, em escala original.", out.width="100%"}
+plt <- plotdf(valor ~ area_total + quartos + suites + garagens +
+                dist_b_mar + padrao, data = dados)
+print(plt)
+```
+
+Neste mesmo item, a NBR 14.653-02 ainda recomenda que:
+
+> As transformações utilizadas para linearizar o modelo devem, tanto quanto
+possível, refletir o comportamento do mercado, com preferência pelas
+transformações mais simples de variáveis, que resultem em modelo satisfatório.
+Após as transformações realizadas, se houver, examina-se a linearidade do
+modelo, pela construção de gráficos dos valores observados para a variável
+dependente versus cada variável independente, com as respectivas transformações.
+
+```{r graficoDF2, fig.cap = "Comportamento gráfico da variável dependente em relação a cada variável independente, com respectivas transformações.", out.width="100%"}
+plt1 <- plotdf(log(valor) ~ area_total + quartos + suites + garagens + 
+                 log(dist_b_mar) + I(1/padrao), data = dados)
+print(plt1)
+```
+
 
 # Seleção de modelos
 
 A seleção de modelos pode ser feita através da função `bestfit`, fornecendo-se 
 uma fórmula com as variáveis desejadas, sem qualquer transformação (o algoritmo
-se encarrega de testar as transformações).
+se encarrega de testar as transformações). As transformações a serem testadas
+são fornecidas pelo argumento `transf`.
 
 ```{r}
 best_fits <- bestfit(valor~area_total + quartos + suites + garagens + 
-                       dist_b_mar + padrao, data = dados)
+                       dist_b_mar + padrao, data = dados,
+                     transf = c("rec", "rsqrt", "log", "sqrt"),
+                     subset = -c(31, 39))
 ```
 
-O pacote gera um objeto da classe bestfit
+O pacote gera um objeto da classe `bestfit`.
 
 ```{r}
 class(best_fits)
 ```
 
 Uma vez feitas as combinações de transformações, elas podem ser vistas no
-console do **R**:
+console do \proglang{R}, ordenadas pelo critério do maior $R^2_{ajustado}$:
 
 ```{r}
 print(best_fits)
 ```
-Através do comando `summary` é impresso no console um sumário do modelo mais
-ajustado:
+
+
+Foi desenvolvido um método `summary` para os objetos da class `bestfit`, que,
+por padrão, imprime no console um sumário do modelo mais ajustado:
 
 ```{r}
 summary(best_fits)
 ```
 
-É possível explorar melhor a tabelas das transformações, que está armazenada sob
-o nome de tabs dentro do objeto.
+Pode-se escolher, no entanto, qualquer modelo da lista, através da adição do
+argumento `fit`, fornecendo o número do modelo desejado. No entanto, é sabido
+que pode não ser tarefa fácil encontrar um modelo adequado em meio a tantas
+transformações[^1].
+
+Recomenda-se, portanto, tentar encontrar a transformação mais adequada para a 
+variável dependente através da análise do gráfico do perfil de 
+log-verossimilhança das possíveis transformações com a família de Box-Cox, como,
+aliás, já recomenda a própria NBR 14.653-02 [-@NBR1465302, A.2.1.1]:
+
+> Existem formas estatísticas de se buscar a transformação mais adequada, como,
+por exemplo, os procedimentos de Box e Cox.
+
+No \proglang{R}, isto pode ser feito facilmente no \proglang{R} através da
+utilização da função `boxCox` do pacote \pkg{car}, como abaixo:
+
+```{r boxcox, fig.cap="Perfil da Log-Verossimilhança do parâmetro $\\lambda$ da família de Box-Cox"}
+library(car)
+fit <- lm(valor ~ area_total + quartos + suites + garagens + dist_b_mar + padrao, 
+          data = dados)
+boxCox(fit)
+```
+
+A partir da análise da Figura \ref{fig:boxcox}, pode-se restringir a busca aos
+modelos que utilizam a transformação logaritimica à variável dependente, já que
+$\lambda = 0$ ([-0,1; 0,3] \@95\%).
+
+A tabelas das transformações aplicadas a cada variável do modelo fica armazenada 
+sob o nome de `tabs` dentro do objeto.
 
 ```{r}
 names(best_fits)
 ```
 
-
 Por exemplo, pode-se selecionar apenas os modelos cuja transformação da variável
 resposta foi a transformação logaritmica.
-
 
 ```{r}
 df <- best_fits$tab
 logs <- df[which(df$valor == "log"), ]
 head(logs)
 ```
+
 Pode-se, então, selecionar o sumário de um modelo diferente, através da escolha
 apropriada do `id` na tabela acima.
 
 ```{r}
-summary(best_fits, fit = 32)
+summary(best_fits, fit = 514)
 ```
+
+[^1]: No RStudio, a maneira mais fácil de pesquisar os modelos é aplicar a função 
+`View` à tabela de transformações.
 
 # Diagnósticos
 
-Uma das vantagens de utilizar o **R** é que existem diversos pacotes com funções
+Uma das vantagens de utilizar o \proglang{R} é que existem diversos pacotes com funções
 disponíveis para elaborar uma série de diagnósticos sobre os modelos de
 avaliação ajustados.
 
 Abaixo ilustramos alguns testes de normalidade previstos pela NBR 14.653-02:
 
 ```{r}
-# Modelo adotado (96)
-fit <- summary(best_fits, fit = 96)$fit
+# Modelo adotado (514)
+fit <- summary(best_fits, fit = 514)$fit
+summary(fit)
 ```
+
+## Normalidade
 
 ```{r}
 library(nortest)
@@ -115,6 +227,7 @@ a.  Teste do $\chi^2$:
 ```{r}
 pearson.test(resid(fit))
 ```
+
 b. Teste de Jarque-Bera:
 
 ```{r jarquebera}
@@ -122,105 +235,165 @@ jb.norm.test(resid(fit))
 ```
 
 Existe uma infinidade de testes, alguns não citados pela norma, porém de grande
-poder, como o de Shapiro-Wilk:
+poder.
+
+c. Shapiro-Wilk:
 
 ```{r}
 shapiro.test(resid(fit))
 ```
-Também alguns testes de verificação da homoscedasticidade podem ser facilmente aplicados:
 
-a. Breusch-Pagan:
+d. Teste K-S (Kolgomorov-Smirnov) [@KS]
+
+```{r KS, echo = FALSE, fig.cap='Curva da função de distribuição acumulada (FDA) empírica', out.width="45%"}
+# Ver https://rpubs.com/mharris/KSplot
+sample1 <- rnorm(10000, 0, 1)
+sample2 <- rstandard(fit)
+group <- c(rep("Normal", length(sample1)), rep("Resíduos-Padrão", length(sample2)))
+dat <- data.frame(KSD = c(sample1,sample2), group = group)
+# create ECDF of data
+cdf1 <- ecdf(sample1) 
+cdf2 <- ecdf(sample2) 
+# find min and max statistics to draw line between points of greatest distance
+minMax <- seq(min(sample1, sample2), max(sample1, sample2), length.out=length(sample1)) 
+x0 <- minMax[which( abs(cdf1(minMax) - cdf2(minMax)) == max(abs(cdf1(minMax) - cdf2(minMax))) )] 
+y0 <- cdf1(x0) 
+y1 <- cdf2(x0) 
+ggplot(dat, aes(x = KSD, group = group, color = group))+
+  stat_ecdf(size=1) +
+    xlab("Resíduos") +
+    ylab("ECDF") +
+    #geom_line(size=1) +
+    geom_segment(aes(x = x0[1], y = y0[1], xend = x0[1], yend = y1[1]),
+        linetype = "dashed", color = "red") +
+    geom_point(aes(x = x0[1] , y= y0[1]), color = "red", size = 2) +
+    geom_point(aes(x = x0[1] , y= y1[1]), color = "red", size = 2) +
+    ggtitle("Teste K-S (Kolgomorov-Smirnov)") +
+    theme(legend.title=element_blank(),
+          legend.position = "bottom")
+```
+
+e. Histograma
+
+
+```{r histograma, fig.cap='Histograma dos resíduos padronizados', out.width="45%"}
+res <- data.frame(residuals = rstandard(fit))
+ggplot(res, aes(residuals)) + 
+  geom_histogram(aes(y = ..density..), bins = 6) + 
+  stat_function(fun = dnorm,
+                args = list(mean = mean(res$residuals), sd = sd(res$residuals)),
+                lwd = 2, col = 'red')
+```
+
+## Homoscedasticidade
+
+Também alguns testes de verificação da homoscedasticidade podem ser facilmente 
+aplicados, como o teste de Breusch-Pagan:
 
 ```{r}
 library(lmtest)
 bptest(fit)
 ```
 
-A linguagem **R** ainda é reconhecida pela alta qualidade dos gráficos que podem ser produzidos com ela. Para o diagnóstico dos modelos de regressão linear, por exemplo:
+Além da verificação da homoscedasticidade, é possível também no \proglang{R},
+através do pacote \pkg{sandwich}, por exemplo, o cálculo de erros robustos, o
+que permite a utilização de modelos mesmo com a presença de heteroscedasticiade 
+[ver @zonato2018].
+
+A linguagem \proglang{R} ainda é reconhecida pela alta qualidade dos gráficos
+que podem ser produzidos com ela. Para o diagnóstico dos modelos de regressão
+linear, por exemplo:
 
 ```{r plotFit, fig.cap="Diagnóstico do modelo de regressão adotado.", fig.show = "hold", out.width="30%"}
 plot(fit, which = 1:6)
 ```
 
-Além dos testes já existentes no **R**, procurou-se criar funções que auxiliem
-na verificação da razoabilidade dos modelos ajustados, conforme solicita a
-NBR 14.653-02.
+Além dos testes já existentes no \proglang{R}, procurou-se criar funções que
+auxiliem na verificação da razoabilidade dos modelos ajustados, conforme
+solicita a NBR 14.653-02.
 
 ## Gráficos do modelo
 
-É possíve elaborar gráficos do modelo através da função `plotmod`:
+É possíve elaborar gráficos do modelo através da função `plotModel`:
 
 ```{r modelsPlot1, fig.cap="Gráficos do modelo com outras variáveis em seus valores medianos.", out.width="100%", fig.width=9, fig.height=6}
-plotmod(best_fits, fit = 96)
+plotModel(best_fits, fit = 514)
 ```
 
-É possível adicionar intervalos de confiança ou predição e escolher o nível desejado:
+É possível adicionar intervalos de confiança (ou predição) e escolher o nível de
+confiança desejado:
 
-```{r modelsPlot2, fig.cap = "Gráficos do modelo com intervalos de predição (80%).", out.width="100%", fig.width=9, fig.height=6}
-plotmod(best_fits, fit = 96, interval = "confidence", level = 0.80)
+```{r modelsPlot2, fig.cap = "Gráficos do modelo com intervalos de predição (80\\%).", out.width="100%", fig.width=9, fig.height=6}
+plotModel(best_fits, fit = 514, interval = "confidence", level = 0.80)
 ```
 
-É possível também visualizar o comportamento do modelo no ponto de previsão de 
-valores, como mostra a figura abaixo, com os intervalos de predição:
+Para visualizar o comportamento do modelo no local de avaliação é preciso 
+fornecer o argumento `local`, onde são fornecidos os valores das características
+do bem-avaliando. O resultado pode ser visto na figura abaixo, em que o ponto
+vermelho representa o bem-avaliando, com os intervalos de predição:
 
 ```{r modelsPlot3, fig.cap = "Gráficos do modelo no ponto de previsão de valores.", out.width="100%", fig.width=9, fig.height=6}
-plotmod(best_fits, fit = 96, interval = "prediction", level = 0.80,
+plotModel(best_fits, fit = 514, interval = "prediction", level = 0.80,
          local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
-         dist_b_mar = 250, padrao = "medio"))
+         dist_b_mar = 250, padrao = 2))
 ```
 
-Também é possível a plotagem de ambos os intervalos simultaneamente:
+Finalmente, é possível, ainda, acrescentar os limites superior e inferior do 
+Campo de Arbítrio do Avaliador, representado pelas linhas tracejadas na figura 
+abaixo, acompanhado ou não do valor arbitrado para o bem-avaliando (em roxo).
+Note-se também que, para este gráfico, optou-se pela plotagem de ambos os 
+intervalos, de confiança e de predição, através do uso do argumento 
+`interval = "both"`.
 
-```{r modelsPlot4, fig.cap = "Gráficos do modelo no ponto de previsão de valores. Ambos os intervalos.", out.width="100%", fig.width=9, fig.height=6}
-plotmod(best_fits, fit = 96, interval = "both", level = 0.80, 
-         local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
-         dist_b_mar = 250, padrao = "medio"))
-```
-
-Finalmente, é possível, ainda, plotar também os limites superior e inferior do 
-Campo de Arbítrio do avaliador, como na figura abaixo:
-
-```{r modelsPlot5, fig.cap = "Gráficos do modelo no ponto de previsão de valores. Ambos os intervalos e limites do Campo de Arbítrio.", out.width="100%", fig.width=9, fig.height=6}
-plotmod(best_fits, fit = 96, interval = "both", level = 0.80, func = "log", 
-        ca = TRUE, local = list(area_total = 205, quartos = 3, suites = 1, 
-                                   garagens = 2, dist_b_mar = 250, padrao = "medio"))
+```{r modelsPlot4, fig.cap = "Gráficos do modelo no ponto de previsão de valores, acompanhado do valor arbitrado, ambos os intervalos e limites do Campo de Arbítrio.", out.width="100%", fig.width=9, fig.height=6}
+plotModel(best_fits, fit = 514, interval = "both", level = 0.80, func = "log", 
+        ca = TRUE, av = 1100000,
+        local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2, 
+                     dist_b_mar = 250, padrao = 2))
 ```
 
 
 ## Poder de Predição
 
-A função `power_plot` ajusta o gráfico do poder de predição do modelo. 
-Por padrão, a função `power_plot` ajusta o poder de predição do modelo de maior
-$R^2_{ajustado}$. 
+A função `powerPlot` ajusta o gráfico do poder de predição do modelo. 
+Por padrão, a função `powerPlot` ajusta o poder de predição do modelo de maior
+$R^2_{ajustado}$, o que pode ser visto na Figura \ref{fig:powerPlot1}. 
 
 ```{r powerPlot1, fig.cap="Poder de Predição do modelo."}
-power_plot(best_fits)
+powerPlot(best_fits)
 ```
 
-Porém, é possível selecionar outros modelos da tabela:
+Porém, como em outras funções, é possível selecionar outros modelos da tabela. 
+Na Figura \ref{fig:powerPlot2} pode ser visto o gráfico do Poder de Predição 
+para o modelo escolhido.
 
 ```{r powerPlot2, fig.cap="Poder de Predição: modelo escolhido."}
-power_plot(best_fits, fit = 96)
+powerPlot(best_fits, fit = 514)
 ```
 
-Existe ainda um argumento que possibilita a inversão dos eixos do gráfico do poder de predição, o que vai de encontro ao que recomenda a NBR 14.653-02, porém é recomendado pelos estatísticos, dado o fenômeno do encolhimentos dos valores ajustados:
+Existe ainda um argumento que possibilita a inversão dos eixos do gráfico do
+poder de predição, o que vai de encontro ao que recomenda a NBR 14.653-02, porém
+é recomendado pelos estatísticos, dado o fenômeno do encolhimentos dos valores
+ajustados. Basta, para isto, fornecer o argumento `axis` à função, o que resulta 
+no gráfico da Figura \ref{fig:powerPlot3} [^2].
 
-```{r}
-power_plot(best_fits, fit = 96, axis = "inverted")
+[^2]: Neste caso a diferença foi quase nula, mas em modelos com menor grau de
+ajuste é possível perceber a diferença entre a escolha de plotar os valores
+ajustados nas abscissas ou nas ordenadas: a escolha de plotar os valores
+ajustados nas ordenadas pode dar a falsa impressão de que o modelo é viesado
+[ver @droubi2019].
+
+```{r powerPlot3, fig.cap="Poder de Predição: eixos invertidos."}
+powerPlot(best_fits, fit = 514, axis = "inverted")
 ```
 
-Assim como também é possível elaborar o gráfico na escala de valores original:
+Uma última opção é o ajuste do gráfico do poder de predição na escala original,
+uma vez que na escala transformada o modelo pode parecer razoável, mas na escala
+original o resultado pode ficar bem aquém do esperado.
 
-```{r powerPlot3, fig.cap="Poder de Predição: escala original."}
-power_plot(best_fits, fit = 96, func = "log", axis = "inverted")
+```{r powerPlot4, fig.cap="Poder de Predição: escala original."}
+powerPlot(best_fits, fit = 514, func = "log", axis = "inverted")
 ```
-
-
-
-```{r}
-
-```
-
 
 ## Grau de precisão
 
@@ -236,12 +409,12 @@ pelo(s) avaliando(s) no próprio conjunto de dados utilizado para ajustar o
 modelo (dados cuja variável resposta não tenha valores):
 
 ```{r}
-p <- predict(best_fits, fit = 96, interval = "confidence")
+p <- predict(best_fits, fit = 514, interval = "confidence")
 p
 ```
 
 ```{r}
-p1 <- predict(best_fits, fit = 96, interval = "prediction")
+p1 <- predict(best_fits, fit = 514, interval = "prediction")
 p1
 ```
 

@@ -94,7 +94,7 @@ sqr <- power(2)
 #' @return a
 #' @export
 #' @examples
-#' dados <- centro_2015@data
+#' dados <- st_drop_geometry(centro_2015)
 #' fit <- lm(log(valor) ~ ., data = dados)
 #' aval <- new_data(fit)
 #' Y <- predict(fit, newdata = aval, interval = "confidence")
@@ -137,7 +137,7 @@ centre.numeric <- function(x, na.rm = TRUE, ...) {
 #' vec <- c(-3, -2, 0, 1, 1, 3)
 #' vec <- as.factor(vec)
 #' centre(vec)
-#' dados <- centro_2015@data
+#' dados <- st_drop_geometry(centro_2015)
 #' centre(dados$padrao)
 #' @export
 centre.factor <- function(x, na.rm = TRUE, ...){
@@ -198,7 +198,8 @@ parameters.lm <- function(object, ...) {
 
 #' @rdname parameters
 #' @examples
-#' best_fit <- bestfit(valor ~ ., centro_2015@data)
+#' dados <- st_drop_geometry(centro_2015)
+#' best_fit <- bestfit(valor ~ ., dados)
 #' parameters(best_fit)
 #' @export
 #'
@@ -228,7 +229,7 @@ parameters.bestfit <- function(object, ...) {
 #' @param object object of class \code{lm}
 #'
 #' @examples
-#' dados <- centro_2015@data
+#' dados <- st_drop_geometry(centro_2015)
 #' fit <- lm(log(valor) ~ ., data = dados)
 #' new_data(fit)
 #' @export
@@ -318,9 +319,10 @@ pct <- porcento
 #' @param object object of class \code{lm}
 #' @param precision the precision required for coefficients
 #' @examples
-#' dados <- centro_2015@data
+#' dados <- st_drop_geometry(centro_2015)
 #' fit <- lm(log(valor) ~ ., dados)
 #' equacoes(fit)
+#' equacoes(fit, precision = 1)
 #' @export
 equacoes <- function(object, precision = 10000){
   z <- object

@@ -4,7 +4,7 @@
 \alias{elasticidade}
 \title{Elasticity calculation function}
 \usage{
-elasticidade(object, variable, func = "log", local, factor = 0.1)
+elasticidade(object, variable, func, local, factor = 0.1)
 }
 \arguments{
 \item{object}{object of class "lm"}
@@ -23,21 +23,24 @@ Based on a lm object, returns elasticity based in any parameter in the model.
 \examples{
 data <- centro_2015@data
 fit <- lm(log(valor) ~ ., data = data)
-elasticidade(fit, "area_total",
+new <- data.frame(area_total = 205, quartos = 3, suites = 1,
+             garagens = 2, dist_b_mar = 250, padrao = "medio")
+(p <- predict(fit, newdata = new))
+new1 <- data.frame(area_total = 1.1*205, quartos = 3, suites = 1,
+             garagens = 2, dist_b_mar = 250, padrao = "medio")
+(p1 <- predict(fit, newdata = new1))
+(exp(p1) - exp(p))/exp(p)
+elasticidade(fit, "area_total", func = "log",
              local = list(area_total = 205, quartos = 3, suites = 1,
              garagens = 2, dist_b_mar = 250, padrao = "medio"))
-elasticidade(fit, "dist_b_mar",
+elasticidade(fit, "dist_b_mar", func = "log",
              local = list(area_total = 205, quartos = 3, suites = 1,
              garagens = 2, dist_b_mar = 250, padrao = "medio"))
-elasticidade(fit, "area_total",
-             local = list(area_total = 205, quartos = 3, suites = 1,
-             garagens = 2, dist_b_mar = 250, padrao = "medio"),
-             factor = -0.1)
-elasticidade(fit, "padrao",
+elasticidade(fit, "padrao", func = "log",
              local = list(area_total = 205, quartos = 3, suites = 1,
              garagens = 2, dist_b_mar = 250, padrao = "medio"),
              factor = +1)
-elasticidade(fit, "padrao",
+elasticidade(fit, "padrao", func = "log",
              local = list(area_total = 205, quartos = 3, suites = 1,
              garagens = 2, dist_b_mar = 250, padrao = "medio"),
              factor = -1)
