@@ -11,13 +11,14 @@
 #' grau(fit)
 
 grau <- function(object){
-  s <- summary(object)
-  param <- parameters(object)
+  z <- object
+  s <- summary(z)
+  param <- parameters(z)
   preds <- param$predictors
   resp <- param$response
   data <- param$data
 
-  n <- nrow(data)
+  n <- nrow(na.omit(data))
   k <- length(preds)
 
   nmin <- ifelse(n >= 6*(k+1), sprintf("n = %i >= %i --> Grau III", n, 6*(k+1)),
@@ -31,7 +32,7 @@ grau <- function(object){
   tmax <- ifelse(max_t < .1, sprintf("t m\u00e1ximo = %.2f %%  < 10%% --> Grau III", 100*max_t),
                  ifelse(max_t < .2, sprintf("10%% < t m\u00e1ximo = %.2f %% < 20%% --> Grau II", 100*max_t),
                         ifelse(max_t < .3, sprintf("20%% < t m\u00e1ximo = %.2f %% < 30%% --> Grau I", 100*max_t),
-                               sprintf("t m\u00e1ximo = %.2f %%  > 30%% --> Fora de Especificacao", 100*max_t))))
+                               sprintf("t m\u00e1ximo = %.2f %%  > 30%% --> Fora de Especifica\u00E7\u00E3o", 100*max_t))))
 
   f <- s$fstatistic
   pVal <- stats::pf(f[1], f[2], f[3], lower.tail = FALSE)
