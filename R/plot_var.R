@@ -93,7 +93,9 @@ plotvar <- function(object, variable, func,
     p <- ggplot(data = pred_plot, aes_(x = as.name(variable), y = as.name(response))) +
       geom_boxplot(aes_(fill = as.name(variable))) +
       theme(legend.position="bottom") +
-      scale_y_continuous(labels = scales::label_number_si())
+      scale_y_continuous(labels = scales::label_number_si(accuracy = .01,
+                                                          big.mark = ".",
+                                                          decimal.mark = ","))
     if(!missing(local)) {
       p_local <- ifelse(missing(func), p_local, inverse(p_local, func))
       if (!missing(av)) {
@@ -155,8 +157,12 @@ plotvar <- function(object, variable, func,
     p <- ggplot(data = pred, aes_(x = as.name(variable), y = as.name(response))) +
         geom_line(size = 1) +
         theme(legend.position="bottom") +
-        scale_y_continuous(labels = scales::label_number_si()) +
-        scale_x_continuous(labels = scales::label_number_si())
+        scale_y_continuous(labels = scales::label_number_si(accuracy = .01,
+                                                            big.mark = ".",
+                                                            decimal.mark = ",")) +
+        scale_x_continuous(labels = scales::label_number_si(accuracy = .01,
+                                                            big.mark = ".",
+                                                            decimal.mark = ","))
     if (ca == TRUE) {
       if (missing(func)) {
         message("Campo de Arbítrio somente possivel na escala original.")
