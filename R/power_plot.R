@@ -60,8 +60,12 @@ power_plot.lm <- function(object, func, axis = c("standard", "inverted"), ...) {
     return(p)
   } else {
     p <- p +
-      scale_y_continuous(labels = scales::label_number_si()) +
-      scale_x_continuous(labels = scales::label_number_si())
+      scale_y_continuous(labels = scales::label_number_si(accuracy = .01,
+                                                          big.mark = ".",
+                                                          decimal.mark = ",")) +
+      scale_x_continuous(labels = scales::label_number_si(accuracy = .01,
+                                                          big.mark = ".",
+                                                          decimal.mark = ","))
     return(p)
   }
 
@@ -122,8 +126,12 @@ power_plot.lmerMod <-  function(object, func, ...){
     return(p)
   } else {
     p <- p +
-      scale_y_continuous(labels = scales::label_number_si()) +
-      scale_x_continuous(labels = scales::label_number_si())
+      scale_y_continuous(labels = scales::label_number_si(accuracy = .01,
+                                                          big.mark = ".",
+                                                          decimal.mark = ",")) +
+      scale_x_continuous(labels = scales::label_number_si(accuracy = .01,
+                                                          big.mark = ".",
+                                                          decimal.mark = ","))
     return(p)
   }
   return(p)
