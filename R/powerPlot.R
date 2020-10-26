@@ -1,32 +1,32 @@
 
 #' Power plots with ggplot2
 #'
-#' \code{power_plot} generates Power Plots for \code{\link{lm}} or
+#' \code{powerPlot} generates Power Plots for \code{\link{lm}} or
 #' \code{\link{bestfit}} objects with \code{\link{ggplot2}}.
 #'
 #' @param object object of class \code{\link{lm}} or \code{\link{bestfit}}
 #' @param \dots not used.
 #' @return a power plot
-#' @name power_plot
+#' @name powerPlot
 #' @export
-power_plot <- function(object, ...) {
-  UseMethod("power_plot")
+powerPlot <- function(object, ...) {
+  UseMethod("powerPlot")
 }
 
-#' @rdname power_plot
+#' @rdname powerPlot
 #' @examples
 #' library(ggplot2)
-#' dados <- centro_2015@data
+#' dados <- st_drop_geometry(centro_2015)
 #' dados$padrao <- as.numeric(dados$padrao)
 #' fit <- lm(log(valor) ~ area_total + quartos + suites + garagens +
 #' log(dist_b_mar) + I(1/padrao), dados, subset = -c(31, 39))
-#' power_plot(fit)
-#' power_plot(fit, axis = "inverted")
-#' p <- power_plot(fit, func = "log", axis = "inverted")
+#' powerPlot(fit)
+#' powerPlot(fit, axis = "inverted")
+#' p <- powerPlot(fit, func = "log", axis = "inverted")
 #' p + labs(title = "Poder de Predição", subtitle = "Em milhões de Reais")
 #' @export
 #'
-power_plot.lm <- function(object, func, axis = c("standard", "inverted"), ...) {
+powerPlot.lm <- function(object, func, axis = c("standard", "inverted"), ...) {
   z <- object
   attr(z$terms, "variables")
   data <- stats::model.frame(z)
@@ -71,34 +71,34 @@ power_plot.lm <- function(object, func, axis = c("standard", "inverted"), ...) {
 
 }
 
-#' @rdname power_plot
+#' @rdname powerPlot
 #' @param fit chosen fit
 #' @examples
-#' dados <- centro_2015@data
+#' dados <- st_drop_geometry(centro_2015)
 #' best_fit <- bestfit(valor ~ ., dados)
-#' power_plot(best_fit, fit = 257)
+#' powerPlot(best_fit, fit = 257)
 #' @export
 
-power_plot.bestfit <- function(object, fit = 1, ...) {
+powerPlot.bestfit <- function(object, fit = 1, ...) {
   s <- summary(object, fit = fit)
   z <- s$fit
-  p <- power_plot.lm(z, ...)
+  p <- powerPlot.lm(z, ...)
   p
 }
 
-#' @rdname power_plot
+#' @rdname powerPlot
 #' @param fit chosen fit
 #' @examples
 #' library(lme4)
 #' data(centro_2015)
-#' dados <- centro_2015@data
+#' dados <- st_drop_geometry(centro_2015)
 #' Mfit <- lmer(log(valor) ~ area_total + quartos + suites + garagens +
 #' dist_b_mar + (1|padrao), dados)
-#' power_plot(Mfit)
-#' power_plot(Mfit, func = "log")
+#' powerPlot(Mfit)
+#' powerPlot(Mfit, func = "log")
 #' @export
 #'
-power_plot.lmerMod <-  function(object, func, ...){
+powerPlot.lmerMod <-  function(object, func, ...){
   require(broom.mixed)
   z <- object
   df <- data.frame(.fitted = z@resp$mu, Y = z@resp$y)

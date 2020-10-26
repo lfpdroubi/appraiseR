@@ -15,7 +15,7 @@
 #' @param \dots further arguments passed to predict.lm.
 #' @export
 #' @examples
-#' dados <- centro_2015@data
+#' dados <- st_drop_geometry(centro_2015)
 #' fit <- lm(log(valor) ~ ., data = dados)
 #' plotvar(fit, "area_total")
 #' plotvar(fit, "area_total", interval = "confidence")
@@ -27,6 +27,9 @@
 #' plotvar(fit, "area_total", "log", interval = "confidence")
 #' plotvar(fit, "area_total", "log", interval = "prediction")
 #' plotvar(fit, "area_total", "log", interval = "both")
+#' plotvar(fit, "area_total", interval = "both", ca = TRUE,
+#'         local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+#'         dist_b_mar = 250, padrao = "medio"))
 #' plotvar(fit, "area_total", func = "log", interval = "both", ca = TRUE,
 #'         local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'         dist_b_mar = 250, padrao = "medio"))
@@ -46,7 +49,7 @@
 #' local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'         dist_b_mar = 250, padrao = "medio"), av = 1100000, ca = TRUE)
 
-plotvar <- function(object, variable, func,
+plotVar <- function(object, variable, func,
                     interval = c("none", "confidence", "prediction", "both"),
                     level = 0.80,
                     ca = FALSE,
@@ -98,6 +101,7 @@ plotvar <- function(object, variable, func,
                                                           decimal.mark = ","))
     if(!missing(local)) {
       p_local <- ifelse(missing(func), p_local, inverse(p_local, func))
+      cat(elasticidade(fit, variable, func, local, factor = +1), " ")
       if (!missing(av)) {
         p_local <- data.frame(y = p_local, local, av = av)
       } else {
@@ -175,6 +179,7 @@ plotvar <- function(object, variable, func,
     }
     if(!missing(local)) {
       p_local <- ifelse(missing(func), p_local, inverse(p_local, func))
+      cat(elasticidade(fit, variable, func, local), " ")
       if (!missing(av)) {
         p_local <- data.frame(y = p_local, local, av = av)
       } else {
