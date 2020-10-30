@@ -14,7 +14,7 @@ Builds a new \code{data.frame} containing only elements
 to be appraised from the current \code{data.frame}
 }
 \examples{
-dados <- centro_2015@data
+dados <- st_drop_geometry(centro_2015)
 fit <- lm(log(valor) ~ ., data = dados)
 new_data(fit)
 }

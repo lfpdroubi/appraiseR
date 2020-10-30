@@ -25,7 +25,7 @@ be applied to the data - usually functions of the box-cox family.}
 Find best transformations of the parameters for Linear Regression.
 }
 \examples{
-dados <- centro_2015@data
+dados <- st_drop_geometry(centro_2015)
 best_fit <- bestfit(valor ~ ., data = dados)
 print(best_fit, n = 20)
 s <- summary(best_fit)

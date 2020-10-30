@@ -37,6 +37,6 @@ centre(vec)
 vec <- c(-3, -2, 0, 1, 1, 3)
 vec <- as.factor(vec)
 centre(vec)
-dados <- centro_2015@data
+dados <- st_drop_geometry(centro_2015)
 centre(dados$padrao)
 }

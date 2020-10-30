@@ -18,7 +18,7 @@ a data frame with the newdata values above max or below min original data
 Find out how much new data extrapolates the model data
 }
 \examples{
-dados <- centro_2015@data
+dados <- st_drop_geometry(centro_2015)
 fit <- lm(log(valor) ~ ., data = dados)
 newdata <- new_data(fit)
 MaxsAndMins(newdata, dados)

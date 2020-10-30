@@ -22,12 +22,13 @@ Based on International Association of Assessing Officers' Standard on Ratio Stud
 }
 \examples{
 library(appraiseR)
-library(broom)
 
-dados <- centro_2015@data
-fit <- lm(log(valor) ~ area_total + quartos + suites + garagens +
-log(dist_b_mar) + padrao, data = dados)
+zilli_2020 <- st_drop_geometry(zilli_2020)
+zilli_2020$PC <- as.numeric(zilli_2020$PC)
+fit <- lm(log(VU) ~ log(AP) + log(DABM) + ND + NB + NG + PSN + PC + BRO,
+data = zilli_2020[1:190, ], subset = -c(86, 115))
 
-dados <- augment(fit)
-iaao_Ratio(dados$.fitted, dados$`log(valor)`)
+new = zilli_2020[c(191:213, 215:225), ]
+fitted <- predict(fit, newdata = new)
+iaao_Ratio(exp(fitted), new[, "VU", drop = TRUE])
 }

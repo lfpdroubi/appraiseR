@@ -43,7 +43,7 @@ Interval of arbitration according to NBR14.653-2.
 Interval evaluation based on NBR14.653-2.
 }
 \examples{
-dados <- centro_2015@data
+dados <- st_drop_geometry(centro_2015)
 fit <- lm(log(valor) ~ ., data = dados)
 require(dplyr)
 aval <- dados \%>\% filter(is.na(valor))

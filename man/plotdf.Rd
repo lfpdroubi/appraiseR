@@ -15,9 +15,9 @@ plotdf(formula, data)
 \code{plotdf} creates standardized plots for easy data frames visualizations.
 }
 \examples{
-dados <- as.data.frame(centro_2015@data)
+dados <- st_drop_geometry(centro_2015)
 plotdf(valor ~ ., dados)
-plotdf(log(valor) ~ . , dados)
+plotdf(log(valor) ~ ., dados)
 plotdf(log(valor) ~ area_total + quartos + suites + garagens +
 log(dist_b_mar) + padrao , dados)
 }

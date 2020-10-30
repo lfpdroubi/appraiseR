@@ -19,7 +19,7 @@ a
 Returns a vector generated with the inverse of the function f
 }
 \examples{
-dados <- centro_2015@data
+dados <- st_drop_geometry(centro_2015)
 fit <- lm(log(valor) ~ ., data = dados)
 aval <- new_data(fit)
 Y <- predict(fit, newdata = aval, interval = "confidence")

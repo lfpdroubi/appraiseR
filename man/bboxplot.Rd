@@ -34,9 +34,9 @@ A boxplot of the variable \code{y} or the boxplot of the \code{y}
 Create boxplots with \link{ggplot2}.
 }
 \examples{
-data <- as.data.frame(centro_2015@data)
-bboxplot("valor", data = data)
-bboxplot("valor", "padrao", data)
+dados <- st_drop_geometry(centro_2015)
+bboxplot("valor", data = dados)
+bboxplot("valor", "padrao", dados)
 bboxplot(valor~padrao, data)
 bboxplot(~valor, data)
 }

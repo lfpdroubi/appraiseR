@@ -21,7 +21,7 @@ centro_2015$padrao %<>% readr::parse_factor(padrao_levels)
 centro_2015 <-
   sp::SpatialPointsDataFrame(coords = centro_2015[c("E", "N")],
                              data = subset(centro_2015, select = -c(E,N)),
-                             proj4string = sp::CRS("+proj=utm +zone=22 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"))
+                             proj4string = sp::CRS("+init=epsg:31982"))
 
 centro_2015 <- sf::st_as_sf(centro_2015)
 
@@ -45,6 +45,67 @@ centro_2015 <- sf::st_as_sf(centro_2015)
 #' @source \strong{HOCHHEIM, Norberto}. \emph{Engenharia de avaliacoes
 #' imobiliarias: Modulo Basico}. Florianopolis: IBAPE/SC, 2015, p.21-22
 "centro_2015"
+
+zilli_2020 <- suppressWarnings(readr::read_csv2("./inst/zilli.csv"))
+
+zilli_2020 <- within(zilli_2020, {
+  MO <- factor(MO, levels = c("N", "SM", "MO"))
+  PSN <- as.numeric(as.factor(PSN)) - 1
+  CH <- as.numeric(as.factor(CH)) - 1
+  PC <- factor(PC, levels = c("B", "M", "A"))
+  BRO <- factor(BRO, levels = c("Centro", "Agronomica", "Trindade"))
+  })
+
+zilli_2020 <-
+  sp::SpatialPointsDataFrame(coords = zilli_2020[c("COORD_E", "COORD_N")],
+                             data = subset(zilli_2020, select = -c(COORD_E, COORD_N)),
+                             proj4string = sp::CRS("+init=epsg:31982"))
+
+zilli_2020 <- sf::st_as_sf(zilli_2020)
+
+#' Prices of 225 Florianopolis' apartaments in 3 neighborhoods
+#'
+#' A SpatialPointsDataFrame containing a sample of 50 apartaments with
+#' prices and other attributes in Florianopolis' downtown
+#'
+#' @format A tibble with 53 rows (50 samples and 3 apartments to be
+#'   appraised) and 7 variables:
+#' \itemize{
+#'   \item VT: price, in brazilian Reais
+#'   \item VU: price per sq. meter
+#'   \item AP: Private Area, in squared meters
+#'   \item DPXV: Distance to Praça XV
+#'   \item DSBM: Distance to Beira Mar Mall
+#'   \item DSIG: Distance to Iguatemi Mall
+#'   \item DCTC: Distance to  CTC/UFSC
+#'   \item DABM: Distance to Beira Mar Avenue
+#'   \item ND: Number of rooms
+#'   \item NB: Number of bathrooms
+#'   \item NS: Number of ensuites
+#'   \item NG: Number of garages
+#'   \item MO: Furnishes - N (none), SM (some), MO (full)
+#'   \item PSN: Swimming pool?
+#'   \item CH: Barbecue grill?
+#'   \item PC: Building Standard - B, M, A
+#'   (i.e. low, normal, high)
+#'   \item BRO: Neighborhood
+#' }
+#' @source \strong{ZILLI, Carlos Augusto}. \emph{Regressão geograficamente
+#' ponderada aplicada na avaliação em massa de imóveis urbanos.}. 2020.
+#' Dissertação de Mestrado em Engenharia de Transportes e Gestão Territorial.
+#' Centro Tecnológico da UFSC. Florianópolis/SC.
+#' @examples
+#' data(zilli_2020)
+#' zilli_2020$PC <- as.numeric(zilli_2020$PC)
+#' fit <- lm(log(VU) ~ log(AP) + log(DABM) + ND + NB + NG + PSN + PC,
+#' data = zilli_2020[1:190, ], subset = -c(86, 115))
+#' summary(fit)
+#'
+#' fefit <- lm(log(VU) ~ log(AP) + log(DABM) + ND + NB + NG + PSN + PC + BRO,
+#' data = zilli_2020[1:190, ], subset = -c(86, 115))
+#' summary(fefit)
+#'
+"zilli_2020"
 
 trindade <- tibble::tibble(VU = c(427, 458, 510, 511, 528, 545,
                                   564, 574, 574, 590, 601, 602,
@@ -218,5 +279,5 @@ trivelloni_2005 <-
 
 trivelloni_2005 <- sf::st_as_sf(trivelloni_2005)
 
-usethis::use_data(centro_2015, trindade, jungles, loteamento, jurere_2017,
-                  trivelloni_2005, overwrite = TRUE)
+usethis::use_data(centro_2015, zilli_2020, trindade, jungles, loteamento,
+                  jurere_2017, trivelloni_2005, overwrite = TRUE)

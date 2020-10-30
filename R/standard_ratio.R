@@ -10,14 +10,15 @@
 #' @export
 #' @examples
 #' library(appraiseR)
-#' library(broom)
 #'
-#' dados <- st_drop_geometry(centro_2015)
-#' fit <- lm(log(valor) ~ area_total + quartos + suites + garagens +
-#' log(dist_b_mar) + padrao, data = dados)
+#' zilli_2020 <- st_drop_geometry(zilli_2020)
+#' zilli_2020$PC <- as.numeric(zilli_2020$PC)
+#' fit <- lm(log(VU) ~ log(AP) + log(DABM) + ND + NB + NG + PSN + PC + BRO,
+#' data = zilli_2020[1:190, ], subset = -c(86, 115))
 #'
-#' dados <- augment(fit)
-#' iaao_Ratio(dados$.fitted, dados$`log(valor)`)
+#' new = zilli_2020[c(191:213, 215:225), ]
+#' fitted <- predict(fit, newdata = new)
+#' iaao_Ratio(exp(fitted), new[, "VU", drop = TRUE])
 
 iaao_Ratio <- function(AssessedValue, SalePrice, OutlierTrimming = FALSE) {
   df_sale <-  data.frame(AssessedValue = AssessedValue, SalePrice = SalePrice)
@@ -48,7 +49,7 @@ iaao_Ratio <- function(AssessedValue, SalePrice, OutlierTrimming = FALSE) {
 
   if(MedianRatio < .70)
   {
-    nivelMedianRatio <- "Valor Venal baixo em relação ao valor de mercado: necessidade de atualização dos valores venais (mínimo deve ser 70%)."
+    nivelMedianRatio <- "Valor Venal baixo em relação ao valor de mercado: \n necessidade de atualização dos valores venais (mínimo deve ser 70%)."
   }
   else if(MedianRatio >= .70 & MedianRatio <= 1)
   {
@@ -56,16 +57,17 @@ iaao_Ratio <- function(AssessedValue, SalePrice, OutlierTrimming = FALSE) {
   }
   else
   {
-    nivelMedianRatio <- "Valor Venal SUPERIOR ao valor de mercado: necessidade de atualização dos valores venais."
+    nivelMedianRatio <- "Valor Venal SUPERIOR ao valor de mercado: \n necessidade de atualização dos valores venais."
   }
 
-  cat("Razão das medianas (Median Ratio) = ", MedianRatio, "\nNível: ", nivelMedianRatio , "\n\n" )
+  cat("Razão das medianas (Median Ratio) = ", brf(MedianRatio, nsmall = 3),
+      "\nNível: ", nivelMedianRatio , "\n\n" )
 
   AverageOfDifferences <- mean(df_sale$Difference_Ratio_MedianRatio)
 
   COD <- AverageOfDifferences / MedianRatio
 
-  if(COD <= 10)
+  if(COD <= .10)
   {
     nivelCOD <- "Equidade de Valor Venal EXCELENTE (COD menor igual a 10%)"
   }
@@ -83,7 +85,7 @@ iaao_Ratio <- function(AssessedValue, SalePrice, OutlierTrimming = FALSE) {
   }
   else
   {
-    nivelCOD <- "Equidade de Valor Venal RUIM - falta de homogeneidade nos valores e a necessidade de atualiza??o (COD > 30%). "
+    nivelCOD <- "Equidade de Valor Venal RUIM - falta de homogeneidade nos \n valores e a necessidade de atualiza\u00E7\u00E3o (COD > 30%). "
   }
 
   cat("COD (Coefficient of Dispersion) = ", pct(COD), "\nNível: ", nivelCOD , "\n\n" )
@@ -94,11 +96,11 @@ iaao_Ratio <- function(AssessedValue, SalePrice, OutlierTrimming = FALSE) {
   PRD <- MeanRatio / WeightedMean
   if(PRD < .98)
   {
-    nivelPRD <- "Tendência PROGRESSIVA de Valor Venal FORA do intervalo recomendado (98% a 103%)"
+    nivelPRD <- "Tendência PROGRESSIVA de Valor Venal \nFORA do intervalo recomendado (98% a 103%)"
   }
   else if(PRD >= .98 & PRD < 1)
   {
-    nivelPRD <- "Tendência PROGRESSIVA de Valor Venal DENTRO do intervalo recomendado (98% a 103%)"
+    nivelPRD <- "Tendência PROGRESSIVA de Valor Venal \nDENTRO do intervalo recomendado (98% a 103%)"
   }
   else if(PRD == 1)
   {
@@ -106,11 +108,11 @@ iaao_Ratio <- function(AssessedValue, SalePrice, OutlierTrimming = FALSE) {
   }
   else if(PRD > 1 & PRD <= 1.03 )
   {
-    nivelPRD <- "Tendência REGRESSIVA de Valor Venal DENTRO do intervalo recomendado (98% a 103%)"
+    nivelPRD <- "Tendência REGRESSIVA de Valor Venal \nDENTRO do intervalo recomendado (98% a 103%)"
   }
   else
   {
-    nivelPRD <- "Tendência REGRESSIVA de Valor Venal FORA do intervalo recomendado (98% a 103%)"
+    nivelPRD <- "Tendência REGRESSIVA de Valor Venal \nFORA do intervalo recomendado (98% a 103%)"
   }
 
   cat("PRD (Price-Related Differential) = ", pct(PRD), "\nNível: ", nivelPRD , "\n\n" )

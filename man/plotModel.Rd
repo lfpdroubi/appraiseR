@@ -35,7 +35,7 @@ ploted.}
 \code{plotModel} plots \code{\link{bestfit}} models
 }
 \examples{
-data <- centro_2015@data
+data <- st_drop_geometry(centro_2015)
 best_fit <- bestfit(valor ~ .,  data = data)
 plotModel(best_fit, interval = "confidence")
 plotModel(best_fit, fit = 2, interval = "confidence")

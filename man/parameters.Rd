@@ -32,6 +32,7 @@ p$parameters
 p$predictors
 p$response
 p$data
-best_fit <- bestfit(valor ~ ., centro_2015@data)
+dados <- st_drop_geometry(centro_2015)
+best_fit <- bestfit(valor ~ ., dados)
 parameters(best_fit)
 }

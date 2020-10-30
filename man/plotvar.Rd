@@ -42,37 +42,39 @@ be ploted.}
 \code{plotvar} plots model variables with confidence/prediction intervals
 }
 \examples{
-dados <- centro_2015@data
+library(sf)
+data(centro_2015)
+dados <- st_drop_geometry(centro_2015)
 fit <- lm(log(valor) ~ ., data = dados)
-plotvar(fit, "area_total")
-plotvar(fit, "area_total", interval = "confidence")
-plotvar(fit, "area_total", interval = "prediction")
-plotvar(fit, "area_total", interval = "prediction", ca = TRUE)
-plotvar(fit, "area_total", interval = "both")
-plotvar(fit, "area_total", "log")
-plotvar(fit, "area_total", "log", ca = TRUE)
-plotvar(fit, "area_total", "log", interval = "confidence")
-plotvar(fit, "area_total", "log", interval = "prediction")
-plotvar(fit, "area_total", "log", interval = "both")
-plotvar(fit, "area_total", interval = "both", ca = TRUE,
+plotVar(fit, "area_total")
+plotVar(fit, "area_total", interval = "confidence")
+plotVar(fit, "area_total", interval = "prediction")
+plotVar(fit, "area_total", interval = "prediction", ca = TRUE)
+plotVar(fit, "area_total", interval = "both")
+plotVar(fit, "area_total", "log")
+plotVar(fit, "area_total", "log", ca = TRUE)
+plotVar(fit, "area_total", "log", interval = "confidence")
+plotVar(fit, "area_total", "log", interval = "prediction")
+plotVar(fit, "area_total", "log", interval = "both")
+plotVar(fit, "area_total", interval = "both", ca = TRUE,
         local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
         dist_b_mar = 250, padrao = "medio"))
-plotvar(fit, "area_total", func = "log", interval = "both", ca = TRUE,
+plotVar(fit, "area_total", func = "log", interval = "both", ca = TRUE,
         local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
         dist_b_mar = 250, padrao = "medio"))
-plotvar(fit, "padrao")
-plotvar(fit, "padrao", ca = TRUE)
-plotvar(fit, "padrao", func = "log", ca = TRUE)
-plotvar(fit, "padrao", interval = "confidence")
-plotvar(fit, "padrao", interval = "prediction")
-plotvar(fit, "padrao", interval = "both")
-plotvar(fit, "padrao", func = "log", interval = "confidence",
+plotVar(fit, "padrao")
+plotVar(fit, "padrao", ca = TRUE)
+plotVar(fit, "padrao", func = "log", ca = TRUE)
+plotVar(fit, "padrao", interval = "confidence")
+plotVar(fit, "padrao", interval = "prediction")
+plotVar(fit, "padrao", interval = "both")
+plotVar(fit, "padrao", func = "log", interval = "confidence",
 local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
         dist_b_mar = 250, padrao = "medio"))
-plotvar(fit, "padrao", func = "log", interval = "prediction",
+plotVar(fit, "padrao", func = "log", interval = "prediction",
 local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
         dist_b_mar = 250, padrao = "medio"), av = 1100000)
-plotvar(fit, "area_total", func = "log", interval = "prediction",
+plotVar(fit, "area_total", func = "log", interval = "prediction",
 local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
         dist_b_mar = 250, padrao = "medio"), av = 1100000, ca = TRUE)
 }

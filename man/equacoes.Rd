@@ -15,7 +15,8 @@ equacoes(object, precision = 10000)
 Givens a \link{lm} object, returns its regression equation
 }
 \examples{
-dados <- centro_2015@data
+dados <- st_drop_geometry(centro_2015)
 fit <- lm(log(valor) ~ ., dados)
 equacoes(fit)
+equacoes(fit, precision = 1)
 }

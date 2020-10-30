@@ -66,6 +66,21 @@ summary.bestfit <- function(object, fit = 1, subset, ...){
 }
 
 #' @export
+#'
+mystarformat <- function(x) symnum(x, corr = FALSE, na = FALSE,
+                                   cutpoints = c(0, 0.10, 0.20, 0.30, 1),
+                                   symbols = c("***", "**", "*", " "))
+
+#' @export
+#'
+show_coef <- function(fit) {
+  mycoef<-data.frame(coef(summary(fit)), check.names=F)
+  mycoef$signif = mystarformat(mycoef$`Pr(>|t|)`)
+  mycoef$`Pr(>|t|)` = format.pval(mycoef$`Pr(>|t|)`)
+  mycoef
+}
+
+#' @export
 
 print.summary.bestfit <- function(x, ...){
   cat("Call:\n")
@@ -73,7 +88,8 @@ print.summary.bestfit <- function(x, ...){
   cat("\nBest (Chosen) Transformations:\n")
   print(x$bestfit)
   cat("\nBest (Chosen) fit LM summary:\n")
-  print(summary(x$fit))
+  print(show_coef(x$fit))
+  cat("---\n Signif. codes:  0 ‘***’ 0.10 ‘**’ 0.20 ‘*’ 0.30 ‘ ’ 1\n")
   cat("NBR-14.653-2 check:\n")
   cat("Number of market data used:\n")
   print(x$nmin)
