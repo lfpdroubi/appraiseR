@@ -22,7 +22,7 @@
 #' plotVar(mod, "area_total")
 #' plotVar(mod, "area_total", interval = "confidence")
 #' plotVar(mod, "area_total", interval = "prediction")
-#' plotVar(mod, "area_total", interval = "prediction", ca = TRUE) @lm(log(valor)
+#' plotVar(mod, "area_total", interval = "prediction", ca = TRUE)
 #' plotVar(mod, "area_total", interval = "both")
 #' plotVar(mod, "area_total", "log")
 #' plotVar(mod, "area_total", "log", ca = TRUE)
@@ -50,6 +50,10 @@
 #' plotVar(mod, "area_total", func = "log", interval = "prediction",
 #' local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'         dist_b_mar = 250, padrao = "medio"), av = 1100000, ca = TRUE)
+#' dados$padrao <- relevel(dados$padrao, ref="alto")
+#' mod <- lm(log(valor) ~ ., data = dados)
+#' plotVar(mod, "padrao", interval = "confidence")
+#' plotVar(mod, "padrao", interval = "confidence", func = "log")
 
 plotVar <- function(object, variable, func,
                     interval = c("none", "confidence", "prediction", "both"),
@@ -67,9 +71,9 @@ plotVar <- function(object, variable, func,
 
   df %<>% dplyr::as_tibble() %>% dplyr::mutate_if(is.character, as.factor)
 
-  variavel <- dplyr::pull(df[, variable])
+  variavel <- df[, variable, drop = FALSE]
 
-  if (is.factor(variavel)){
+  if (is.factor(variavel[, variable, drop = T])){
     grid <- unique(variavel)
     if (missing(local)) {
       new <- data.frame(grid, lapply(df[setdiff(preds, variable)], centre))
@@ -78,7 +82,6 @@ plotVar <- function(object, variable, func,
       new <- data.frame(grid, local[setdiff(preds, variable)])
       p_local <- predict(z, newdata = local)
     }
-    names(new)[1] <- variable
     if(interval != "both") {
       Y <- stats::predict.lm(object = z, newdata = remove_missing_levels(z, new),
                              interval = interval, level = level, ...)
@@ -92,12 +95,17 @@ plotVar <- function(object, variable, func,
       Y <- inverse(Y, func)
       Y <- cbind(Y, campo_arbitrio(Y))
     }
-    pred <- data.frame(grid, Y)
-    colnames(pred)[1] <- variable
-    pred_plot <- reshape2::melt(pred, id.var = variable, value.name = response)
-    p <- ggplot(data = pred_plot, aes_(x = as.name(variable), y = as.name(response))) +
+    pred <- data.frame(new[ , variable, drop = FALSE], Y)
+    pred_plot <- reshape2::melt(pred,
+                                id.var = variable,
+                                value.name = response,
+                                variable.name = "var")
+    p <- ggplot(data = pred_plot, aes(x = reorder(!!as.name(variable),
+                                                  !!as.name(response),
+                                                  median),
+                                       y = !!as.name(response))) +
       geom_boxplot(aes_(fill = as.name(variable))) +
-      theme(legend.position="bottom") +
+      theme(legend.position="none") +
       scale_y_continuous(labels = scales::label_number_si(accuracy = .01,
                                                           big.mark = ".",
                                                           decimal.mark = ","))
