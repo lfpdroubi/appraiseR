@@ -18,36 +18,36 @@
 #' library(sf)
 #' data(centro_2015)
 #' dados <- st_drop_geometry(centro_2015)
-#' fit <- lm(log(valor) ~ ., data = dados)
-#' plotVar(fit, "area_total")
-#' plotVar(fit, "area_total", interval = "confidence")
-#' plotVar(fit, "area_total", interval = "prediction")
-#' plotVar(fit, "area_total", interval = "prediction", ca = TRUE)
-#' plotVar(fit, "area_total", interval = "both")
-#' plotVar(fit, "area_total", "log")
-#' plotVar(fit, "area_total", "log", ca = TRUE)
-#' plotVar(fit, "area_total", "log", interval = "confidence")
-#' plotVar(fit, "area_total", "log", interval = "prediction")
-#' plotVar(fit, "area_total", "log", interval = "both")
-#' plotVar(fit, "area_total", interval = "both", ca = TRUE,
+#' mod <- lm(log(valor) ~ ., data = dados)
+#' plotVar(mod, "area_total")
+#' plotVar(mod, "area_total", interval = "confidence")
+#' plotVar(mod, "area_total", interval = "prediction")
+#' plotVar(mod, "area_total", interval = "prediction", ca = TRUE) @lm(log(valor)
+#' plotVar(mod, "area_total", interval = "both")
+#' plotVar(mod, "area_total", "log")
+#' plotVar(mod, "area_total", "log", ca = TRUE)
+#' plotVar(mod, "area_total", "log", interval = "confidence")
+#' plotVar(mod, "area_total", "log", interval = "prediction")
+#' plotVar(mod, "area_total", "log", interval = "both")
+#' plotVar(mod, "area_total", interval = "both", ca = TRUE,
 #'         local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'         dist_b_mar = 250, padrao = "medio"))
-#' plotVar(fit, "area_total", func = "log", interval = "both", ca = TRUE,
+#' plotVar(mod, "area_total", func = "log", interval = "both", ca = TRUE,
 #'         local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'         dist_b_mar = 250, padrao = "medio"))
-#' plotVar(fit, "padrao")
-#' plotVar(fit, "padrao", ca = TRUE)
-#' plotVar(fit, "padrao", func = "log", ca = TRUE)
-#' plotVar(fit, "padrao", interval = "confidence")
-#' plotVar(fit, "padrao", interval = "prediction")
-#' plotVar(fit, "padrao", interval = "both")
-#' plotVar(fit, "padrao", func = "log", interval = "confidence",
+#' plotVar(mod, "padrao")
+#' plotVar(mod, "padrao", ca = TRUE)
+#' plotVar(mod, "padrao", func = "log", ca = TRUE)
+#' plotVar(mod, "padrao", interval = "confidence")
+#' plotVar(mod, "padrao", interval = "prediction")
+#' plotVar(mod, "padrao", interval = "both")
+#' plotVar(mod, "padrao", func = "log", interval = "confidence",
 #' local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'         dist_b_mar = 250, padrao = "medio"))
-#' plotVar(fit, "padrao", func = "log", interval = "prediction",
+#' plotVar(mod, "padrao", func = "log", interval = "prediction",
 #' local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'         dist_b_mar = 250, padrao = "medio"), av = 1100000)
-#' plotVar(fit, "area_total", func = "log", interval = "prediction",
+#' plotVar(mod, "area_total", func = "log", interval = "prediction",
 #' local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'         dist_b_mar = 250, padrao = "medio"), av = 1100000, ca = TRUE)
 
@@ -103,7 +103,7 @@ plotVar <- function(object, variable, func,
                                                           decimal.mark = ","))
     if(!missing(local)) {
       p_local <- ifelse(missing(func), p_local, inverse(p_local, func))
-      cat(elasticidade(fit, variable, func, local, factor = +1), " ")
+      cat(elasticidade(z, variable, func, local, factor = +1), " ")
       if (!missing(av)) {
         p_local <- data.frame(y = p_local, local, av = av)
       } else {
@@ -182,7 +182,7 @@ plotVar <- function(object, variable, func,
     }
     if(!missing(local)) {
       p_local <- ifelse(missing(func), p_local, inverse(p_local, func))
-      cat(elasticidade(fit, variable, func, local), " ")
+      cat(elasticidade(z, variable, func, local), " ")
       if (!missing(av)) {
         p_local <- data.frame(y = p_local, local, av = av)
       } else {
