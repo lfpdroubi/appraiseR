@@ -15,7 +15,7 @@ powerPlot <- function(object, ...) {
 
 #' @rdname powerPlot
 #' @examples
-#' library(ggplot2)
+#' library(sf)
 #' dados <- st_drop_geometry(centro_2015)
 #' dados$padrao <- as.numeric(dados$padrao)
 #' fit <- lm(log(valor) ~ area_total + quartos + suites + garagens +
@@ -49,7 +49,6 @@ powerPlot.lm <- function(object, func, axis = c("standard", "inverted"), ...) {
     ylab(bquote(~hat(Y))) +
     xlab("Y") +
     geom_abline(color="red") +
-    geom_smooth(method = "lm", se=FALSE) +
     coord_fixed()
 
   if (axis == "inverted"){
@@ -57,7 +56,7 @@ powerPlot.lm <- function(object, func, axis = c("standard", "inverted"), ...) {
   }
 
   if (missing(func)) {
-    return(p)
+    return(p  +  geom_smooth(method = "lm", se=FALSE))
   } else {
     p <- p +
       scale_y_continuous(labels = scales::label_number_si(accuracy = .01,
@@ -66,7 +65,7 @@ powerPlot.lm <- function(object, func, axis = c("standard", "inverted"), ...) {
       scale_x_continuous(labels = scales::label_number_si(accuracy = .01,
                                                           big.mark = ".",
                                                           decimal.mark = ","))
-    return(p)
+    return(p + geom_smooth(method = "lm", se=FALSE))
   }
 
 }

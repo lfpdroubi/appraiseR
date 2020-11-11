@@ -10,7 +10,7 @@
 #' @export
 #' @examples
 #' library(appraiseR)
-#'
+#' library(sf)
 #' zilli_2020 <- st_drop_geometry(zilli_2020)
 #' zilli_2020$PC <- as.numeric(zilli_2020$PC)
 #' fit <- lm(log(VU) ~ log(AP) + log(DABM) + ND + NB + NG + PSN + PC + BRO,
@@ -22,30 +22,32 @@
 
 iaao_Ratio <- function(AssessedValue, SalePrice, OutlierTrimming = FALSE) {
   df_sale <-  data.frame(AssessedValue = AssessedValue, SalePrice = SalePrice)
-  df_sale["Ratio"] <- df_sale$AssessedValue / df_sale$SalePrice
+  df_sale["ASR"] <- df_sale$AssessedValue / df_sale$SalePrice
   if (OutlierTrimming)
   {
-    df_sale <- df_sale[order(df_sale$Ratio),]
-    q1 <- quantile(df_sale$Ratio,probs = c(0.25),na.rm = TRUE)
-    q3 <- quantile(df_sale$Ratio,probs = c(0.75),na.rm = TRUE)
+    df_sale <- df_sale[order(df_sale$ASR),]
+    q1 <- quantile(df_sale$ASR,probs = c(0.25),na.rm = TRUE)
+    q3 <- quantile(df_sale$ASR,probs = c(0.75),na.rm = TRUE)
     iqr <- q3 - q1
 
-    df_sale.ouliers <- df_sale[df_sale$Ratio < q1 - 3*iqr | df_sale$Ratio > q3 + 3*iqr , ]
+    df_sale.ouliers <- df_sale[df_sale$ASR < q1 - 3*iqr | df_sale$ASR > q3 + 3*iqr , ]
 
-    cat("Total de dados antes do saneamento = ", length(df_sale$Ratio),  "\n" )
+    cat("Total de dados antes do saneamento = ", length(df_sale$ASR),  "\n" )
 
-    cat("Total de outliers = ",length(df_sale.ouliers$Ratio),  "\n" )
+    cat("Total de outliers = ",length(df_sale.ouliers$ASR),  "\n" )
 
-    df_sale <- df_sale[df_sale$Ratio >= q1 - 3*iqr & df_sale$Ratio <= q3 + 3*iqr,]
+    df_sale <- df_sale[df_sale$ASR >= q1 - 3*iqr & df_sale$ASR <= q3 + 3*iqr,]
 
-    cat("Total de dados APÓS o saneamento = ", length(df_sale$Ratio),  "\n\n" )
+    cat("Total de dados APÓS o saneamento = ", length(df_sale$ASR),  "\n\n" )
   }
 
-  MeanRatio <- mean(df_sale$Ratio)
+  MeanRatio <- mean(df_sale$ASR)
 
-  MedianRatio <- median(df_sale$Ratio)
+  MedianRatio <- median(df_sale$ASR)
 
-  df_sale["Difference_Ratio_MedianRatio"] <- abs(df_sale$Ratio - MedianRatio)
+  df_sale["Difference_Ratio_MedianRatio"] <- df_sale$ASR - MedianRatio
+
+  df_sale["Pct_Diff"] <- (df_sale$ASR - MedianRatio)/MedianRatio
 
   if(MedianRatio < .70)
   {
@@ -63,7 +65,7 @@ iaao_Ratio <- function(AssessedValue, SalePrice, OutlierTrimming = FALSE) {
   cat("Razão das medianas (Median Ratio) = ", brf(MedianRatio, nsmall = 3),
       "\nNível: ", nivelMedianRatio , "\n\n" )
 
-  AverageOfDifferences <- mean(df_sale$Difference_Ratio_MedianRatio)
+  AverageOfDifferences <- mean(abs(df_sale$Difference_Ratio_MedianRatio))
 
   COD <- AverageOfDifferences / MedianRatio
 
@@ -116,6 +118,31 @@ iaao_Ratio <- function(AssessedValue, SalePrice, OutlierTrimming = FALSE) {
   }
 
   cat("PRD (Price-Related Differential) = ", pct(PRD), "\nNível: ", nivelPRD , "\n\n" )
+
+  # Calculo PRB
+
+  Value <- .5*df_sale$SalePrice + .5*df_sale$AssessedValue/MedianRatio
+  IndepVar <- log(Value)/.693
+  DepVar <- df_sale$Pct_Diff
+
+  fit <- lm(DepVar ~ IndepVar)
+
+  PRB <- coef(fit)["IndepVar"]
+
+  PRB_CI <- confint(fit)["IndepVar", ]
+
+  cat("PRB (Price-Related Bias) = ", brf(PRB, nsmall = 3), "\nIntervalor de Confiança: ", brf(PRB_CI) , "\n\n")
+
+  z <- list(MedianRatio = MedianRatio,
+            COD = COD,
+            PRD = PRD,
+            PRB = PRB,
+            PRB_CI = PRB_CI,
+            ASR = df_sale$ASR,
+            PctDiff = df_sale$Pct_Diff,
+            Value = Value)
+
+  return(z)
 
 }
 

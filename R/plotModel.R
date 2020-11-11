@@ -15,22 +15,29 @@
 #' (defaults for center of each variable).
 #' @export
 #' @examples
+#' library(sf)
 #' data <- st_drop_geometry(centro_2015)
 #' best_fit <- bestfit(valor ~ .,  data = data)
-#' plotModel(best_fit, interval = "confidence")
-#' plotModel(best_fit, fit = 2, interval = "confidence")
+#' plotModel(best_fit) # Plots the best fit
+#' plotModel(best_fit, interval = "confidence") # adds CIs
+#' plotModel(best_fit, func = "rsqrt") # plots in the original scale
+#' plotModel(best_fit, func = "rsqrt", interval = "both", ca = TRUE)
+#' plotModel(best_fit, func = "rsqrt", interval = "both", ca = TRUE,
+#' local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+#'         dist_b_mar = 250, padrao = "medio"), av = 1100000)
+#' plotModel(best_fit, fit = 2, interval = "confidence") # choose another fit
 #' plotModel(best_fit, interval = "confidence",
 #'         local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'         dist_b_mar = 250, padrao = "medio"))
 #'
-#' fit <- lm(log(valor) ~ ., data = data)
-#' plotModel(fit)
-#' plotModel(fit, interval = "confidence")
-#' plotModel(fit, interval = "confidence", func = "log")
-#' plotModel(fit, interval = "confidence",
+#' mod <- lm(log(valor) ~ ., data = data)
+#' plotModel(mod)
+#' plotModel(mod, interval = "confidence")
+#' plotModel(mod, interval = "confidence", func = "log")
+#' plotModel(mod, interval = "confidence",
 #'         local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'         dist_b_mar = 250, padrao = "medio"))
-#' plotModel(fit, interval = "confidence", func = "log",
+#' plotModel(mod, interval = "confidence", func = "log",
 #'         local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'         dist_b_mar = 250, padrao = "medio"))
 #'
