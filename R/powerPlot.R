@@ -5,6 +5,10 @@
 #' \code{\link{bestfit}} objects with \code{\link{ggplot2}}.
 #'
 #' @param object object of class \code{\link{lm}} or \code{\link{bestfit}}
+#' @param func function used to transform the dependent variable
+#' @param axis option to plot predicted values on the x axis (inverted) or in
+#' the y axis (standard)
+#' @param smooth option to add a regression line to the plot
 #' @param \dots not used.
 #' @return a power plot
 #' @name powerPlot
@@ -21,13 +25,16 @@ powerPlot <- function(object, ...) {
 #' fit <- lm(log(valor) ~ area_total + quartos + suites + garagens +
 #' log(dist_b_mar) + I(1/padrao), dados, subset = -c(31, 39))
 #' powerPlot(fit)
+#' powerPlot(fit, se = TRUE)
+#' powerPlot(fit, smooth = FALSE)
 #' powerPlot(fit, axis = "inverted")
-#' p <- powerPlot(fit, func = "log", axis = "inverted")
 #' library(ggplot2)
+#' p <- powerPlot(fit, func = "log", axis = "inverted")
 #' p + labs(title = "Poder de Predição", subtitle = "Em milhões de Reais")
 #' @export
 #'
-powerPlot.lm <- function(object, func, axis = c("standard", "inverted"), ...) {
+powerPlot.lm <- function(object, func, axis = c("standard", "inverted"),
+                         smooth = TRUE, se = FALSE, ...) {
   z <- object
   attr(z$terms, "variables")
   data <- stats::model.frame(z)
@@ -50,20 +57,16 @@ powerPlot.lm <- function(object, func, axis = c("standard", "inverted"), ...) {
       geom_point(alpha=0.5) +
       xlab(bquote(~hat(Y))) +
       ylab("Y") +
-      geom_abline(color="red") +
-      coord_fixed()
+      geom_abline(color="red")
   } else {
     p <- ggplot(data = invres, aes(x = Y, y = Y_ajustado)) +
       geom_point(alpha=0.5) +
       ylab(bquote(~hat(Y))) +
       xlab("Y") +
-      geom_abline(color="red") +
-      coord_fixed()
+      geom_abline(color="red")
   }
 
-  if (missing(func)) {
-    return(p  +  geom_smooth(method = "lm", se=FALSE))
-  } else {
+  if (!missing(func)) {
     p <- p +
       scale_y_continuous(labels = scales::label_number_si(accuracy = .01,
                                                           big.mark = ".",
@@ -71,9 +74,13 @@ powerPlot.lm <- function(object, func, axis = c("standard", "inverted"), ...) {
       scale_x_continuous(labels = scales::label_number_si(accuracy = .01,
                                                           big.mark = ".",
                                                           decimal.mark = ","))
-    return(p + geom_smooth(method = "lm", se=FALSE))
   }
 
+  if (smooth == TRUE) {
+    p <- p + stat_smooth(method = "lm", se = se)
+  }
+
+  return(p)
 }
 
 #' @rdname powerPlot
