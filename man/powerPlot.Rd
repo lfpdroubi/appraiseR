@@ -30,7 +30,7 @@ a power plot
 \code{\link{bestfit}} objects with \code{\link{ggplot2}}.
 }
 \examples{
-library(ggplot2)
+library(sf)
 dados <- st_drop_geometry(centro_2015)
 dados$padrao <- as.numeric(dados$padrao)
 fit <- lm(log(valor) ~ area_total + quartos + suites + garagens +
@@ -38,6 +38,7 @@ log(dist_b_mar) + I(1/padrao), dados, subset = -c(31, 39))
 powerPlot(fit)
 powerPlot(fit, axis = "inverted")
 p <- powerPlot(fit, func = "log", axis = "inverted")
+library(ggplot2)
 p + labs(title = "Poder de PrediÃ§Ã£o", subtitle = "Em milhÃµes de Reais")
 dados <- st_drop_geometry(centro_2015)
 best_fit <- bestfit(valor ~ ., dados)

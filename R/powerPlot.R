@@ -23,6 +23,7 @@ powerPlot <- function(object, ...) {
 #' powerPlot(fit)
 #' powerPlot(fit, axis = "inverted")
 #' p <- powerPlot(fit, func = "log", axis = "inverted")
+#' library(ggplot2)
 #' p + labs(title = "Poder de Predição", subtitle = "Em milhões de Reais")
 #' @export
 #'
@@ -44,15 +45,20 @@ powerPlot.lm <- function(object, func, axis = c("standard", "inverted"), ...) {
     invres <- data.frame(Y, Y_ajustado)
   }
 
-  p <- ggplot(data = invres, aes(x = Y, y = Y_ajustado)) +
-    geom_point(alpha=0.5) +
-    ylab(bquote(~hat(Y))) +
-    xlab("Y") +
-    geom_abline(color="red") +
-    coord_fixed()
-
-  if (axis == "inverted"){
-    p <- p + coord_flip() + theme(aspect.ratio = 1)
+  if (axis == "inverted") {
+    p <- ggplot(data = invres, aes(x = Y_ajustado, y = Y)) +
+      geom_point(alpha=0.5) +
+      xlab(bquote(~hat(Y))) +
+      ylab("Y") +
+      geom_abline(color="red") +
+      coord_fixed()
+  } else {
+    p <- ggplot(data = invres, aes(x = Y, y = Y_ajustado)) +
+      geom_point(alpha=0.5) +
+      ylab(bquote(~hat(Y))) +
+      xlab("Y") +
+      geom_abline(color="red") +
+      coord_fixed()
   }
 
   if (missing(func)) {
