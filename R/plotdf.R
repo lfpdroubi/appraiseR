@@ -7,6 +7,7 @@
 #'
 #' @export
 #' @examples
+#' library(sf)
 #' dados <- st_drop_geometry(centro_2015)
 #' plotdf(valor ~ ., dados)
 #' plotdf(log(valor) ~ ., dados)
@@ -32,7 +33,9 @@ plotdf <- function(formula, data){
       p[[i]] <- bboxplot(y = response, g = i, data = mf)+
         scale_y_continuous(labels = scales::label_number_si(accuracy = .01,
                                                             big.mark = ".",
-                                                            decimal.mark = ","))
+                                                            decimal.mark = ",")) +
+        xlab(predictors[i]) +
+        theme(legend.position="none")
     else
       p[[i]] <- ggplot(mf, aes_(x = as.name(i), y = as.name(response))) +
                          geom_point() +
@@ -42,7 +45,8 @@ plotdf <- function(formula, data){
                                                             decimal.mark = ",")) +
         scale_x_continuous(labels = scales::label_number_si(accuracy = .01,
                                                             big.mark = ".",
-                                                            decimal.mark = ","))
+                                                            decimal.mark = ",")) +
+        theme(axis.text.x=element_text(angle = 45, vjust = 1, hjust = 1))
   }
 
   est <- list(plots = p,
@@ -55,5 +59,5 @@ plotdf <- function(formula, data){
 #' @export
 #'
 print.plotdf <- function(x, ...){
-  cowplot::plot_grid(plotlist = x$plots, labels = "auto", nrow = x$par1)
+  gridExtra::grid.arrange(grobs =x$plots, nrow =x$par1, ncol = x$par2)
 }

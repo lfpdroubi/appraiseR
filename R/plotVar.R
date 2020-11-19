@@ -105,6 +105,7 @@ plotVar <- function(object, variable, func,
                                                   median),
                                        y = !!as.name(response))) +
       geom_boxplot(aes_(fill = as.name(variable))) +
+      xlab(variable) +
       theme(legend.position="none") +
       scale_y_continuous(labels = scales::label_number_si(accuracy = .01,
                                                           big.mark = ".",
