@@ -5,9 +5,11 @@
 #'
 #' @param AssessedValue vector of assessed values (valores venais ou valores preditos do modelo)
 #' @param SalePrice vector of sale prices (preços de mercado ou preços reais do modelo)
-#' @param OutlierTrimming boolean for outliers trimming or not
 #' @return COD and PRD Ratios according to IAOO
 #' @export
+iaao_Ratio <- function(x, ...) UseMethod("iaao_Ratio")
+
+#' @param OutlierTrimming boolean for outliers trimming or not
 #' @examples
 #' library(appraiseR)
 #' library(sf)
@@ -19,8 +21,9 @@
 #' new = zilli_2020[c(191:213, 215:225), ]
 #' fitted <- predict(fit, newdata = new)
 #' iaao_Ratio(exp(fitted), new[, "VU", drop = TRUE])
-
-iaao_Ratio <- function(AssessedValue, SalePrice, OutlierTrimming = FALSE) {
+#' @export
+iaao_Ratio.default <- function(AssessedValue, SalePrice,
+                               OutlierTrimming = FALSE) {
   df_sale <-  data.frame(AssessedValue = AssessedValue, SalePrice = SalePrice)
   df_sale["ASR"] <- df_sale$AssessedValue / df_sale$SalePrice
   if (OutlierTrimming)
@@ -49,6 +52,72 @@ iaao_Ratio <- function(AssessedValue, SalePrice, OutlierTrimming = FALSE) {
 
   df_sale["Pct_Diff"] <- (df_sale$ASR - MedianRatio)/MedianRatio
 
+  AverageOfDifferences <- mean(abs(df_sale$Difference_Ratio_MedianRatio))
+
+  COD <- AverageOfDifferences / MedianRatio
+
+  TotalOfAssessedValues <- sum(df_sale$AssessedValue)
+  TotalOfSalesPrices <- sum(df_sale$SalePrice)
+  WeightedMean <- TotalOfAssessedValues / TotalOfSalesPrices
+  PRD <- MeanRatio / WeightedMean
+
+  # Calculo PRB
+
+  Value <- .5*df_sale$SalePrice + .5*df_sale$AssessedValue/MedianRatio
+  IndepVar <- log(Value)/.693
+  DepVar <- df_sale$Pct_Diff
+
+  fit <- lm(DepVar ~ IndepVar)
+
+  PRB <- coef(fit)["IndepVar"]
+
+  PRB_CI <- confint(fit)["IndepVar", ]
+
+  z <- list(MedianRatio = MedianRatio,
+            COD = COD,
+            PRD = PRD,
+            PRB = PRB,
+            PRB_CI = PRB_CI,
+            ASR = df_sale$ASR,
+            PctDiff = df_sale$Pct_Diff,
+            Value = Value)
+  class(z) <- "iaao"
+  return(z)
+
+}
+#' @param object An object of class lm.
+#' @param func function used to transform the response (defaults to identity)
+#' @param \dots further arguments passed to \code{iaao_Ratio}.
+#' @examples
+#' library(sf)
+#' dados <- st_drop_geometry(centro_2015)
+#' dados$padrao <- as.numeric(dados$padrao)
+#' fit <- lm(log(valor)~area_total + quartos + suites + garagens +
+#' log(dist_b_mar) + I(1/padrao), data = dados, subset = -c(31, 39))
+#' iaao_Ratio(object = fit, func = "log")
+#' @rdname iaao_Ratio
+#' @export
+iaao_Ratio.lm <- function(object, func = "identity", ...){
+  z <- object
+  fitted <- fitted(z)
+  mf <- stats::model.frame(z)
+  y <- stats::model.response(mf)
+  Y <- data.frame(AssessedValue = fitted, SalePrice = y)
+  Y <- inverse(Y, func = func)
+  s <- iaao_Ratio(AssessedValue = Y$AssessedValue,
+                  SalePrice = Y$SalePrice, ...)
+  return(s)
+}
+#' @export
+#'
+print.iaao <- function(x, ...){
+
+  MedianRatio <- x$MedianRatio
+  COD <- x$COD
+  PRD <- x$PRD
+  PRB <- x$PRB
+  PRB_CI <- x$PRB_CI
+
   if(MedianRatio < .70)
   {
     nivelMedianRatio <- "Valor Venal baixo em relação ao valor de mercado: \n necessidade de atualização dos valores venais (mínimo deve ser 70%)."
@@ -64,10 +133,6 @@ iaao_Ratio <- function(AssessedValue, SalePrice, OutlierTrimming = FALSE) {
 
   cat("Razão das medianas (Median Ratio) = ", brf(MedianRatio, nsmall = 3),
       "\nNível: ", nivelMedianRatio , "\n\n" )
-
-  AverageOfDifferences <- mean(abs(df_sale$Difference_Ratio_MedianRatio))
-
-  COD <- AverageOfDifferences / MedianRatio
 
   if(COD <= .10)
   {
@@ -92,10 +157,6 @@ iaao_Ratio <- function(AssessedValue, SalePrice, OutlierTrimming = FALSE) {
 
   cat("COD (Coefficient of Dispersion) = ", pct(COD), "\nNível: ", nivelCOD , "\n\n" )
 
-  TotalOfAssessedValues <- sum(df_sale$AssessedValue)
-  TotalOfSalesPrices <- sum(df_sale$SalePrice)
-  WeightedMean <- TotalOfAssessedValues / TotalOfSalesPrices
-  PRD <- MeanRatio / WeightedMean
   if(PRD < .98)
   {
     nivelPRD <- "Tendência PROGRESSIVA de Valor Venal \nFORA do intervalo recomendado (98% a 103%)"
@@ -119,30 +180,10 @@ iaao_Ratio <- function(AssessedValue, SalePrice, OutlierTrimming = FALSE) {
 
   cat("PRD (Price-Related Differential) = ", pct(PRD), "\nNível: ", nivelPRD , "\n\n" )
 
-  # Calculo PRB
-
-  Value <- .5*df_sale$SalePrice + .5*df_sale$AssessedValue/MedianRatio
-  IndepVar <- log(Value)/.693
-  DepVar <- df_sale$Pct_Diff
-
-  fit <- lm(DepVar ~ IndepVar)
-
-  PRB <- coef(fit)["IndepVar"]
-
-  PRB_CI <- confint(fit)["IndepVar", ]
-
   cat("PRB (Price-Related Bias) = ", brf(PRB, nsmall = 3), "\nIntervalor de Confiança: ", brf(PRB_CI) , "\n\n")
-
-  z <- list(MedianRatio = MedianRatio,
-            COD = COD,
-            PRD = PRD,
-            PRB = PRB,
-            PRB_CI = PRB_CI,
-            ASR = df_sale$ASR,
-            PctDiff = df_sale$Pct_Diff,
-            Value = Value)
-
-  return(z)
+}
+#' @export
+#'
+print.iaao.lm <- function(x, ...){
 
 }
-
