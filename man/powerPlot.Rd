@@ -9,7 +9,14 @@
 \usage{
 powerPlot(object, ...)
 
-\method{powerPlot}{lm}(object, func, axis = c("standard", "inverted"), ...)
+\method{powerPlot}{lm}(
+  object,
+  func,
+  axis = c("standard", "inverted"),
+  smooth = TRUE,
+  se = FALSE,
+  ...
+)
 
 \method{powerPlot}{bestfit}(object, fit = 1, ...)
 
@@ -19,6 +26,13 @@ powerPlot(object, ...)
 \item{object}{object of class \code{\link{lm}} or \code{\link{bestfit}}}
 
 \item{\dots}{not used.}
+
+\item{func}{function used to transform the dependent variable}
+
+\item{axis}{option to plot predicted values on the x axis (inverted) or in
+the y axis (standard)}
+
+\item{smooth}{option to add a regression line to the plot}
 
 \item{fit}{chosen fit}
 }
@@ -36,9 +50,11 @@ dados$padrao <- as.numeric(dados$padrao)
 fit <- lm(log(valor) ~ area_total + quartos + suites + garagens +
 log(dist_b_mar) + I(1/padrao), dados, subset = -c(31, 39))
 powerPlot(fit)
+powerPlot(fit, se = TRUE)
+powerPlot(fit, smooth = FALSE)
 powerPlot(fit, axis = "inverted")
-p <- powerPlot(fit, func = "log", axis = "inverted")
 library(ggplot2)
+p <- powerPlot(fit, func = "log", axis = "inverted")
 p + labs(title = "Poder de PrediÃ§Ã£o", subtitle = "Em milhÃµes de Reais")
 dados <- st_drop_geometry(centro_2015)
 best_fit <- bestfit(valor ~ ., dados)

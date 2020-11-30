@@ -17,6 +17,23 @@
 #' @examples
 #' library(sf)
 #' data <- st_drop_geometry(centro_2015)
+#' data$padrao <- as.numeric(data$padrao)
+#' ## plotModel.lm
+#' fit <- lm(log(valor)~area_total + quartos + suites + garagens +
+#'             log(dist_b_mar) + I(1/padrao),
+#'             data = data, subset = -c(31, 39))
+#' plotModel(fit)
+#' plotModel(fit, interval = "both", level = .80)
+#' ## On the original scale
+#' plotModel(fit, interval = "both", level = .80, func = "log")
+#' plotModel(fit, interval = "both", level = .80, func = "log", ca = TRUE,
+#'         local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+#'                      dist_b_mar = 250, padrao = 2))
+#' plotModel(fit, interval = "both", level = .80, func = "log", ca = TRUE,
+#'         local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+#'                      dist_b_mar = 250, padrao = 2),
+#'           av = 1100000)
+#' ## plotModel.best_fit
 #' best_fit <- bestfit(valor ~ .,  data = data)
 #' plotModel(best_fit) # Plots the best fit
 #' plotModel(best_fit, interval = "confidence") # adds CIs
@@ -70,7 +87,7 @@ plotModel.bestfit <- function(object, fit = 1, ...){
 
 #' @rdname plotModel
 #' @export
-plotModel.lm <- function(object, func = "identity", ...){
+plotModel.lm <- function(object, ...){
   z <- object
   preds <- parameters(z)$predictors
 

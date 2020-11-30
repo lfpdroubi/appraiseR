@@ -73,7 +73,9 @@ iaao_Ratio.default <- function(AssessedValue, SalePrice,
 
   PRB_CI <- confint(fit)["IndepVar", ]
 
-  z <- list(MedianRatio = MedianRatio,
+  z <- list(AssessedValue = AssessedValue,
+            SalePrice = SalePrice,
+            MedianRatio = MedianRatio,
             COD = COD,
             PRD = PRD,
             PRB = PRB,
@@ -107,6 +109,19 @@ iaao_Ratio.lm <- function(object, func = "identity", ...){
   s <- iaao_Ratio(AssessedValue = Y$AssessedValue,
                   SalePrice = Y$SalePrice, ...)
   return(s)
+}
+#'
+#'@export
+plot.iaao <- function(object, ...){
+  z <- object
+  plot(z$AssessedValue, z$ASR,
+       xlab = "Valores Ajustados", ylab = "ASR", ...)
+  plot(z$Value, z$ASR,
+       xlab = "VALUE", ylab = "ASR", ...)
+  plot(z$SalePrice, z$ASR,
+       xlab = "Valores Observados", ylab = "ASR", ...)
+  plot(log(z$Value)/.693, z$PctDiff,
+       xlab = "LN(VALUE)/.693", ylab = "Pct Diff.", ...)
 }
 #' @export
 #'
@@ -180,10 +195,5 @@ print.iaao <- function(x, ...){
 
   cat("PRD (Price-Related Differential) = ", pct(PRD), "\nNível: ", nivelPRD , "\n\n" )
 
-  cat("PRB (Price-Related Bias) = ", brf(PRB, nsmall = 3), "\nIntervalor de Confiança: ", brf(PRB_CI) , "\n\n")
-}
-#' @export
-#'
-print.iaao.lm <- function(x, ...){
-
+  cat("PRB (Price-Related Bias) = ", brf(PRB, nsmall = 3), "\nIntervalo de Confiança: ", brf(PRB_CI) , "\n\n")
 }

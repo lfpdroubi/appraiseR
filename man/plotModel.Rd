@@ -10,7 +10,7 @@ plotModel(object, ...)
 
 \method{plotModel}{bestfit}(object, fit = 1, ...)
 
-\method{plotModel}{lm}(object, func = "identity", ...)
+\method{plotModel}{lm}(object, ...)
 }
 \arguments{
 \item{object}{Object of class \code{\link{bestfit}}}
@@ -20,13 +20,13 @@ plotModel(object, ...)
 \item{fit}{the number of the chosen fit from the combination matrix (defaults
 for the best fit found with \code{\link{bestfit}}).}
 
-\item{func}{function used to transform the response (optional)}
-
 \item{interval}{the type of interval calculation (provided to predict.lm) to
 be ploted with the model.}
 
 \item{level}{Tolerance/confidence level (provided to predict.lm) to be
 ploted.}
+
+\item{func}{function used to transform the response (optional)}
 
 \item{local}{Data Frame to be used for calculate the estimates
 (defaults for center of each variable).}
@@ -35,22 +35,46 @@ ploted.}
 \code{plotModel} plots \code{\link{bestfit}} models
 }
 \examples{
+library(sf)
 data <- st_drop_geometry(centro_2015)
+data$padrao <- as.numeric(data$padrao)
+## plotModel.lm
+fit <- lm(log(valor)~area_total + quartos + suites + garagens +
+            log(dist_b_mar) + I(1/padrao),
+            data = data, subset = -c(31, 39))
+plotModel(fit)
+plotModel(fit, interval = "both", level = .80)
+## On the original scale
+plotModel(fit, interval = "both", level = .80, func = "log")
+plotModel(fit, interval = "both", level = .80, func = "log", ca = TRUE,
+        local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+                     dist_b_mar = 250, padrao = 2))
+plotModel(fit, interval = "both", level = .80, func = "log", ca = TRUE,
+        local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+                     dist_b_mar = 250, padrao = 2),
+          av = 1100000)
+## plotModel.best_fit
 best_fit <- bestfit(valor ~ .,  data = data)
-plotModel(best_fit, interval = "confidence")
-plotModel(best_fit, fit = 2, interval = "confidence")
+plotModel(best_fit) # Plots the best fit
+plotModel(best_fit, interval = "confidence") # adds CIs
+plotModel(best_fit, func = "rsqrt") # plots in the original scale
+plotModel(best_fit, func = "rsqrt", interval = "both", ca = TRUE)
+plotModel(best_fit, func = "rsqrt", interval = "both", ca = TRUE,
+local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+        dist_b_mar = 250, padrao = "medio"), av = 1100000)
+plotModel(best_fit, fit = 2, interval = "confidence") # choose another fit
 plotModel(best_fit, interval = "confidence",
         local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
         dist_b_mar = 250, padrao = "medio"))
 
-fit <- lm(log(valor) ~ ., data = data)
-plotModel(fit)
-plotModel(fit, interval = "confidence")
-plotModel(fit, interval = "confidence", func = "log")
-plotModel(fit, interval = "confidence",
+mod <- lm(log(valor) ~ ., data = data)
+plotModel(mod)
+plotModel(mod, interval = "confidence")
+plotModel(mod, interval = "confidence", func = "log")
+plotModel(mod, interval = "confidence",
         local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
         dist_b_mar = 250, padrao = "medio"))
-plotModel(fit, interval = "confidence", func = "log",
+plotModel(mod, interval = "confidence", func = "log",
         local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
         dist_b_mar = 250, padrao = "medio"))
 
