@@ -104,8 +104,8 @@ plotFactor <- function(x, object,
   response <- params$response
   preds <- params$predictors
 
-  df <- eval(stats::getCall(z)$data)
-  variavel <- df[, x, drop = FALSE]
+  df <- as.data.frame(eval(stats::getCall(z)$data))
+  variavel <- df[, variable, drop = FALSE]
   grid <- unique(variavel)
 
   if (missing(local)) {
@@ -188,8 +188,8 @@ plotContinuousVariable <- function(x, object,
   response <- params$response
   preds <- params$predictors
 
-  df <- eval(stats::getCall(z)$data)
-  variavel <- df[, x, drop = FALSE]
+  df <- as.data.frame(eval(stats::getCall(z)$data))
+  variavel <- df[, variable, drop = FALSE]
 
   grid <- seq(min(df[, variable], na.rm = TRUE),
               max(df[, variable], na.rm = TRUE),
