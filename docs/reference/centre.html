@@ -93,6 +93,18 @@ the vector is numeric or a factor." />
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/index/index.html">appraiseR</a>
+    </li>
+  </ul>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -165,10 +177,9 @@ the vector is numeric or a factor.</p>
 <span class='va'>vec</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>as.factor</a></span><span class='op'>(</span><span class='va'>vec</span><span class='op'>)</span>
 <span class='fu'>centre</span><span class='op'>(</span><span class='va'>vec</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; [1] 1
-#&gt; Levels: -3 -2 0 1 3</div><div class='input'><span class='va'>dados</span> <span class='op'>&lt;-</span> <span class='va'>centro_2015</span><span class='op'>@</span><span class='va'>data</span>
-<span class='fu'>centre</span><span class='op'>(</span><span class='va'>dados</span><span class='op'>$</span><span class='va'>padrao</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] alto
-#&gt; Levels: baixo medio alto</div></pre>
+#&gt; Levels: -3 -2 0 1 3</div><div class='input'><span class='va'>dados</span> <span class='op'>&lt;-</span> <span class='fu'>st_drop_geometry</span><span class='op'>(</span><span class='va'>centro_2015</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in st_drop_geometry(centro_2015): could not find function "st_drop_geometry"</span></div><div class='input'><span class='fu'>centre</span><span class='op'>(</span><span class='va'>dados</span><span class='op'>$</span><span class='va'>padrao</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in centre(dados$padrao): object 'dados' not found</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

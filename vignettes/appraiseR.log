@@ -1,12 +1,12 @@
-This is XeTeX, Version 3.14159265-2.6-0.999992 (TeX Live 2020/W32TeX) (preloaded format=xelatex 2020.10.29)  30 OCT 2020 14:50
+This is XeTeX, Version 3.14159265-2.6-0.999992 (TeX Live 2020/W32TeX) (preloaded format=xelatex 2020.11.25)  2 DEC 2020 17:06
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**C:/Users/lfpdr/AppData/Local/Temp/RtmpaiA65a/preview-d589982062.dir/appraiseR
-.tex
+**C:/Users/lfpdr/AppData/Local/Temp/Rtmpq6PLEr/preview-43585e714f0d.dir/apprais
+eR.tex
 
-(c:/Users/lfpdr/AppData/Local/Temp/RtmpaiA65a/preview-d589982062.dir/appraiseR.
-tex
+(c:/Users/lfpdr/AppData/Local/Temp/Rtmpq6PLEr/preview-43585e714f0d.dir/appraise
+R.tex
 LaTeX2e <2020-10-01> patch level 2
 L3 programming layer <2020-10-27> xparse <2020-03-03> (c:/Users/lfpdr/AppData/R
 oaming/TinyTeX/texmf-dist/tex/latex/base/article.cls
@@ -282,7 +282,7 @@ File: x11nam.def 2016/05/11 v2.12 Predefined colors according to Unix/X11 (UK)
 ))
 (c:/Users/lfpdr/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/bookmark/bookmark.
 sty
-Package: bookmark 2019/12/03 v1.28 PDF bookmarks (HO)
+Package: bookmark 2020-11-06 v1.29 PDF bookmarks (HO)
 
 (c:/Users/lfpdr/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/hyperref/hyperref.
 sty
@@ -440,7 +440,7 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
 )
 (c:/Users/lfpdr/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/bookmark/bkm-dvipd
 fm.def
-File: bkm-dvipdfm.def 2019/12/03 v1.28 bookmark driver for dvipdfm (HO)
+File: bkm-dvipdfm.def 2020-11-06 v1.29 bookmark driver for dvipdfm (HO)
 \BKM@id=\count288
 ))
 Package hyperref Info: Option `colorlinks' set `true' on input line 46.
@@ -1614,13 +1614,13 @@ File: images/powerPlots-1.png Graphic file (type bmp)
 File: images/dist-1.png Graphic file (type bmp)
 <images/dist-1.png>
 [17] [18]
-Underfull \hbox (badness 4752) in paragraph at lines 1240--1245
+Underfull \hbox (badness 4752) in paragraph at lines 1243--1248
 [][]\TU/Arial(0)/m/n/10.95 ZEILEIS, A. Econometric computing with hc and hac co
 variance matrix esti-
  []
 
 
-Underfull \hbox (badness 1033) in paragraph at lines 1240--1245
+Underfull \hbox (badness 1033) in paragraph at lines 1243--1248
 \TU/Arial(0)/m/n/10.95 mators. \TU/Arial(0)/b/n/10.95 Journal of Statistical So
 ftware\TU/Arial(0)/m/n/10.95 , v. 11, n. 10, p. 1–17. Disponível em:
  []
@@ -1634,12 +1634,12 @@ LaTeX Font Warning: Size substitutions with differences
 
  ) 
 Here is how much of TeX's memory you used:
- 23046 strings out of 479387
- 406401 string characters out of 5877505
- 934075 words of memory out of 5000000
- 41964 multiletter control sequences out of 15000+600000
+ 23039 strings out of 479387
+ 406253 string characters out of 5877505
+ 933960 words of memory out of 5000000
+ 41957 multiletter control sequences out of 15000+600000
  573508 words of font info for 146 fonts, out of 8000000 for 9000
  16 hyphenation exceptions out of 8191
- 94i,12n,121p,498b,525s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 94i,12n,121p,500b,525s stack positions out of 5000i,500n,10000p,200000b,80000s
 
 Output written on appraiseR.pdf (20 pages).

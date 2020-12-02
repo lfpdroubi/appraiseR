@@ -1,0 +1,355 @@
+---
+title: appraiseR
+subtitle: Engenharia de Avaliações no \proglang{R}
+author: 
+  - Luiz Fernando Palin Droubi \newline
+  - Norberto Hochheim
+date: \today
+institute: GEAP -- UFSC
+output:   
+  binb::metropolis:
+    includes:
+      in_header: preamble.tex
+    citation_package: biblatex
+    keep_tex: yes
+    df_print: kable
+classoption: "aspectratio=169"
+bibliography: citations.bib
+biblio-style: abnt
+fontsize: 8pt
+toc: true
+---
+
+
+```{r,setup, include=FALSE}
+knitr::opts_chunk$set(cache=FALSE, warning = FALSE, message = FALSE, 
+                      fig.align = "center", out.width = "60%")
+knitr::knit_hooks$set(mysize = function(before, options, envir) {
+  if (before) 
+    return(options$size)
+})
+library(sf)
+library(kableExtra)
+library(ggplot2)
+library(cowplot)
+theme_set(theme_cowplot(14))
+library(stargazer)
+```
+
+# Introdução
+
+>- [appraiseR](https://lfpdroubi.github.io/appraiseR/) (https://lfpdroubi.github.io/appraiseR/) é um pacote de software livre para utilização:
+>     + no ensino da Engenharia de Avaliações
+>     + na pesquisa de melhores práticas e novos métodos para Avaliação de Bens
+>     + na prática da Engenharia de Avaliações (sem garantias)
+>- Por que \proglang{R}?
+>     + \proglang{R} é uma linguagem de programação feita por estatísticos
+>     + \proglang{R} é uma linguagem de programação feita para estatísticos
+>     + Milhares de pacotes de *software* com métodos estatísticos já programados
+>     + Excelentes recursos para construção de gráficos
+>     + Desenvolvimento comunitário: *Free software*
+>- fortemente baseado na NBR 14.653-2 [@NBR1465302]
+>- implementa também alguns parâmetros da IAAO [@iaao]
+>- pretende integrar a comunidade de Engenheiros Avaliadores na pesquisa e 
+divulgação de dados e análise de dados para a Engenharia de Avaliações
+>- Existem diversos pacotes no \proglang{R} para baixar dados de APIs
+>     + [BETS](https://cran.r-project.org/web/packages/BETS/index.html): FGV, 
+BCB, IBGE
+>     + [sidrar](https://cran.r-project.org/web/packages/sidrar/): SIDRA/IBGE
+>     + [ribge](https://github.com/tbrugz/ribge): IBGE, IPEA, BCB 
+>     + [rbcb](https://github.com/wilsonfreitas/rbcb): BCB
+>     + [ecoseries](https://cran.r-project.org/web/packages/ecoseries/): BCB,
+SIDRA, IPEA
+>- Por que não uma API para dados públicos de transações de imóveis?
+
+# Conjuntos de dados disponíveis
+
+- Estão disponíveis vários conjuntos de dados que podem ser utilizados tanto
+para os testes das diversas funções do pacote, assim como testes de novos 
+métodos estatísticos.
+   + P. Ex: @hochheim2015
+
+```{r, mysize=TRUE, size='\\scriptsize'}
+library(appraiseR)
+data(centro_2015)
+```
+
+```{r, echo = FALSE}
+knitr::kable(head(st_drop_geometry(centro_2015), 10), format = "latex", 
+             format.args = list(big.mark = ".", decimal.mark = ","),
+             booktabs = TRUE) %>% 
+  kable_styling(font_size = 7)
+```
+
+
+# Análise exploratória de dados
+
+## Gráficos na escala original
+
+```{r, fig.cap="Gráficos das variáveis independentes contra a variável dependente.", mysize=TRUE, size='\\scriptsize'}
+dados <- st_drop_geometry(centro_2015)
+plotdf(valor~., dados)
+```
+## Gráficos na escala transformada
+
+```{r, fig.cap="Gráficos das variáveis independentes contra a variável dependente."}
+plotdf(log(valor)~., dados)
+```
+
+# Escolha de modelos
+
+```{r, mysize=TRUE, size='\\scriptsize'}
+fits <- bestfit(valor~., data = dados)
+summary(fits)
+```
+
+## Restringindo a busca
+
+```{r boxcox, fig.cap="Perfil da Log-Verossimilhança do parâmetro $\\lambda$ da família de Box-Cox", mysize = TRUE, size='\\scriptsize', out.width="40%"}
+library(car)
+fit <- lm(valor ~ area_total + quartos + suites + garagens + dist_b_mar + padrao, 
+          data = dados)
+s <- summary(fit)
+boxCox(fit)
+```
+
+## Restringindo a busca
+
+```{r, mysize = TRUE, size='\\scriptsize'}
+boxTidwell(log(valor) ~ area_total + quartos + dist_b_mar, 
+           other.x = ~padrao + suites + garagens, data = dados)
+```
+
+```{r, eval=FALSE}
+logs <- fits$tab[which(fits$tab$valor == "log"), ]
+logs
+```
+
+```{r, echo = FALSE}
+logs <- fits$tab[which(fits$tab$valor == "log"), ]
+kable(head(logs, 9), booktabs = TRUE) %>% 
+  kable_styling(font_size = 7)
+```
+
+## Detalhe do modelo escolhido
+
+```{r, mysize=TRUE, size='\\scriptsize'}
+summary(fits, fit = 37)
+```
+
+## Gráficos na escala transformada
+
+```{r, fig.cap="Gráficos das variáveis independentes contra a variável dependente.", mysize=TRUE, size='\\scriptsize'}
+plotdf(log(valor)~ area_total + quartos + suites + sqrt(garagens) + 
+         rsqrt(dist_b_mar) + padrao, dados)
+```
+
+
+## Diagnóstico do Modelo
+
+```{r, eval = FALSE}
+# Modelo adotado (37)
+fit <- summary(fits, fit = 37)$fit
+plot(fit, which = 1:6)
+```
+
+```{r, echo = FALSE, fig.cap = "Diagnóstico do modelo.", fig.show='hold', out.width="25%"}
+fit <- summary(fits, fit = 37)$fit
+plot(fit, which = 1:6, 
+     cex.caption = 3, cex.sub = 1.5, cex.axis = 2, cex.lab = 2)
+```
+
+# Testes dos modelos
+
+## Normalidade
+
+```{r, fig.cap="ECDF.", out.width="40%", mysize = TRUE, size='\\scriptsize'}
+KS(fit)
+```
+
+## Homoscedasticidade
+
+```{r, mysize = TRUE, size='\\scriptsize'}
+library(lmtest)
+bptest(fit)
+```
+
+```{r, mysize = TRUE, size='\\scriptsize', fig.show="hold", out.width="35%"}
+plot(fit, which = c(1, 3))
+```
+
+
+# Plotagem de modelos
+
+## Na escala transformada
+
+```{r, fig.cap="Modelo no ponto de avaliação, com intervalos.", results='hide', mysize = TRUE, size='\\scriptsize'}
+plotModel(fits, fit = 37, interval = "both", level = .80,
+          local = list(area_total = 205, quartos = 3, suites = 1, 
+                       garagens = 2, dist_b_mar = 250, padrao = "medio"))
+```
+
+## Na escala original
+
+```{r, fig.cap="Modelo no ponto de avaliação, com intervalos e CA.", results='hide', mysize = TRUE, size='\\scriptsize'}
+plotModel(fits, fit = 37, interval = "both", level = .80, func="log", ca = TRUE,
+          local = list(area_total = 205, quartos = 3, suites = 1, 
+                       garagens = 2, dist_b_mar = 250, padrao = "medio"))
+```
+
+# Predição de valores
+
+```{r, mysize = TRUE, size='\\scriptsize'}
+predict(fits, fit = 37, interval = "confidence", level = .80,
+        newdata = data.frame(area_total = 205, quartos = 3, suites = 1, 
+                       garagens = 2, dist_b_mar = 250, padrao = "medio"))
+```
+
+```{r, mysize = TRUE, size='\\scriptsize'}
+predict(fits, fit = 37, interval = "prediction", level = .80,
+        newdata = data.frame(area_total = 205, quartos = 3, suites = 1, 
+                       garagens = 2, dist_b_mar = 250, padrao = "medio"))
+```
+
+## Poder de Predição
+
+```{r, fig.cap="Poder de Predição, conforme \\textcite{NBR1465302}."}
+powerPlot(fit)
+```
+
+## Poder de Predição (2)
+
+```{r, fig.cap="Poder de Predição. Eixos invertidos."}
+powerPlot(fit, axis = "inverted")
+```
+
+## Poder de Predição (3)
+
+```{r, fig.cap="Poder de Predição na escala original."}
+powerPlot(fit, axis = "inverted", func = "log")
+```
+
+## Encolhimento
+
+```{r, fig.cap="Encolhimento dos valores ajustados."}
+shrinkPlot(fit, func = "log")
+```
+
+# Performance da avaliação em massa
+
+## Estatísticas
+
+```{r, mysize = TRUE, size='\\scriptsize'}
+iaao_Ratio(fit, func = "log")
+```
+
+## Gráficos
+
+```{r, eval=FALSE, mysize = TRUE, size='\\scriptsize'}
+plot(iaao_Ratio(fit, func = "log"))
+```
+
+```{r, echo = FALSE, fig.show='hold', fig.cap="Gráficos para diagnóstico da avaliação em massa.", out.width="34%"}
+plot(iaao_Ratio(fit, func = "log"), cex.lab = 1.75, cex.axis = 1.75)
+```
+
+# Simulações de dados
+
+## Dados para investigação do fenômeno do encolhimento
+
+```{r, echo = TRUE}
+set.seed(1)
+area <- runif(1000, 50, 600)
+quartos <- rbinom(1000, 3, .33) + 1
+suites <- rbinom(1000, 2, .5)
+VU <- 500 - .5*area + 150*quartos + 75*suites + rnorm(1000, 0, 50)
+dados <- data.frame(VU, area, quartos, suites)
+amostra <- dados[sample(1:1000, 250), ]
+```
+
+## Modelo Nulo
+
+```{r, fig.show='hold', out.width="45%", fig.cap="Resíduos vs. valores ajustados e observados."}
+fit <- lm(VU ~ 1, amostra)
+# Resíduos vs. valores ajustados
+plot(fit, which = 1)
+#Resíduos vs. valores observados
+plot(amostra$VU, residuals(fit))
+abline(a = 0, b = 0, col = "grey", lty = 2)
+```
+
+
+## Modelo pobre (com variáveis faltantes)
+
+```{r, eval = FALSE}
+fit1 <- lm(VU ~ area, amostra)
+plot(fit, which = 1:6)
+```
+
+```{r, echo = FALSE, fig.cap="Diagnóstico do modelo pobre.", fig.show="hold", out.width="30%"}
+fit1 <- lm(VU ~ area, amostra)
+plot(fit1, which = 1:6, 
+     cex.caption = 3, cex.sub = 1.5, cex.axis = 2, cex.lab = 2)
+```
+
+
+## Poder de predição com modelo pobre
+
+```{r, fig.show='hold', out.width="45%", fig.cap="Poder de predição. Modelo Pobre."}
+powerPlot(fit1)
+powerPlot(fit1, axis ="inverted")
+```
+
+## Encolhimento com modelo pobre
+
+```{r, fig.cap="Encolhimento dos valores ajustados. Modelo Pobre."}
+shrinkPlot(fit1)
+```
+## Poder de Predição com modelo intermediário
+
+```{r, fig.show='hold', out.width="45%", fig.cap="Poder de Predição. Modelo intermediário."}
+fit2 <- lm(VU ~ area + quartos, amostra)
+powerPlot(fit2)
+powerPlot(fit2, axis ="inverted")
+```
+
+## Encolhimento com modelo intermediário
+
+```{r, fig.cap="Encolhimento. Modelo Intermediário."}
+shrinkPlot(fit2)
+```
+
+## Poder de Predição com modelo completo
+
+```{r, fig.show='hold', out.width="45%", fig.cap="Poder de Predição. Modelo Completo."}
+fit3 <- lm(VU ~ area + quartos + suites, amostra)
+powerPlot(fit3)
+powerPlot(fit3, axis ="inverted")
+```
+
+>- Mesmo com modelo completo ainda subsiste uma leve inclinação (em relação à 
+diagonal) no 1º gráfico.
+
+## Encolhimento com modelo completo
+
+```{r, fig.cap="Encolhimento. Modelo Completo."}
+shrinkPlot(fit3)
+```
+
+>- Nota-se ainda algum encolhimento, ainda que pequeno.
+
+## Estatísticas dos Modelos
+
+```{r, echo = FALSE, results='asis'}
+stargazer(fit, fit1, fit2, fit3, label = "tab:tab1", 
+          title = "Estatísticas dos modelos.",
+          type = "latex", header = FALSE, table.placement = "H",
+          report = "vcst*", single.row = F,
+          intercept.bottom = FALSE, intercept.top = TRUE,
+          decimal.mark = ",", digit.separator = ".",
+          digits = 2, star.cutoffs = c(0.30, 0.20, 0.10),
+          notes.label = "Notas:", font.size = "tiny")
+```
+
+
+# Referências

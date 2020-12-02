@@ -90,6 +90,18 @@
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/index/index.html">appraiseR</a>
+    </li>
+  </ul>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -151,48 +163,23 @@ be applied to the data - usually functions of the box-cox family.</p></td>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='va'>dados</span> <span class='op'>&lt;-</span> <span class='va'>centro_2015</span><span class='op'>@</span><span class='va'>data</span>
-<span class='va'>best_fit</span> <span class='op'>&lt;-</span> <span class='fu'>bestfit</span><span class='op'>(</span><span class='va'>valor</span> <span class='op'>~</span> <span class='va'>.</span>, data <span class='op'>=</span> <span class='va'>dados</span><span class='op'>)</span>
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span><span class='op'>(</span><span class='va'>best_fit</span>, n <span class='op'>=</span> <span class='fl'>20</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; Call:
-#&gt; bestfit(formula = valor ~ ., data = dados)
-#&gt; 
-#&gt; Best 20 fits:
-#&gt;     id valor area_total quartos   suites garagens dist_b_mar    adj_R2
-#&gt; 443  1 rsqrt       sqrt   rsqrt identity     sqrt      rsqrt 0.9480455
-#&gt; 395  2 rsqrt   identity   rsqrt identity     sqrt      rsqrt 0.9477222
-#&gt; 955  3 rsqrt       sqrt   rsqrt     sqrt     sqrt      rsqrt 0.9474578
-#&gt; 907  4 rsqrt   identity   rsqrt     sqrt     sqrt      rsqrt 0.9472744
-#&gt; 439  5 rsqrt       sqrt     log identity     sqrt      rsqrt 0.9471142
-#&gt; 951  6 rsqrt       sqrt     log     sqrt     sqrt      rsqrt 0.9468425
-#&gt; 391  7 rsqrt   identity     log identity     sqrt      rsqrt 0.9466028
-#&gt; 903  8 rsqrt   identity     log     sqrt     sqrt      rsqrt 0.9465023
-#&gt; 411  9 rsqrt        log   rsqrt identity     sqrt      rsqrt 0.9460101
-#&gt; 407 10 rsqrt        log     log identity     sqrt      rsqrt 0.9455580
-#&gt; 442 11 rsqrt       sqrt   rsqrt identity     sqrt        log 0.9454184
-#&gt; 954 12 rsqrt       sqrt   rsqrt     sqrt     sqrt        log 0.9450922
-#&gt; 959 13 rsqrt       sqrt    sqrt     sqrt     sqrt      rsqrt 0.9449867
-#&gt; 923 14 rsqrt        log   rsqrt     sqrt     sqrt      rsqrt 0.9449182
-#&gt; 447 15 rsqrt       sqrt    sqrt identity     sqrt      rsqrt 0.9447919
-#&gt; 919 16 rsqrt        log     log     sqrt     sqrt      rsqrt 0.9447690
-#&gt; 438 17 rsqrt       sqrt     log identity     sqrt        log 0.9446014
-#&gt; 950 18 rsqrt       sqrt     log     sqrt     sqrt        log 0.9445764
-#&gt; 394 19 rsqrt   identity   rsqrt identity     sqrt        log 0.9445607
-#&gt; 906 20 rsqrt   identity   rsqrt     sqrt     sqrt        log 0.9443802
-#&gt; ...</div><div class='input'><span class='va'>s</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='va'>best_fit</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in is.data.frame(data): objeto 'dados' não encontrado</span></div><div class='input'>
+    <pre class="examples"><div class='input'><span class='va'>dados</span> <span class='op'>&lt;-</span> <span class='fu'>st_drop_geometry</span><span class='op'>(</span><span class='va'>centro_2015</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in st_drop_geometry(centro_2015): could not find function "st_drop_geometry"</span></div><div class='input'><span class='va'>best_fit</span> <span class='op'>&lt;-</span> <span class='fu'>bestfit</span><span class='op'>(</span><span class='va'>valor</span> <span class='op'>~</span> <span class='va'>.</span>, data <span class='op'>=</span> <span class='va'>dados</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in as.data.frame(data): object 'dados' not found</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span><span class='op'>(</span><span class='va'>best_fit</span>, n <span class='op'>=</span> <span class='fl'>20</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in print(best_fit, n = 20): object 'best_fit' not found</span></div><div class='input'><span class='va'>s</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='va'>best_fit</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in summary(best_fit): object 'best_fit' not found</span></div><div class='input'>
 <span class='co'>#There still may be outliers:</span>
 <span class='va'>out</span> <span class='op'>&lt;-</span> <span class='fu'>car</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/car/man/outlierTest.html'>outlierTest</a></span><span class='op'>(</span><span class='va'>s</span><span class='op'>$</span><span class='va'>fit</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in car::outlierTest(s$fit): objeto 's' não encontrado</span></div><div class='input'><span class='va'>outliers</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/match.html'>match</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='va'>out</span><span class='op'>$</span><span class='va'>p</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>rownames</a></span><span class='op'>(</span><span class='va'>dados</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in match(names(out$p), rownames(dados)): objeto 'out' não encontrado</span></div><div class='input'>
+</div><div class='output co'>#&gt; <span class='error'>Error in car::outlierTest(s$fit): object 's' not found</span></div><div class='input'><span class='va'>outliers</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/match.html'>match</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='va'>out</span><span class='op'>$</span><span class='va'>p</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>rownames</a></span><span class='op'>(</span><span class='va'>dados</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in match(names(out$p), rownames(dados)): object 'out' not found</span></div><div class='input'>
 <span class='co'># There are two ways to handle with them:</span>
 
 <span class='co'># Recalling bestfit with a subset argument ...</span>
 <span class='va'>best_fit</span> <span class='op'>&lt;-</span> <span class='fu'>bestfit</span><span class='op'>(</span><span class='va'>valor</span> <span class='op'>~</span> <span class='va'>.</span>, data <span class='op'>=</span> <span class='va'>dados</span>, subset <span class='op'>=</span> <span class='op'>-</span><span class='va'>outliers</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in eval(substitute(subset), data, env): objeto 'outliers' não encontrado</span></div><div class='input'>
+</div><div class='output co'>#&gt; <span class='error'>Error in as.data.frame(data): object 'dados' not found</span></div><div class='input'>
 <span class='co'># Or assigning a subset argument directly into summary.bestfit</span>
  <span class='va'>s</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='va'>best_fit</span>, fit <span class='op'>=</span> <span class='fl'>1</span>, subset <span class='op'>=</span> <span class='op'>-</span><span class='va'>outliers</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in summary.bestfit(best_fit, fit = 1, subset = -outliers): objeto 'outliers' não encontrado</span></div><div class='input'>
+</div><div class='output co'>#&gt; <span class='error'>Error in summary(best_fit, fit = 1, subset = -outliers): object 'best_fit' not found</span></div><div class='input'>
 <span class='co'># The latter takes less computational effort, since it only updates the</span>
 <span class='co'># lm call of the chosen fit. The former is more precise, since it runs</span>
 <span class='co'># bestfit again without the outliers.</span>

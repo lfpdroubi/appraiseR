@@ -3,5 +3,6 @@ pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
   appraiseR: appraiseR.html
-last_built: 2020-10-16T15:22Z
+  index/index: index.html
+last_built: 2020-12-02T20:07Z
 

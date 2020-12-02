@@ -90,6 +90,18 @@
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/index/index.html">appraiseR</a>
+    </li>
+  </ul>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -120,7 +132,7 @@
     <p>Based on a lm object, returns elasticity based in any parameter in the model.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>elasticidade</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>variable</span>, func <span class='op'>=</span> <span class='st'>"log"</span>, <span class='va'>local</span>, factor <span class='op'>=</span> <span class='fl'>0.1</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>elasticidade</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>variable</span>, <span class='va'>func</span>, <span class='va'>local</span>, factor <span class='op'>=</span> <span class='fl'>0.1</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -149,27 +161,30 @@
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='va'>data</span> <span class='op'>&lt;-</span> <span class='va'>centro_2015</span><span class='op'>@</span><span class='va'>data</span>
-<span class='va'>fit</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/lm.html'>lm</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log</a></span><span class='op'>(</span><span class='va'>valor</span><span class='op'>)</span> <span class='op'>~</span> <span class='va'>.</span>, data <span class='op'>=</span> <span class='va'>data</span><span class='op'>)</span>
-<span class='fu'>elasticidade</span><span class='op'>(</span><span class='va'>fit</span>, <span class='st'>"area_total"</span>,
+    <pre class="examples"><div class='input'><span class='va'>data</span> <span class='op'>&lt;-</span> <span class='fu'>st_drop_geometry</span><span class='op'>(</span><span class='va'>centro_2015</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in st_drop_geometry(centro_2015): could not find function "st_drop_geometry"</span></div><div class='input'><span class='va'>fit</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/lm.html'>lm</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log</a></span><span class='op'>(</span><span class='va'>valor</span><span class='op'>)</span> <span class='op'>~</span> <span class='va'>.</span>, data <span class='op'>=</span> <span class='va'>data</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in as.data.frame.default(data, optional = TRUE): cannot coerce class '"function"' to a data.frame</span></div><div class='input'><span class='va'>new</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>area_total <span class='op'>=</span> <span class='fl'>205</span>, quartos <span class='op'>=</span> <span class='fl'>3</span>, suites <span class='op'>=</span> <span class='fl'>1</span>,
+             garagens <span class='op'>=</span> <span class='fl'>2</span>, dist_b_mar <span class='op'>=</span> <span class='fl'>250</span>, padrao <span class='op'>=</span> <span class='st'>"medio"</span><span class='op'>)</span>
+<span class='op'>(</span><span class='va'>p</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span><span class='op'>(</span><span class='va'>fit</span>, newdata <span class='op'>=</span> <span class='va'>new</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in predict(fit, newdata = new): object 'fit' not found</span></div><div class='input'><span class='va'>new1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>area_total <span class='op'>=</span> <span class='fl'>1.1</span><span class='op'>*</span><span class='fl'>205</span>, quartos <span class='op'>=</span> <span class='fl'>3</span>, suites <span class='op'>=</span> <span class='fl'>1</span>,
+             garagens <span class='op'>=</span> <span class='fl'>2</span>, dist_b_mar <span class='op'>=</span> <span class='fl'>250</span>, padrao <span class='op'>=</span> <span class='st'>"medio"</span><span class='op'>)</span>
+<span class='op'>(</span><span class='va'>p1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span><span class='op'>(</span><span class='va'>fit</span>, newdata <span class='op'>=</span> <span class='va'>new1</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in predict(fit, newdata = new1): object 'fit' not found</span></div><div class='input'><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/Log.html'>exp</a></span><span class='op'>(</span><span class='va'>p1</span><span class='op'>)</span> <span class='op'>-</span> <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>exp</a></span><span class='op'>(</span><span class='va'>p</span><span class='op'>)</span><span class='op'>)</span><span class='op'>/</span><span class='fu'><a href='https://rdrr.io/r/base/Log.html'>exp</a></span><span class='op'>(</span><span class='va'>p</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'p1' not found</span></div><div class='input'><span class='fu'>elasticidade</span><span class='op'>(</span><span class='va'>fit</span>, <span class='st'>"area_total"</span>, func <span class='op'>=</span> <span class='st'>"log"</span>,
              local <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>area_total <span class='op'>=</span> <span class='fl'>205</span>, quartos <span class='op'>=</span> <span class='fl'>3</span>, suites <span class='op'>=</span> <span class='fl'>1</span>,
              garagens <span class='op'>=</span> <span class='fl'>2</span>, dist_b_mar <span class='op'>=</span> <span class='fl'>250</span>, padrao <span class='op'>=</span> <span class='st'>"medio"</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in df[, variable]: objeto de tipo 'closure' não possível dividir em subconjuntos</span></div><div class='input'><span class='fu'>elasticidade</span><span class='op'>(</span><span class='va'>fit</span>, <span class='st'>"dist_b_mar"</span>,
+</div><div class='output co'>#&gt; <span class='error'>Error in elasticidade(fit, "area_total", func = "log", local = list(area_total = 205,     quartos = 3, suites = 1, garagens = 2, dist_b_mar = 250,     padrao = "medio")): object 'fit' not found</span></div><div class='input'><span class='fu'>elasticidade</span><span class='op'>(</span><span class='va'>fit</span>, <span class='st'>"dist_b_mar"</span>, func <span class='op'>=</span> <span class='st'>"log"</span>,
              local <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>area_total <span class='op'>=</span> <span class='fl'>205</span>, quartos <span class='op'>=</span> <span class='fl'>3</span>, suites <span class='op'>=</span> <span class='fl'>1</span>,
              garagens <span class='op'>=</span> <span class='fl'>2</span>, dist_b_mar <span class='op'>=</span> <span class='fl'>250</span>, padrao <span class='op'>=</span> <span class='st'>"medio"</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in df[, variable]: objeto de tipo 'closure' não possível dividir em subconjuntos</span></div><div class='input'><span class='fu'>elasticidade</span><span class='op'>(</span><span class='va'>fit</span>, <span class='st'>"area_total"</span>,
-             local <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>area_total <span class='op'>=</span> <span class='fl'>205</span>, quartos <span class='op'>=</span> <span class='fl'>3</span>, suites <span class='op'>=</span> <span class='fl'>1</span>,
-             garagens <span class='op'>=</span> <span class='fl'>2</span>, dist_b_mar <span class='op'>=</span> <span class='fl'>250</span>, padrao <span class='op'>=</span> <span class='st'>"medio"</span><span class='op'>)</span>,
-             factor <span class='op'>=</span> <span class='op'>-</span><span class='fl'>0.1</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in df[, variable]: objeto de tipo 'closure' não possível dividir em subconjuntos</span></div><div class='input'><span class='fu'>elasticidade</span><span class='op'>(</span><span class='va'>fit</span>, <span class='st'>"padrao"</span>,
+</div><div class='output co'>#&gt; <span class='error'>Error in elasticidade(fit, "dist_b_mar", func = "log", local = list(area_total = 205,     quartos = 3, suites = 1, garagens = 2, dist_b_mar = 250,     padrao = "medio")): object 'fit' not found</span></div><div class='input'><span class='fu'>elasticidade</span><span class='op'>(</span><span class='va'>fit</span>, <span class='st'>"padrao"</span>, func <span class='op'>=</span> <span class='st'>"log"</span>,
              local <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>area_total <span class='op'>=</span> <span class='fl'>205</span>, quartos <span class='op'>=</span> <span class='fl'>3</span>, suites <span class='op'>=</span> <span class='fl'>1</span>,
              garagens <span class='op'>=</span> <span class='fl'>2</span>, dist_b_mar <span class='op'>=</span> <span class='fl'>250</span>, padrao <span class='op'>=</span> <span class='st'>"medio"</span><span class='op'>)</span>,
              factor <span class='op'>=</span> <span class='op'>+</span><span class='fl'>1</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in df[, variable]: objeto de tipo 'closure' não possível dividir em subconjuntos</span></div><div class='input'><span class='fu'>elasticidade</span><span class='op'>(</span><span class='va'>fit</span>, <span class='st'>"padrao"</span>,
+</div><div class='output co'>#&gt; <span class='error'>Error in elasticidade(fit, "padrao", func = "log", local = list(area_total = 205,     quartos = 3, suites = 1, garagens = 2, dist_b_mar = 250,     padrao = "medio"), factor = +1): object 'fit' not found</span></div><div class='input'><span class='fu'>elasticidade</span><span class='op'>(</span><span class='va'>fit</span>, <span class='st'>"padrao"</span>, func <span class='op'>=</span> <span class='st'>"log"</span>,
              local <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>area_total <span class='op'>=</span> <span class='fl'>205</span>, quartos <span class='op'>=</span> <span class='fl'>3</span>, suites <span class='op'>=</span> <span class='fl'>1</span>,
              garagens <span class='op'>=</span> <span class='fl'>2</span>, dist_b_mar <span class='op'>=</span> <span class='fl'>250</span>, padrao <span class='op'>=</span> <span class='st'>"medio"</span><span class='op'>)</span>,
              factor <span class='op'>=</span> <span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in df[, variable]: objeto de tipo 'closure' não possível dividir em subconjuntos</span></div></pre>
+</div><div class='output co'>#&gt; <span class='error'>Error in elasticidade(fit, "padrao", func = "log", local = list(area_total = 205,     quartos = 3, suites = 1, garagens = 2, dist_b_mar = 250,     padrao = "medio"), factor = -1): object 'fit' not found</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
