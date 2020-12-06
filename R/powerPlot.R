@@ -40,17 +40,15 @@ powerPlot.lm <- function(object, func, axis = c("standard", "inverted"),
   data <- stats::model.frame(z)
   axis <- match.arg(axis)
 
-  if (missing(func)) {
-    Y <- data[, attr(z$terms, "response")]
-    Y_ajustado <- z$fitted.values
-    invres <- data.frame(Y, Y_ajustado)
-  } else {
-    Y <- data[, attr(z$terms, "response")]
+  Y <- data[, attr(z$terms, "response")]
+  Y_ajustado <- z$fitted.values
+
+  if (!missing(func)) {
     Y <- inverse(Y, func)
-    Y_ajustado <- z$fitted.values
     Y_ajustado <- inverse(Y_ajustado, func)
-    invres <- data.frame(Y, Y_ajustado)
   }
+
+  invres <- data.frame(Y, Y_ajustado)
 
   if (axis == "inverted") {
     p <- ggplot(data = invres, aes(x = Y_ajustado, y = Y)) +
@@ -89,6 +87,8 @@ powerPlot.lm <- function(object, func, axis = c("standard", "inverted"),
 #' dados <- st_drop_geometry(centro_2015)
 #' best_fit <- bestfit(valor ~ ., dados)
 #' powerPlot(best_fit, fit = 257)
+#' powerPlot(best_fit, fit = 257, func = "log")
+#' powerPlot(best_fit, fit = 257, func = "log", axis = "inverted")
 #' @export
 
 powerPlot.bestfit <- function(object, fit = 1, ...) {
