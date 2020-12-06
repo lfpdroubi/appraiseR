@@ -11,18 +11,21 @@
 #'   This can be any valid indexing vector (see \link{[.data.frame}) for the
 #'   rows of data or if that is not supplied, a data frame made up of the
 #'   variables used in \code{formula}.
-#' @param \dots further arguments passed to \link{lm}.
+#' @param \dots not used.
 #' @return Returns the call for the \code{\link{bestfit}} function, the best
 #'   (chosen) fit number, the \code{lm }formula and the \code{lm} fit summary
 #'   for the best (chosen) fit transformations found by \code{\link{bestfit}}.
 #'
 #' @export
 #' @examples
-#' library(appraiseR)
+#' library(sf)
 #' dados <- st_drop_geometry(centro_2015)
-#' best_fit <- bestfit(valor ~ ., data = dados, subset = -c(31, 39))
+#' dados$padrao <- as.numeric(dados$padrao)
+#' best_fit <- bestfit(valor ~ ., data = dados,
+#'                     transf = c("rec", "rsqrt", "log", "sqrt"),
+#'                     subset = -c(31, 39))
 #' summary(best_fit)
-#' summary(best_fit, fit = 2)
+#' summary(best_fit, fit = 514)
 summary.bestfit <- function(object, fit = 1, subset, ...){
   id <- NULL #just for R CMD check
 
@@ -41,10 +44,12 @@ summary.bestfit <- function(object, fit = 1, subset, ...){
   formula_x <- paste0(terms_x, collapse = " + ")
   formula <- paste0(formula_y, " ~ ", formula_x)
 
-  if (missing(subset)){
-    args <- list(formula, data = stats::getCall(z)$data, subset = z$subset, ...)
-  }  else {
-    args <- list(formula, data = stats::getCall(z)$data, subset = subset, ...)
+  args <- list(formula, data = stats::getCall(z)$data)
+
+  if (!missing(subset)) {
+    args$subset <- subset
+  } else {
+    if (!is.null(z$subset)) args$subset <- z$subset
   }
 
   model <- do.call("lm", args)
