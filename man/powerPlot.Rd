@@ -18,7 +18,7 @@ powerPlot(object, ...)
   ...
 )
 
-\method{powerPlot}{bestfit}(object, fit = 1, ...)
+\method{powerPlot}{bestfit}(object, fit = 1, scale = c("transformed", "original"), ...)
 
 \method{powerPlot}{lmerMod}(object, func, ...)
 }
@@ -56,11 +56,26 @@ powerPlot(fit, axis = "inverted")
 library(ggplot2)
 p <- powerPlot(fit, func = "log", axis = "inverted")
 p + labs(title = "Poder de Predição", subtitle = "Em milhões de Reais")
+fit <- lm(sqrt(valor) ~ area_total + quartos + suites + garagens +
+log(dist_b_mar) + I(1/padrao), dados)
+powerPlot(fit)
+powerPlot(fit, func = "sqrt", axis = "inverted")
 dados <- st_drop_geometry(centro_2015)
-best_fit <- bestfit(valor ~ ., dados)
-powerPlot(best_fit, fit = 257)
-powerPlot(best_fit, fit = 257, func = "log")
-powerPlot(best_fit, fit = 257, func = "log", axis = "inverted")
+dados <- within(dados, padrao <- as.numeric(padrao))
+best_fit <- bestfit(valor ~ ., dados,
+                    transf = c("rec", "rsqrt", "log", "sqrt"),
+                    subset = -c(31, 39))
+p1 <- powerPlot(best_fit)
+p2 <- powerPlot(best_fit, scale = "original")
+cowplot::plot_grid(p1, p2, nrow = 1, ncol = 2)
+p1 <- powerPlot(best_fit, axis = "inverted")
+p2 <- powerPlot(best_fit, axis = "inverted", scale = "original")
+cowplot::plot_grid(p1, p2, nrow = 1, ncol = 2)
+powerPlot(best_fit, fit = 514)
+p1 <- powerPlot(best_fit, fit = 514, axis = "inverted")
+p2 <- powerPlot(best_fit, fit = 514, scale = "original", axis = "inverted")
+cowplot::plot_grid(p1, p2, nrow = 1, ncol = 2)
+
 library(lme4)
 data(centro_2015)
 dados <- st_drop_geometry(centro_2015)

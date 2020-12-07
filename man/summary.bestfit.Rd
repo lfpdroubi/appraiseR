@@ -17,7 +17,7 @@ This can be any valid indexing vector (see \link{[.data.frame}) for the
 rows of data or if that is not supplied, a data frame made up of the
 variables used in \code{formula}.}
 
-\item{\dots}{further arguments passed to \link{lm}.}
+\item{\dots}{not used.}
 }
 \value{
 Returns the call for the \code{\link{bestfit}} function, the best
@@ -30,9 +30,12 @@ containing the formula for the best (chosen) fit and the \code{summary.lm}
 for that fit.
 }
 \examples{
-library(appraiseR)
+library(sf)
 dados <- st_drop_geometry(centro_2015)
-best_fit <- bestfit(valor ~ ., data = dados, subset = -c(31, 39))
+dados$padrao <- as.numeric(dados$padrao)
+best_fit <- bestfit(valor ~ ., data = dados,
+                    transf = c("rec", "rsqrt", "log", "sqrt"),
+                    subset = -c(31, 39))
 summary(best_fit)
-summary(best_fit, fit = 2)
+summary(best_fit, fit = 514)
 }

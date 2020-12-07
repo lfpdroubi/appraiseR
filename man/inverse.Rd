@@ -19,9 +19,16 @@ a
 Returns a vector generated with the inverse of the function f
 }
 \examples{
+inverse(rsqr(10), "rsqr")
+inverse(rec(10), "rec")
+inverse(rsqrt(10), "rsqrt")
+inverse(log(1), "log")
+inverse(sqrt(4), "sqrt")
+inverse(sqr(4), "sqr")
 dados <- st_drop_geometry(centro_2015)
 fit <- lm(log(valor) ~ ., data = dados)
 aval <- new_data(fit)
 Y <- predict(fit, newdata = aval, interval = "confidence")
 inverse(Y, "log")
+
 }

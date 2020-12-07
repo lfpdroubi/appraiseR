@@ -93,13 +93,16 @@ powerPlot.lm <- function(object, func, axis = c("standard", "inverted"),
 #' best_fit <- bestfit(valor ~ ., dados,
 #'                     transf = c("rec", "rsqrt", "log", "sqrt"),
 #'                     subset = -c(31, 39))
-#' powerPlot(best_fit)
-#' powerPlot(best_fit, scale = "original")
-#' powerPlot(best_fit, axis = "inverted")
-#' powerPlot(best_fit, scale = "original", axis = "inverted")
+#' p1 <- powerPlot(best_fit)
+#' p2 <- powerPlot(best_fit, scale = "original")
+#' cowplot::plot_grid(p1, p2, nrow = 1, ncol = 2)
+#' p1 <- powerPlot(best_fit, axis = "inverted")
+#' p2 <- powerPlot(best_fit, axis = "inverted", scale = "original")
+#' cowplot::plot_grid(p1, p2, nrow = 1, ncol = 2)
 #' powerPlot(best_fit, fit = 514)
-#' powerPlot(best_fit, fit = 514, axis = "inverted")
-#' powerPlot(best_fit, fit = 514, scale = "original", axis = "inverted")
+#' p1 <- powerPlot(best_fit, fit = 514, axis = "inverted")
+#' p2 <- powerPlot(best_fit, fit = 514, scale = "original", axis = "inverted")
+#' cowplot::plot_grid(p1, p2, nrow = 1, ncol = 2)
 #'
 #' @export
 
