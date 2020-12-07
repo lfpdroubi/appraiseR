@@ -31,6 +31,10 @@ powerPlot <- function(object, ...) {
 #' library(ggplot2)
 #' p <- powerPlot(fit, func = "log", axis = "inverted")
 #' p + labs(title = "Poder de Predição", subtitle = "Em milhões de Reais")
+#' fit <- lm(sqrt(valor) ~ area_total + quartos + suites + garagens +
+#' log(dist_b_mar) + I(1/padrao), dados)
+#' powerPlot(fit)
+#' powerPlot(fit, func = "sqrt", axis = "inverted")
 #' @export
 #'
 powerPlot.lm <- function(object, func, axis = c("standard", "inverted"),
@@ -85,16 +89,32 @@ powerPlot.lm <- function(object, func, axis = c("standard", "inverted"),
 #' @param fit chosen fit
 #' @examples
 #' dados <- st_drop_geometry(centro_2015)
-#' best_fit <- bestfit(valor ~ ., dados)
-#' powerPlot(best_fit, fit = 257)
-#' powerPlot(best_fit, fit = 257, func = "log")
-#' powerPlot(best_fit, fit = 257, func = "log", axis = "inverted")
+#' dados <- within(dados, padrao <- as.numeric(padrao))
+#' best_fit <- bestfit(valor ~ ., dados,
+#'                     transf = c("rec", "rsqrt", "log", "sqrt"),
+#'                     subset = -c(31, 39))
+#' powerPlot(best_fit)
+#' powerPlot(best_fit, scale = "original")
+#' powerPlot(best_fit, axis = "inverted")
+#' powerPlot(best_fit, scale = "original", axis = "inverted")
+#' powerPlot(best_fit, fit = 514)
+#' powerPlot(best_fit, fit = 514, axis = "inverted")
+#' powerPlot(best_fit, fit = 514, scale = "original", axis = "inverted")
+#'
 #' @export
 
-powerPlot.bestfit <- function(object, fit = 1, ...) {
+powerPlot.bestfit <- function(object, fit = 1,
+                              scale = c("transformed", "original"), ...) {
+  scale <- match.arg(scale)
   s <- summary(object, fit = fit)
   z <- s$fit
-  p <- powerPlot.lm(z, ...)
+  response <- object$response
+  func <- as.character(object$tab[fit, response])
+  if (scale == "original"){
+    p <- powerPlot.lm(z, func = func, ...)
+  } else {
+    p <- powerPlot.lm(z, ...)
+  }
   p
 }
 
