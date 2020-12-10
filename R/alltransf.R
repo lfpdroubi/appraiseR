@@ -13,7 +13,9 @@
 #'   passed.help
 #' @export
 #' @examples
-#' dados <- st_drop_geometry(centro_2015)
+#' library(appraiseR)
+#' data(centro_2015)
+#' dados <- centro_2015
 #' vars <- colnames(dados)
 #' alltransf(dados, select = vars)
 #' alltransf(dados, 1:10, c("valor", "area_total"))
@@ -22,8 +24,10 @@
 alltransf <- function(data, subset, select = colnames(data),
                       transf = c('rsqrt', 'log', 'sqrt')){
 
-  if (missing(subset)) subset <- seq_len(nrow(data))
-  df <- as.data.frame(data[subset, colnames(data) %in% select])
+  df <- as.data.frame(data)
+  if (missing(subset)) subset <- seq_len(nrow(df))
+  select <- setdiff(select, "geometry")
+  df <- df[subset, colnames(data) %in% select]
   df <- stats::na.omit(df)
 
   for (i in colnames(df)) if (is.character(df[,i])) df[,i] <- as.factor(df[,i])

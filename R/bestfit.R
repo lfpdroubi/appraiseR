@@ -52,19 +52,21 @@ bestfitEst <- function(X, y, t, p, response){
 #'   the data frame, in order to find the best combination of transformation to
 #'   be applied to the data - usually functions of the box-cox family.
 #' @examples
+#' library(sf)
+#' data(centro_2015)
 #' dados <- st_drop_geometry(centro_2015)
 #' best_fit <- bestfit(valor ~ ., data = dados)
 #' print(best_fit, n = 20)
 #' s <- summary(best_fit)
 #'
 #' #There still may be outliers:
-#' out <- car::outlierTest(s$fit)
-#' outliers <- match(names(out$p), rownames(dados))
+#' out <- car::outlierTest(s$fit) #31
+#' outliers <- 31
 #'
 #' # There are two ways to handle with them:
 #'
 #' # Recalling bestfit with a subset argument ...
-#' best_fit <- bestfit(valor ~ ., data = dados, subset = -outliers)
+#' best_fit2 <- bestfit(valor ~ ., data = dados, subset = -outliers)
 #'
 #' # Or assigning a subset argument directly into summary.bestfit
 #'  s <- summary(best_fit, fit = 1, subset = -outliers)
@@ -78,14 +80,14 @@ bestfitEst <- function(X, y, t, p, response){
 #'
 bestfit <- function(formula, data, subset,
                             transf = c('rsqrt', 'log', 'sqrt')){
-  data <- as.data.frame(data)
-  mf <- stats::model.frame(formula = formula, data = data)
-  preds <- attr(stats::terms.formula(formula, data = data), "term.labels")
-  response <- colnames(mf)[attr(stats::terms.formula(formula, data = data),
+  df <- as.data.frame(data)
+  mf <- stats::model.frame(formula = formula, data = df)
+  preds <- attr(stats::terms.formula(formula, data = df), "term.labels")
+  response <- colnames(mf)[attr(stats::terms.formula(formula, data = df),
                                 "response")]
   parameters <- c(response, preds)
 
-  for (i in parameters) if (is.character(data[,i])) data[,i] <- as.factor(data[,i])
+  for (i in parameters) if (is.character(df[,i])) df[,i] <- as.factor(df[,i])
 
   ## Montagem da matriz X e do vetor y para o ajuste do modelo
   cl <- match.call()
@@ -97,12 +99,12 @@ bestfit <- function(formula, data, subset,
   X <- stats::model.matrix(attr(mf, "terms"), data = mf)
   y <- stats::model.response(mf)
 
-  t <- alltransf(data = data, subset = subset,
+  t <- alltransf(data = df, subset = subset,
                  select = parameters, transf = transf)
-  p <- allperm(data = data, subset = subset,
+  p <- allperm(data = df, subset = subset,
                select = parameters, transf = transf)
 
-  newdata <-  data[which(is.na(data[, response])), ]
+  newdata <-  df[which(is.na(df[, response])), ]
 
   #z <- bestfit.default(X, y, t, p, response)
 

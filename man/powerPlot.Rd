@@ -35,6 +35,8 @@ the y axis (standard)}
 \item{smooth}{option to add a regression line to the plot}
 
 \item{fit}{chosen fit}
+
+\item{scale}{Plot values in original or transformed scale?}
 }
 \value{
 a power plot
@@ -55,7 +57,7 @@ powerPlot(fit, smooth = FALSE)
 powerPlot(fit, axis = "inverted")
 library(ggplot2)
 p <- powerPlot(fit, func = "log", axis = "inverted")
-p + labs(title = "Poder de Predição", subtitle = "Em milhões de Reais")
+p + labs(title = "Poder de PrediÃ§Ã£o", subtitle = "Em milhÃµes de Reais")
 fit <- lm(sqrt(valor) ~ area_total + quartos + suites + garagens +
 log(dist_b_mar) + I(1/padrao), dados)
 powerPlot(fit)

@@ -87,6 +87,7 @@ powerPlot.lm <- function(object, func, axis = c("standard", "inverted"),
 
 #' @rdname powerPlot
 #' @param fit chosen fit
+#' @param scale Plot values in original or transformed scale?
 #' @examples
 #' dados <- st_drop_geometry(centro_2015)
 #' dados <- within(dados, padrao <- as.numeric(padrao))

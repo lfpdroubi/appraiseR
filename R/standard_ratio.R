@@ -1,17 +1,19 @@
 #' Standard on Ratio Studies function
 #'
 #' Statiscal anlysis for matching of appraisal and market data.
-#' Based on International Association of Assessing Officers' Standard on Ratio Studies Document
+#' Based on International Association of Assessing Officers' Standard on Ratio
+#' Studies Document
 #'
-#' @param AssessedValue vector of assessed values (valores venais ou valores preditos do modelo)
-#' @param SalePrice vector of sale prices (preços de mercado ou preços reais do modelo)
-#' @return COD and PRD Ratios according to IAOO
+#' @param AssessedValue vector of assessed values (valores venais ou valores
+#' preditos do modelo)
+#' @param SalePrice vector of sale prices (preços de mercado ou preços reais do
+#' modelo)
+#' @return COD, PRD (ratios) and PRB according to IAOO
 #' @export
 iaao_Ratio <- function(x, ...) UseMethod("iaao_Ratio")
 
 #' @param OutlierTrimming boolean for outliers trimming or not
 #' @examples
-#' library(appraiseR)
 #' library(sf)
 #' zilli_2020 <- st_drop_geometry(zilli_2020)
 #' zilli_2020$PC <- as.numeric(zilli_2020$PC)
@@ -21,6 +23,7 @@ iaao_Ratio <- function(x, ...) UseMethod("iaao_Ratio")
 #' new = zilli_2020[c(191:213, 215:225), ]
 #' fitted <- predict(fit, newdata = new)
 #' iaao_Ratio(exp(fitted), new[, "VU", drop = TRUE])
+#' @rdname iaao_Ratio
 #' @export
 iaao_Ratio.default <- function(AssessedValue, SalePrice,
                                OutlierTrimming = FALSE) {
@@ -91,7 +94,7 @@ iaao_Ratio.default <- function(AssessedValue, SalePrice,
 #' @param func function used to transform the response (defaults to identity)
 #' @param \dots further arguments passed to \code{iaao_Ratio}.
 #' @examples
-#' library(sf)
+#' # Applied to centro_2015 dataset
 #' dados <- st_drop_geometry(centro_2015)
 #' dados$padrao <- as.numeric(dados$padrao)
 #' fit <- lm(log(valor)~area_total + quartos + suites + garagens +

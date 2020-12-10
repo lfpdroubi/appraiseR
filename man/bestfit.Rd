@@ -25,19 +25,21 @@ be applied to the data - usually functions of the box-cox family.}
 Find best transformations of the parameters for Linear Regression.
 }
 \examples{
+library(sf)
+data(centro_2015)
 dados <- st_drop_geometry(centro_2015)
 best_fit <- bestfit(valor ~ ., data = dados)
 print(best_fit, n = 20)
 s <- summary(best_fit)
 
 #There still may be outliers:
-out <- car::outlierTest(s$fit)
-outliers <- match(names(out$p), rownames(dados))
+out <- car::outlierTest(s$fit) #31
+outliers <- 31
 
 # There are two ways to handle with them:
 
 # Recalling bestfit with a subset argument ...
-best_fit <- bestfit(valor ~ ., data = dados, subset = -outliers)
+best_fit2 <- bestfit(valor ~ ., data = dados, subset = -outliers)
 
 # Or assigning a subset argument directly into summary.bestfit
  s <- summary(best_fit, fit = 1, subset = -outliers)

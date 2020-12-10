@@ -279,5 +279,5 @@ trivelloni_2005 <-
 
 trivelloni_2005 <- sf::st_as_sf(trivelloni_2005)
 
-usethis::use_data(centro_2015, zilli_2020, trindade, jungles, loteamento,
-                  jurere_2017, trivelloni_2005, overwrite = TRUE)
+# usethis::use_data(centro_2015, zilli_2020, trindade, jungles, loteamento,
+#                   jurere_2017, trivelloni_2005, overwrite = TRUE)

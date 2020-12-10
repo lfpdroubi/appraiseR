@@ -37,10 +37,10 @@
 #' plotVar(mod, "area_total", "log", interval = "prediction")
 #' plotVar(mod, "area_total", "log", interval = "both")
 #' plotVar(mod, "area_total", interval = "both", ca = TRUE,
-#'         local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+#'         local = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'         dist_b_mar = 250, padrao = "medio"))
 #' plotVar(mod, "area_total", func = "log", interval = "both", ca = TRUE,
-#'         local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+#'         local = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'         dist_b_mar = 250, padrao = "medio"), av = 1100000)
 #' plotVar(mod, "padrao")
 #' plotVar(mod, "padrao", ca = TRUE)
@@ -49,13 +49,13 @@
 #' plotVar(mod, "padrao", interval = "prediction")
 #' plotVar(mod, "padrao", interval = "both")
 #' plotVar(mod, "padrao", func = "log", interval = "confidence",
-#' local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+#' local = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'         dist_b_mar = 250, padrao = "medio"))
 #' plotVar(mod, "padrao", func = "log", interval = "prediction",
-#' local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+#' local = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'         dist_b_mar = 250, padrao = "medio"), av = 1100000)
 #' plotVar(mod, "area_total", func = "log", interval = "prediction",
-#' local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+#' local = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'         dist_b_mar = 250, padrao = "medio"), av = 1100000, ca = TRUE)
 #' dados$padrao <- relevel(dados$padrao, ref="alto")
 #' mod <- lm(log(valor) ~ ., data = dados)
@@ -96,6 +96,7 @@ plotFactor <- function(x, object,
                        func,
                        ca = FALSE,
                        av,
+                       elasticidade = TRUE,
                        ...){
   interval <- match.arg(interval)
   variable <- x
@@ -145,7 +146,9 @@ plotFactor <- function(x, object,
                                                         decimal.mark = ","))
   if(!missing(local)) {
     p_local <- ifelse(missing(func), p_local, inverse(p_local, func))
-    cat(elasticidade(z, variable, func, local, factor = +1), " ")
+    if (elasticidade == TRUE) {
+      cat(elasticidade(z, variable, func, local, factor = +1), " ")
+    }
     if (!missing(av)) {
       p_local <- data.frame(y = p_local, local, av = av)
     } else {
@@ -180,6 +183,7 @@ plotContinuousVariable <- function(x, object,
                                    func,
                                    ca = FALSE,
                                    av,
+                                   elasticidade = TRUE,
                                    ...){
   interval <- match.arg(interval)
   variable <- x
@@ -271,7 +275,9 @@ plotContinuousVariable <- function(x, object,
   # Adds point of local argument, if not missing
   if(!missing(local)) {
     p_local <- ifelse(missing(func), p_local, inverse(p_local, func))
-    cat(elasticidade(z, variable, func, local), " ")
+    if (elasticidade == TRUE) {
+      cat(elasticidade(z, variable, func, local), " ")
+    }
     if (!missing(av)) {
       p_local <- data.frame(y = p_local, local, av = av)
     } else {

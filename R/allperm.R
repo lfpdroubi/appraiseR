@@ -12,16 +12,19 @@
 #'   transformations
 #' @export
 #' @examples
-#' dados <- st_drop_geometry(centro_2015)
+#' data(centro_2015)
+#' dados <- centro_2015
 #' vars <- colnames(dados)
 #' perms <- allperm(dados, select = vars)
-#'
+#' head(perms)
 
 allperm <- function(data, subset, select = colnames(data),
                     transf = c('rsqrt', 'log', 'sqrt')){
 
-  if (missing(subset)) subset <- seq_len(nrow(data))
-  df <- data[subset, colnames(data) %in% select]
+  df <- as.data.frame(data)
+  if (missing(subset)) subset <- seq_len(nrow(df))
+  select <- setdiff(select, "geometry")
+  df <- df[subset, colnames(data) %in% select]
   df <- stats::na.omit(df)
 
   for (i in colnames(df)) if (is.character(df[,i])) df[,i] <- as.factor(df[,i])

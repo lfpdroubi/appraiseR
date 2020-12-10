@@ -16,18 +16,19 @@ bboxplot <- function(y, ...) UseMethod("bboxplot")
 #'   against \code{g}.
 #'
 #' @examples
-#' dados <- st_drop_geometry(centro_2015)
-#' bboxplot("valor", data = dados)
-#' bboxplot("valor", "padrao", dados)
+#' data(centro_2015)
+#' bboxplot("valor", data = centro_2015)
+#' bboxplot("valor", "padrao", centro_2015)
 #' @rdname bboxplot
 #' @export
 
 bboxplot.default <- function(y, g, data, ...) {
+  df <- as.data.frame(data)
   y <- as.name(y)
   x <- 1
   if (missing(g)) g <- rlang::enquo(x) else g <- as.name(g)
 
-  data %<>% tibble::rowid_to_column()
+  df %<>% tibble::rowid_to_column()
 
   is_outlier <- function(x) {
     low <- stats::quantile(x, 0.25) - 1.5 * stats::IQR(x)
@@ -36,14 +37,14 @@ bboxplot.default <- function(y, g, data, ...) {
   }
 
   p <-
-    data %>%
+    df %>%
     stats::na.omit() %>%
     dplyr::group_by(!!g) %>%
     dplyr::mutate(outlier = ifelse(is_outlier(!!y), rowid, as.numeric(NA))) %>%
     ggplot(aes_(x = g, y = y)) +
     geom_boxplot(aes_(fill = g), outlier.colour = "red", ...) +
     geom_text(aes_(label = ~outlier), na.rm = TRUE, hjust = -0.3) +
-    theme(axis.title.x = element_blank(), legend.position = "bottom")# + geom_jitter(width = 0.2)
+    theme(axis.title.x = element_blank(), legend.position = "none")# + geom_jitter(width = 0.2)
   p
 }
 
@@ -52,24 +53,25 @@ bboxplot.default <- function(y, g, data, ...) {
 #'   the variable y, or of the form y ~ g to produce parallel boxplots for y
 #'   within levels of the grouping variable(s) g, etc., usually factors.
 #' @examples
-#' bboxplot(valor~padrao, data)
-#' bboxplot(~valor, data)
+#' bboxplot(valor~padrao, centro_2015)
+#' bboxplot(~valor, centro_2015)
 #' @rdname bboxplot
 #' @export
 #'
 bboxplot.formula <- function(formula, data, ...) {
-  response <- attr(stats::terms.formula(formula, data = data),
+  df <- as.data.frame(data)
+  response <- attr(stats::terms.formula(formula, data = df),
                    "response")
-  var <- attr(stats::terms.formula(formula, data = data),
+  var <- attr(stats::terms.formula(formula, data = df),
               "term.labels")
 
   if (response == 0) {
-    p <- bboxplot.default(y = var, data = data)
+    p <- bboxplot.default(y = var, data = df)
   } else {
-    response <- colnames(data)[response]
+    response <- colnames(df)[response]
     p <- bboxplot.default(y = response,
                           g = var,
-                          data = data
+                          data = df
     )
   }
   return(p)

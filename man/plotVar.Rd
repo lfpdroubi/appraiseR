@@ -64,10 +64,10 @@ plotVar(mod, "area_total", "log", interval = "confidence")
 plotVar(mod, "area_total", "log", interval = "prediction")
 plotVar(mod, "area_total", "log", interval = "both")
 plotVar(mod, "area_total", interval = "both", ca = TRUE,
-        local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+        local = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
         dist_b_mar = 250, padrao = "medio"))
 plotVar(mod, "area_total", func = "log", interval = "both", ca = TRUE,
-        local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+        local = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
         dist_b_mar = 250, padrao = "medio"), av = 1100000)
 plotVar(mod, "padrao")
 plotVar(mod, "padrao", ca = TRUE)
@@ -76,13 +76,13 @@ plotVar(mod, "padrao", interval = "confidence")
 plotVar(mod, "padrao", interval = "prediction")
 plotVar(mod, "padrao", interval = "both")
 plotVar(mod, "padrao", func = "log", interval = "confidence",
-local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+local = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
         dist_b_mar = 250, padrao = "medio"))
 plotVar(mod, "padrao", func = "log", interval = "prediction",
-local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+local = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
         dist_b_mar = 250, padrao = "medio"), av = 1100000)
 plotVar(mod, "area_total", func = "log", interval = "prediction",
-local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+local = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
         dist_b_mar = 250, padrao = "medio"), av = 1100000, ca = TRUE)
 dados$padrao <- relevel(dados$padrao, ref="alto")
 mod <- lm(log(valor) ~ ., data = dados)

@@ -32,8 +32,9 @@ A matrix with all the working combinations of supplied
 Computes all the combinations of the transformed parameters
 }
 \examples{
-dados <- st_drop_geometry(centro_2015)
+data(centro_2015)
+dados <- centro_2015
 vars <- colnames(dados)
 perms <- allperm(dados, select = vars)
-
+head(perms)
 }

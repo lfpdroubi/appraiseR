@@ -2,33 +2,50 @@
 % Please edit documentation in R/standard_ratio.R
 \name{iaao_Ratio}
 \alias{iaao_Ratio}
+\alias{iaao_Ratio.default}
 \alias{iaao_Ratio.lm}
 \title{Standard on Ratio Studies function}
 \usage{
 iaao_Ratio(x, ...)
+
+\method{iaao_Ratio}{default}(AssessedValue, SalePrice, OutlierTrimming = FALSE)
 
 \method{iaao_Ratio}{lm}(object, func = "identity", ...)
 }
 \arguments{
 \item{\dots}{further arguments passed to \code{iaao_Ratio}.}
 
+\item{AssessedValue}{vector of assessed values (valores venais ou valores
+preditos do modelo)}
+
+\item{SalePrice}{vector of sale prices (preços de mercado ou preços reais do
+modelo)}
+
+\item{OutlierTrimming}{boolean for outliers trimming or not}
+
 \item{object}{An object of class lm.}
 
 \item{func}{function used to transform the response (defaults to identity)}
-
-\item{AssessedValue}{vector of assessed values (valores venais ou valores preditos do modelo)}
-
-\item{SalePrice}{vector of sale prices (preços de mercado ou preços reais do modelo)}
 }
 \value{
-COD and PRD Ratios according to IAOO
+COD, PRD (ratios) and PRB according to IAOO
 }
 \description{
 Statiscal anlysis for matching of appraisal and market data.
-Based on International Association of Assessing Officers' Standard on Ratio Studies Document
+Based on International Association of Assessing Officers' Standard on Ratio
+Studies Document
 }
 \examples{
 library(sf)
+zilli_2020 <- st_drop_geometry(zilli_2020)
+zilli_2020$PC <- as.numeric(zilli_2020$PC)
+fit <- lm(log(VU) ~ log(AP) + log(DABM) + ND + NB + NG + PSN + PC + BRO,
+data = zilli_2020[1:190, ], subset = -c(86, 115))
+
+new = zilli_2020[c(191:213, 215:225), ]
+fitted <- predict(fit, newdata = new)
+iaao_Ratio(exp(fitted), new[, "VU", drop = TRUE])
+# Applied to centro_2015 dataset
 dados <- st_drop_geometry(centro_2015)
 dados$padrao <- as.numeric(dados$padrao)
 fit <- lm(log(valor)~area_total + quartos + suites + garagens +

@@ -170,11 +170,18 @@ Defaults for all the variables in data. See <a href='https://rdrr.io/r/base/subs
   transformations</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='va'>dados</span> <span class='op'>&lt;-</span> <span class='fu'>st_drop_geometry</span><span class='op'>(</span><span class='va'>centro_2015</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in st_drop_geometry(centro_2015): could not find function "st_drop_geometry"</span></div><div class='input'><span class='va'>vars</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span><span class='op'>(</span><span class='va'>dados</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in is.data.frame(x): object 'dados' not found</span></div><div class='input'><span class='va'>perms</span> <span class='op'>&lt;-</span> <span class='fu'>allperm</span><span class='op'>(</span><span class='va'>dados</span>, select <span class='op'>=</span> <span class='va'>vars</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in nrow(data): object 'dados' not found</span></div><div class='input'>
-</div></pre>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>centro_2015</span><span class='op'>)</span>
+<span class='va'>dados</span> <span class='op'>&lt;-</span> <span class='va'>centro_2015</span>
+<span class='va'>vars</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span><span class='op'>(</span><span class='va'>dados</span><span class='op'>)</span>
+<span class='va'>perms</span> <span class='op'>&lt;-</span> <span class='fu'>allperm</span><span class='op'>(</span><span class='va'>dados</span>, select <span class='op'>=</span> <span class='va'>vars</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>perms</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;      valor area_total  quartos   suites garagens dist_b_mar
+#&gt; 1 identity   identity identity identity identity   identity
+#&gt; 2 identity   identity identity identity identity        log
+#&gt; 3 identity   identity identity identity identity      rsqrt
+#&gt; 4 identity   identity identity identity identity       sqrt
+#&gt; 5 identity   identity      log identity identity   identity
+#&gt; 6 identity   identity      log identity identity        log</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
