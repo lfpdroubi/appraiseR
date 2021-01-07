@@ -13,6 +13,7 @@ plotFactor(
   func,
   ca = FALSE,
   av,
+  elasticidade = TRUE,
   ...
 )
 }

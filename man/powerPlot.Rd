@@ -2,37 +2,44 @@
 % Please edit documentation in R/powerPlot.R
 \name{powerPlot}
 \alias{powerPlot}
+\alias{powerPlot.default}
 \alias{powerPlot.lm}
 \alias{powerPlot.bestfit}
 \alias{powerPlot.lmerMod}
 \title{Power plots with ggplot2}
 \usage{
-powerPlot(object, ...)
+powerPlot(y, yhat, ...)
 
-\method{powerPlot}{lm}(
-  object,
-  func,
+\method{powerPlot}{default}(
+  y,
+  yhat,
   axis = c("standard", "inverted"),
   smooth = TRUE,
   se = FALSE,
   ...
 )
 
+\method{powerPlot}{lm}(object, func, ...)
+
 \method{powerPlot}{bestfit}(object, fit = 1, scale = c("transformed", "original"), ...)
 
 \method{powerPlot}{lmerMod}(object, func, ...)
 }
 \arguments{
-\item{object}{object of class \code{\link{lm}} or \code{\link{bestfit}}}
+\item{y}{observed values}
 
-\item{\dots}{not used.}
+\item{yhat}{predicted values}
 
-\item{func}{function used to transform the dependent variable}
+\item{\dots}{further args passed to powerPlot.default}
 
 \item{axis}{option to plot predicted values on the x axis (inverted) or in
 the y axis (standard)}
 
 \item{smooth}{option to add a regression line to the plot}
+
+\item{object}{object of class \code{\link{lm}} or \code{\link{bestfit}}}
+
+\item{func}{function used to transform the dependent variable}
 
 \item{fit}{chosen fit}
 
@@ -51,13 +58,27 @@ dados <- st_drop_geometry(centro_2015)
 dados$padrao <- as.numeric(dados$padrao)
 fit <- lm(log(valor) ~ area_total + quartos + suites + garagens +
 log(dist_b_mar) + I(1/padrao), dados, subset = -c(31, 39))
+s <- summary(fit)
+# Mediana
+library(ggplot2)
+p <- powerPlot(y = na.omit(dados$valor)[-c(31,39)], yhat = exp(fitted(fit)),
+axis = "inverted")
+p + labs(title = "Poder de PrediÃ§Ã£o", subtitle = "Mediana")
+# MÃ©dia
+p1 <- powerPlot(y = na.omit(dados$valor)[-c(31,39)],
+                yhat = exp(fitted(fit) + s$sigma^2/2),  axis = "inverted")
+p1 + labs(title = "Poder de PrediÃ§Ã£o", subtitle = "MÃ©dia")
+# Moda
+p2 <- powerPlot(y = na.omit(dados$valor)[-c(31,39)],
+                yhat = exp(fitted(fit) - s$sigma^2), axis = "inverted")
+p2 + labs(title = "Poder de PrediÃ§Ã£o", subtitle = "Moda")
 powerPlot(fit)
 powerPlot(fit, se = TRUE)
 powerPlot(fit, smooth = FALSE)
 powerPlot(fit, axis = "inverted")
-library(ggplot2)
 p <- powerPlot(fit, func = "log", axis = "inverted")
 p + labs(title = "Poder de PrediÃ§Ã£o", subtitle = "Em milhÃµes de Reais")
+# Changes Dep Var Transformation
 fit <- lm(sqrt(valor) ~ area_total + quartos + suites + garagens +
 log(dist_b_mar) + I(1/padrao), dados)
 powerPlot(fit)
