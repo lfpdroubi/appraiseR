@@ -63,14 +63,20 @@ powerPlot.default <- function(y, yhat, axis = c("standard", "inverted"),
   RMSE <- paste("RMSE = ", brf(Metrics::rmse(y, yhat), nsmall = 0))
   MAE <- paste("MAE = ", brf(Metrics::mae(y, yhat), nsmall = 0))
   MAPE <- paste("MAPE =", pct(Metrics::mape(y, yhat), digits = 2))
+  RSQ <- substitute(R^2~"="~r2,
+                    list(r2 = brf(cor(y, yhat)^2, nsmall = 2)))
 
   p <- p +
     ggpmisc::geom_label_npc(aes(npcx = "left", npcy = "top", label = RMSE),
                             color = "blue") +
     ggpmisc::geom_label_npc(aes(npcx = "right", npcy = "bottom", label = MAE),
-                            color = "green") +
+                            color = "darkgreen") +
     ggpmisc::geom_label_npc(aes(npcx = "center", npcy = "bottom", label = MAPE),
-                            color = "red")
+                            color = "red") +
+    ggpmisc::geom_label_npc(aes(npcx = "center", npcy = "top",
+                                label = as.character(as.expression(RSQ))),
+                            parse = TRUE,
+                            color = "darkblue")
   return(p)
 
 }
