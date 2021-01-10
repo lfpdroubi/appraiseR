@@ -101,7 +101,6 @@ powerPlot.default <- function(y, yhat, axis = c("standard", "inverted"),
 #'
 powerPlot.lm <- function(object, func, ...) {
   z <- object
-  attr(z$terms, "variables")
   data <- stats::model.frame(z)
 
   Y <- data[, attr(z$terms, "response")]
@@ -211,6 +210,47 @@ powerPlot.lmerMod <-  function(object, func, ...){
                                                           big.mark = ".",
                                                           decimal.mark = ","))
     return(p)
+  }
+  return(p)
+}
+
+#' @rdname powerPlot
+#' @param object rq object
+#' @examples
+#' library(quantreg)
+#' set.seed(1)
+#' dados <- data.frame(
+#' Area = runif(100, min = 360, max = 600)
+#' )
+#' dados$LVU <- 12 - .0075*dados$Area + rnorm(100, mean = 0, sd = .25)
+#' dados$VU <- exp(dados$LVU)
+#' medFit <- rq(VU~Area, data = dados)
+#' powerPlot(medFit)
+#' powerPlot(medFit, func = "log")
+#' @export
+#'
+powerPlot.rq <-  function(object, func, ...){
+  z <- object
+  data <- stats::model.frame(z)
+
+  Y <- data[, attr(z$terms, "response")]
+  Y_ajustado <- z$fitted.values
+
+  if (!missing(func)) {
+    Y <- inverse(Y, func)
+    Y_ajustado <- inverse(Y_ajustado, func)
+  }
+
+  p <- powerPlot(y = Y, yhat = Y_ajustado, ...)
+
+  if (!missing(func)) {
+    p <- p +
+      scale_y_continuous(labels = scales::label_number_si(accuracy = .01,
+                                                          big.mark = ".",
+                                                          decimal.mark = ",")) +
+      scale_x_continuous(labels = scales::label_number_si(accuracy = .01,
+                                                          big.mark = ".",
+                                                          decimal.mark = ","))
   }
   return(p)
 }

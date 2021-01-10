@@ -6,6 +6,7 @@
 \alias{powerPlot.lm}
 \alias{powerPlot.bestfit}
 \alias{powerPlot.lmerMod}
+\alias{powerPlot.rq}
 \title{Power plots with ggplot2}
 \usage{
 powerPlot(y, yhat, ...)
@@ -24,6 +25,8 @@ powerPlot(y, yhat, ...)
 \method{powerPlot}{bestfit}(object, fit = 1, scale = c("transformed", "original"), ...)
 
 \method{powerPlot}{lmerMod}(object, func, ...)
+
+\method{powerPlot}{rq}(object, func, ...)
 }
 \arguments{
 \item{y}{observed values}
@@ -37,7 +40,7 @@ the y axis (standard)}
 
 \item{smooth}{option to add a regression line to the plot}
 
-\item{object}{object of class \code{\link{lm}} or \code{\link{bestfit}}}
+\item{object}{rq object}
 
 \item{func}{function used to transform the dependent variable}
 
@@ -106,4 +109,14 @@ Mfit <- lmer(log(valor) ~ area_total + quartos + suites + garagens +
 dist_b_mar + (1|padrao), dados)
 powerPlot(Mfit)
 powerPlot(Mfit, func = "log")
+library(quantreg)
+set.seed(1)
+dados <- data.frame(
+Area = runif(100, min = 360, max = 600)
+)
+dados$LVU <- 12 - .0075*dados$Area + rnorm(100, mean = 0, sd = .25)
+dados$VU <- exp(dados$LVU)
+medFit <- rq(VU~Area, data = dados)
+powerPlot(medFit)
+powerPlot(medFit, func = "log")
 }
