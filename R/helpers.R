@@ -86,11 +86,21 @@ rsqrt <- power(-0.5)
 
 sqr <- power(2)
 
+#' Cube of a number
+#'
+#' @param x a numeric vector or array
+#' @export
+#' @examples
+#'
+#' cube(2)
+
+cube <- power(3)
+
 #' Returns a vector generated with the inverse of the function f
 #'
 #' @param x A vector or object of type
 #' @param func a function of the box-cox family (rsqr(), rec(), rsqrt(), log(),
-#'   sqrt(), I() and sqr())
+#' cubroot(), sqrt(), I() and sqr())
 #' @return a
 #' @export
 #' @examples
@@ -113,6 +123,7 @@ inverse <- function(x, func) {
          rec = appraiseR::rec(x),
          rsqrt = appraiseR::rsqr(x),
          log = exp(x),
+         cubroot = appraiseR::cube(x),
          sqrt = appraiseR::sqr(x),
          identity = identity(x),
          sqr = sqrt(x)

@@ -25,17 +25,23 @@ powerPlot <- function(y, yhat, ...) {
 #' s <- summary(fit)
 #' # Mediana
 #' library(ggplot2)
-#' p <- powerPlot(y = na.omit(dados$valor)[-c(31,39)], yhat = exp(fitted(fit)),
+#' p <- powerPlot(y = na.omit(dados$valor)[-c(31, 39)], yhat = exp(fitted(fit)),
 #' axis = "inverted")
 #' p + labs(title = "Poder de Predição", subtitle = "Mediana")
 #' # Média
-#' p1 <- powerPlot(y = na.omit(dados$valor)[-c(31,39)],
+#' p1 <- powerPlot(y = na.omit(dados$valor)[-c(31, 39)],
 #'                 yhat = exp(fitted(fit) + s$sigma^2/2),  axis = "inverted")
 #' p1 + labs(title = "Poder de Predição", subtitle = "Média")
 #' # Moda
-#' p2 <- powerPlot(y = na.omit(dados$valor)[-c(31,39)],
+#' p2 <- powerPlot(y = na.omit(dados$valor)[-c(31, 39)],
 #'                 yhat = exp(fitted(fit) - s$sigma^2), axis = "inverted")
 #' p2 + labs(title = "Poder de Predição", subtitle = "Moda")
+#' fit <- lm(I(valor^(1/3)) ~ area_total + quartos + suites + garagens +
+#' log(dist_b_mar) + I(1/padrao), dados, subset = -c(31, 39, 42))
+#' s <- summary(fit)
+#' powerPlot(y = na.omit(dados$valor)[-c(31, 39, 42)],
+#'           yhat = fitted(fit)^3 + 3*fitted(fit)*s$sigma^2
+#' )
 #' @export
 powerPlot.default <- function(y, yhat, axis = c("standard", "inverted"),
                               smooth = TRUE, se = FALSE, ...){
@@ -82,8 +88,10 @@ powerPlot.default <- function(y, yhat, axis = c("standard", "inverted"),
 }
 
 #' @rdname powerPlot
-#' @param object object of class \code{\link{lm}} or \code{\link{bestfit}}
-#' @param func function used to transform the dependent variable
+#' @param object object of class \code{\link{lm}}, \code{\link{rq}},
+#' \code{\link{lmerMod}} or \code{\link{bestfit}}.
+#' @param func function used to transform the dependent variable (the inverse
+#' of this function will be used to retransform the data to the original scale).
 #' @param \dots further args passed to powerPlot.default
 #' @examples
 #' powerPlot(fit)
@@ -164,11 +172,8 @@ powerPlot.bestfit <- function(object, fit = 1,
 }
 
 #' @rdname powerPlot
-#' @param fit chosen fit
 #' @examples
 #' library(lme4)
-#' data(centro_2015)
-#' dados <- st_drop_geometry(centro_2015)
 #' Mfit <- lmer(log(valor) ~ area_total + quartos + suites + garagens +
 #' dist_b_mar + (1|padrao), dados)
 #' powerPlot(Mfit)
@@ -178,30 +183,18 @@ powerPlot.bestfit <- function(object, fit = 1,
 powerPlot.lmerMod <-  function(object, func, ...){
   require(broom.mixed)
   z <- object
-  df <- data.frame(.fitted = z@resp$mu, Y = z@resp$y)
 
-  if (missing(func)) {
-    p <- ggplot(df, aes(x = .fitted, y = Y)) +
-      geom_point(alpha=0.5) +
-      xlab(bquote(~hat(Y))) +
-      geom_abline(color = "red") +
-      geom_smooth(method = "lm", se=FALSE) +
-      coord_fixed()
-    return(p)
-  } else {
-    df <- data.frame(.fitted = inverse(df$.fitted, func),
-                     Y = inverse(df$Y, func))
-    p <- ggplot(df, aes(x = .fitted, y = Y)) +
-      geom_point(alpha=0.5) +
-      xlab(bquote(~hat(Y))) +
-      geom_abline(color = "red") +
-      geom_smooth(method = "lm", se=FALSE) +
-      coord_fixed()
+  Y <- z@resp$y
+  Y_ajustado <- z@resp$mu
+
+  if (!missing(func)) {
+    Y <- inverse(Y, func)
+    Y_ajustado <- inverse(Y_ajustado, func)
   }
 
-  if (missing(func)) {
-    return(p)
-  } else {
+  p <- powerPlot(Y, Y_ajustado, ...)
+
+  if (!missing(func)) {
     p <- p +
       scale_y_continuous(labels = scales::label_number_si(accuracy = .01,
                                                           big.mark = ".",
@@ -209,13 +202,11 @@ powerPlot.lmerMod <-  function(object, func, ...){
       scale_x_continuous(labels = scales::label_number_si(accuracy = .01,
                                                           big.mark = ".",
                                                           decimal.mark = ","))
-    return(p)
   }
   return(p)
 }
 
 #' @rdname powerPlot
-#' @param object rq object
 #' @examples
 #' library(quantreg)
 #' set.seed(1)
@@ -226,7 +217,7 @@ powerPlot.lmerMod <-  function(object, func, ...){
 #' dados$VU <- exp(dados$LVU)
 #' medFit <- rq(VU~Area, data = dados)
 #' powerPlot(medFit)
-#' powerPlot(medFit, func = "log")
+#' powerPlot(medFit, axis = "inverted")
 #' @export
 #'
 powerPlot.rq <-  function(object, func, ...){
