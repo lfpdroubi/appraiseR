@@ -370,7 +370,7 @@ pct <- porcento
 #' equacoes(fit, precision = 1)
 #' @export
 equacoes <- function(object, type = c("reg", "est"), inline = TRUE, func,
-                     accuracy = 100, f = round){
+                     accuracy = 100, f = round, errorTerm = TRUE){
   z <- object
   myformula <- stats::formula(z)
   parametros <- parameters(z)
@@ -396,11 +396,15 @@ equacoes <- function(object, type = c("reg", "est"), inline = TRUE, func,
   if (type == "reg"){
     Formula <- paste(lhs, "=", rhs)
   } else if (!missing(func)) {
-    Formula <- paste(lhs, "=", appraiseR::invFunc(func), "(", rhs, ")")
+    Formula <- paste(lhs, " = ", appraiseR::invFunc(func), "(", rhs, ")",
+                     sep = "")
   } else {
     message("Estimation regression asked but no transformation passed.")
   }
 
+  if (type == "reg" & errorTerm == TRUE){
+    Formula <- paste(Formula, "+ \\varepsilon")
+  }
 
   if (inline == TRUE) {
     cat('$', Formula, '$', sep = "")
