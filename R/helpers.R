@@ -96,6 +96,28 @@ sqr <- power(2)
 
 cube <- power(3)
 
+#' Returns the inverse of the function f (character)
+#'
+#' @param func a function of the box-cox family (rsqr(), rec(), rsqrt(), log(),
+#' cubroot(), sqrt(), I() and sqr())
+#' @return the inverse function, in character format.
+#' @export
+#' @examples
+#' invFunc("log")
+
+invFunc <- function(func){
+  switch(func,
+         rsqr = "rsqrt",
+         rec = "rec",
+         rsqrt = "rsqr",
+         log = "exp",
+         cubroot = "cube",
+         sqrt = "sqr",
+         identity = "identity",
+         sqr = "sqrt"
+  )
+}
+
 #' Returns a vector generated with the inverse of the function f
 #'
 #' @param x A vector or object of type
@@ -335,23 +357,34 @@ pct <- porcento
 #'
 #' Givens a \link{lm} object, returns its regression equation
 #' @param object object of class \code{lm}
-#' @param precision the precision required for coefficients
+#' @param type the equation type required: regression (reg) or estimation (est).
+#' @param inline the equation mode. TRUE for inline equations or FALSE for
+#' displayed mode.
+#' @param func transformation applied to dependent variable.
+#' @param accuracy number to round to; for POSIXct objects, a number of seconds
+#' @param f rounding function: floor, ceiling or round
 #' @examples
 #' dados <- st_drop_geometry(centro_2015)
 #' fit <- lm(log(valor) ~ ., dados)
 #' equacoes(fit)
 #' equacoes(fit, precision = 1)
 #' @export
-equacoes <- function(object, precision = 10000){
+equacoes <- function(object, type = c("reg", "est"), inline = TRUE, func,
+                     accuracy = 100, f = round){
   z <- object
   myformula <- stats::formula(z)
-  lhs <- myformula[[2]]
+  parametros <- parameters(z)
+  type <- match.arg(type)
+
+  if(type == "reg") {
+    lhs <- format(parametros$lhs)
+  } else {
+    lhs <- parametros$response
+  }
 
   coefs <- coef(z)
-  coefs <- plyr::round_any(coefs, precision(coefs/precision))
-  parametros <- parameters(z)
+  coefs <- plyr::round_any(coefs, accuracy, f)
 
-  lhs <- format(parametros$lhs)
   rhs <-  paste(coefs[1], "+", paste(coefs[-1], "\\cdot",
                                      names(coefs[-1]),
                                      collapse = " + ")
@@ -359,6 +392,19 @@ equacoes <- function(object, precision = 10000){
   rhs <- gsub("\\_", "\\\\_", rhs)
   rhs <- gsub("\\+ -", "- ", rhs)
   rhs <- gsub("[.]", ",", rhs)
-  Formula <- paste(lhs, "=", rhs)
-  cat('$', Formula, '$', sep = "")
+
+  if (type == "reg"){
+    Formula <- paste(lhs, "=", rhs)
+  } else if (!missing(func)) {
+    Formula <- paste(lhs, "=", appraiseR::invFunc(func), "(", rhs, ")")
+  } else {
+    message("Estimation regression asked but no transformation passed.")
+  }
+
+
+  if (inline == TRUE) {
+    cat('$', Formula, '$', sep = "")
+  } else {
+    cat('$$', Formula, '$$', sep = "")
+  }
 }
