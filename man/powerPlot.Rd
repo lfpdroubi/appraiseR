@@ -17,6 +17,7 @@ powerPlot(y, yhat, ...)
   axis = c("standard", "inverted"),
   smooth = TRUE,
   se = FALSE,
+  metrics = TRUE,
   ...
 )
 
@@ -40,9 +41,16 @@ the y axis (standard)}
 
 \item{smooth}{option to add a regression line to the plot}
 
-\item{object}{rq object}
+\item{se}{option to add confidence interval of regression line to the plot}
 
-\item{func}{function used to transform the dependent variable}
+\item{metrics}{TRUE or FALSE. If TRUE, metrics (R2, RMSE, MAE and MAPE) are
+displayed at the plot area.}
+
+\item{object}{object of class \code{\link{lm}}, \code{\link{rq}},
+\code{\link{lmerMod}} or \code{\link{bestfit}}.}
+
+\item{func}{function used to transform the dependent variable (the inverse
+of this function will be used to retransform the data to the original scale).}
 
 \item{fit}{chosen fit}
 
@@ -64,23 +72,29 @@ log(dist_b_mar) + I(1/padrao), dados, subset = -c(31, 39))
 s <- summary(fit)
 # Mediana
 library(ggplot2)
-p <- powerPlot(y = na.omit(dados$valor)[-c(31,39)], yhat = exp(fitted(fit)),
+p <- powerPlot(y = na.omit(dados$valor)[-c(31, 39)], yhat = exp(fitted(fit)),
 axis = "inverted")
-p + labs(title = "Poder de PrediÃ§Ã£o", subtitle = "Mediana")
-# MÃ©dia
-p1 <- powerPlot(y = na.omit(dados$valor)[-c(31,39)],
+p + labs(title = "Poder de Predição", subtitle = "Mediana")
+# Média
+p1 <- powerPlot(y = na.omit(dados$valor)[-c(31, 39)],
                 yhat = exp(fitted(fit) + s$sigma^2/2),  axis = "inverted")
-p1 + labs(title = "Poder de PrediÃ§Ã£o", subtitle = "MÃ©dia")
+p1 + labs(title = "Poder de Predição", subtitle = "Média")
 # Moda
-p2 <- powerPlot(y = na.omit(dados$valor)[-c(31,39)],
+p2 <- powerPlot(y = na.omit(dados$valor)[-c(31, 39)],
                 yhat = exp(fitted(fit) - s$sigma^2), axis = "inverted")
-p2 + labs(title = "Poder de PrediÃ§Ã£o", subtitle = "Moda")
+p2 + labs(title = "Poder de Predição", subtitle = "Moda")
+fit <- lm(I(valor^(1/3)) ~ area_total + quartos + suites + garagens +
+log(dist_b_mar) + I(1/padrao), dados, subset = -c(31, 39, 42))
+s <- summary(fit)
+powerPlot(y = na.omit(dados$valor)[-c(31, 39, 42)],
+          yhat = fitted(fit)^3 + 3*fitted(fit)*s$sigma^2
+)
 powerPlot(fit)
 powerPlot(fit, se = TRUE)
 powerPlot(fit, smooth = FALSE)
 powerPlot(fit, axis = "inverted")
 p <- powerPlot(fit, func = "log", axis = "inverted")
-p + labs(title = "Poder de PrediÃ§Ã£o", subtitle = "Em milhÃµes de Reais")
+p + labs(title = "Poder de Predição", subtitle = "Em milhões de Reais")
 # Changes Dep Var Transformation
 fit <- lm(sqrt(valor) ~ area_total + quartos + suites + garagens +
 log(dist_b_mar) + I(1/padrao), dados)
@@ -103,8 +117,6 @@ p2 <- powerPlot(best_fit, fit = 514, scale = "original", axis = "inverted")
 cowplot::plot_grid(p1, p2, nrow = 1, ncol = 2)
 
 library(lme4)
-data(centro_2015)
-dados <- st_drop_geometry(centro_2015)
 Mfit <- lmer(log(valor) ~ area_total + quartos + suites + garagens +
 dist_b_mar + (1|padrao), dados)
 powerPlot(Mfit)
@@ -118,5 +130,5 @@ dados$LVU <- 12 - .0075*dados$Area + rnorm(100, mean = 0, sd = .25)
 dados$VU <- exp(dados$LVU)
 medFit <- rq(VU~Area, data = dados)
 powerPlot(medFit)
-powerPlot(medFit, func = "log")
+powerPlot(medFit, axis = "inverted")
 }

@@ -16,6 +16,9 @@ powerPlot <- function(y, yhat, ...) {
 #' @param axis option to plot predicted values on the x axis (inverted) or in
 #' the y axis (standard)
 #' @param smooth option to add a regression line to the plot
+#' @param se option to add confidence interval of regression line to the plot
+#' @param metrics TRUE or FALSE. If TRUE, metrics (R2, RMSE, MAE and MAPE) are
+#' displayed at the plot area.
 #' @examples
 #' library(sf)
 #' dados <- st_drop_geometry(centro_2015)
@@ -44,7 +47,7 @@ powerPlot <- function(y, yhat, ...) {
 #' )
 #' @export
 powerPlot.default <- function(y, yhat, axis = c("standard", "inverted"),
-                              smooth = TRUE, se = FALSE, ...){
+                              smooth = TRUE, se = FALSE, metrics = TRUE, ...){
   axis <- match.arg(axis)
   invres <- data.frame(y = y, yhat = yhat)
 
@@ -66,23 +69,26 @@ powerPlot.default <- function(y, yhat, axis = c("standard", "inverted"),
     p <- p + stat_smooth(method = "lm", se = se)
   }
 
-  RMSE <- paste("RMSE = ", brf(Metrics::rmse(y, yhat), nsmall = 0))
-  MAE <- paste("MAE = ", brf(Metrics::mae(y, yhat), nsmall = 0))
-  MAPE <- paste("MAPE =", pct(Metrics::mape(y, yhat), digits = 2))
-  RSQ <- substitute(R^2~"="~r2,
-                    list(r2 = brf(cor(y, yhat)^2, nsmall = 2)))
+  if (metrics == TRUE) {
+    RMSE <- paste("RMSE = ", brf(Metrics::rmse(y, yhat), nsmall = 0))
+    MAE <- paste("MAE = ", brf(Metrics::mae(y, yhat), nsmall = 0))
+    MAPE <- paste("MAPE =", pct(Metrics::mape(y, yhat), digits = 2))
+    RSQ <- substitute(R^2~"="~r2,
+                      list(r2 = brf(cor(y, yhat)^2, nsmall = 2)))
 
-  p <- p +
-    ggpmisc::geom_label_npc(aes(npcx = "left", npcy = "top", label = RMSE),
-                            color = "blue") +
-    ggpmisc::geom_label_npc(aes(npcx = "right", npcy = "bottom", label = MAE),
-                            color = "darkgreen") +
-    ggpmisc::geom_label_npc(aes(npcx = "center", npcy = "bottom", label = MAPE),
-                            color = "red") +
-    ggpmisc::geom_label_npc(aes(npcx = "center", npcy = "top",
-                                label = as.character(as.expression(RSQ))),
-                            parse = TRUE,
-                            color = "darkblue")
+    p <- p +
+      ggpmisc::geom_label_npc(aes(npcx = "left", npcy = "top", label = RMSE),
+                              color = "blue") +
+      ggpmisc::geom_label_npc(aes(npcx = "right", npcy = "bottom", label = MAE),
+                              color = "darkgreen") +
+      ggpmisc::geom_label_npc(aes(npcx = "center", npcy = "bottom", label = MAPE),
+                              color = "red") +
+      ggpmisc::geom_label_npc(aes(npcx = "center", npcy = "top",
+                                  label = as.character(as.expression(RSQ))),
+                              parse = TRUE,
+                              color = "darkblue")
+  }
+
   return(p)
 
 }
