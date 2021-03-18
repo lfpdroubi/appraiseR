@@ -17,8 +17,10 @@ powerPlot <- function(y, yhat, ...) {
 #' the y axis (standard)
 #' @param smooth option to add a regression line to the plot
 #' @param se option to add confidence interval of regression line to the plot
-#' @param metrics TRUE or FALSE. If TRUE, metrics (R2, RMSE, MAE and MAPE) are
+#' @param metrics TRUE or FALSE. If TRUE, metrics (RMSE, MAE and MAPE) are
 #' displayed at the plot area.
+#' @param R2 TRUE or FALSE. If TRUE, R2 between predicted and observed values
+#' are printed.
 #' @examples
 #' library(sf)
 #' dados <- st_drop_geometry(centro_2015)
@@ -30,7 +32,7 @@ powerPlot <- function(y, yhat, ...) {
 #' library(ggplot2)
 #' p <- powerPlot(y = na.omit(dados$valor)[-c(31, 39)], yhat = exp(fitted(fit)),
 #' axis = "inverted")
-#' p + labs(title = "Poder de Predição", subtitle = "Mediana")
+#' #' p + labs(title = "Poder de Predição", subtitle = "Mediana")
 #' # Média
 #' p1 <- powerPlot(y = na.omit(dados$valor)[-c(31, 39)],
 #'                 yhat = exp(fitted(fit) + s$sigma^2/2),  axis = "inverted")
@@ -43,11 +45,13 @@ powerPlot <- function(y, yhat, ...) {
 #' log(dist_b_mar) + I(1/padrao), dados, subset = -c(31, 39, 42))
 #' s <- summary(fit)
 #' powerPlot(y = na.omit(dados$valor)[-c(31, 39, 42)],
-#'           yhat = fitted(fit)^3 + 3*fitted(fit)*s$sigma^2
+#'           yhat = fitted(fit)^3 + 3*fitted(fit)*s$sigma^2,
+#'           metrics = FALSE
 #' )
 #' @export
 powerPlot.default <- function(y, yhat, axis = c("standard", "inverted"),
-                              smooth = TRUE, se = FALSE, metrics = TRUE, ...){
+                              smooth = TRUE, se = FALSE, metrics = TRUE,
+                              R2 = TRUE, ...){
   axis <- match.arg(axis)
   invres <- data.frame(y = y, yhat = yhat)
 
@@ -73,8 +77,6 @@ powerPlot.default <- function(y, yhat, axis = c("standard", "inverted"),
     RMSE <- paste("RMSE = ", brf(Metrics::rmse(y, yhat), nsmall = 0))
     MAE <- paste("MAE = ", brf(Metrics::mae(y, yhat), nsmall = 0))
     MAPE <- paste("MAPE =", pct(Metrics::mape(y, yhat), digits = 2))
-    RSQ <- substitute(R^2~"="~r2,
-                      list(r2 = brf(cor(y, yhat)^2, nsmall = 2)))
 
     p <- p +
       ggpmisc::geom_label_npc(aes(npcx = "left", npcy = "top", label = RMSE),
@@ -82,7 +84,13 @@ powerPlot.default <- function(y, yhat, axis = c("standard", "inverted"),
       ggpmisc::geom_label_npc(aes(npcx = "right", npcy = "bottom", label = MAE),
                               color = "darkgreen") +
       ggpmisc::geom_label_npc(aes(npcx = "center", npcy = "bottom", label = MAPE),
-                              color = "red") +
+                              color = "red")
+  }
+
+  if (R2 == TRUE){
+    RSQ <- substitute(R^2~"="~r2,
+                      list(r2 = brf(cor(y, yhat)^2, nsmall = 2)))
+    p <- p +
       ggpmisc::geom_label_npc(aes(npcx = "center", npcy = "top",
                                   label = as.character(as.expression(RSQ))),
                               parse = TRUE,
