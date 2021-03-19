@@ -17,7 +17,8 @@ powerPlot(y, yhat, ...)
   axis = c("standard", "inverted"),
   smooth = TRUE,
   se = FALSE,
-  metrics = TRUE,
+  metrics = c("rmse", "mae"),
+  R2 = TRUE,
   ...
 )
 
@@ -43,8 +44,11 @@ the y axis (standard)}
 
 \item{se}{option to add confidence interval of regression line to the plot}
 
-\item{metrics}{TRUE or FALSE. If TRUE, metrics (R2, RMSE, MAE and MAPE) are
+\item{metrics}{TRUE or FALSE. If TRUE, metrics (RMSE, MAE and MAPE) are
 displayed at the plot area.}
+
+\item{R2}{TRUE or FALSE. If TRUE, R2 between predicted and observed values
+are printed.}
 
 \item{object}{object of class \code{\link{lm}}, \code{\link{rq}},
 \code{\link{lmerMod}} or \code{\link{bestfit}}.}
@@ -72,12 +76,12 @@ log(dist_b_mar) + I(1/padrao), dados, subset = -c(31, 39))
 s <- summary(fit)
 # Mediana
 library(ggplot2)
-p <- powerPlot(y = na.omit(dados$valor)[-c(31, 39)], yhat = exp(fitted(fit)),
-axis = "inverted")
+p <- powerPlot(fit, scale = "original", func = "log", axis = "inverted", )
 p + labs(title = "Poder de Predição", subtitle = "Mediana")
 # Média
-p1 <- powerPlot(y = na.omit(dados$valor)[-c(31, 39)],
-                yhat = exp(fitted(fit) + s$sigma^2/2),  axis = "inverted")
+y <- na.omit(dados$valor)[-c(31, 39)]
+yhat <- exp(fitted(fit) + s$sigma^2/2)
+p1 <- powerPlot(y = y, yhat = yhat , axis = "inverted")
 p1 + labs(title = "Poder de Predição", subtitle = "Média")
 # Moda
 p2 <- powerPlot(y = na.omit(dados$valor)[-c(31, 39)],
@@ -87,7 +91,8 @@ fit <- lm(I(valor^(1/3)) ~ area_total + quartos + suites + garagens +
 log(dist_b_mar) + I(1/padrao), dados, subset = -c(31, 39, 42))
 s <- summary(fit)
 powerPlot(y = na.omit(dados$valor)[-c(31, 39, 42)],
-          yhat = fitted(fit)^3 + 3*fitted(fit)*s$sigma^2
+          yhat = fitted(fit)^3 + 3*fitted(fit)*s$sigma^2,
+          metrics = FALSE
 )
 powerPlot(fit)
 powerPlot(fit, se = TRUE)

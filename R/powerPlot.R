@@ -30,12 +30,12 @@ powerPlot <- function(y, yhat, ...) {
 #' s <- summary(fit)
 #' # Mediana
 #' library(ggplot2)
-#' p <- powerPlot(y = na.omit(dados$valor)[-c(31, 39)], yhat = exp(fitted(fit)),
-#' axis = "inverted")
-#' #' p + labs(title = "Poder de Predição", subtitle = "Mediana")
+#' p <- powerPlot(fit, scale = "original", func = "log", axis = "inverted", )
+#' p + labs(title = "Poder de Predição", subtitle = "Mediana")
 #' # Média
-#' p1 <- powerPlot(y = na.omit(dados$valor)[-c(31, 39)],
-#'                 yhat = exp(fitted(fit) + s$sigma^2/2),  axis = "inverted")
+#' y <- na.omit(dados$valor)[-c(31, 39)]
+#' yhat <- exp(fitted(fit) + s$sigma^2/2)
+#' p1 <- powerPlot(y = y, yhat = yhat , axis = "inverted")
 #' p1 + labs(title = "Poder de Predição", subtitle = "Média")
 #' # Moda
 #' p2 <- powerPlot(y = na.omit(dados$valor)[-c(31, 39)],
@@ -50,8 +50,8 @@ powerPlot <- function(y, yhat, ...) {
 #' )
 #' @export
 powerPlot.default <- function(y, yhat, axis = c("standard", "inverted"),
-                              smooth = TRUE, se = FALSE, metrics = TRUE,
-                              R2 = TRUE, ...){
+                              smooth = TRUE, se = FALSE,
+                              metrics = c("rmse", "mae"), R2 = TRUE, ...){
   axis <- match.arg(axis)
   invres <- data.frame(y = y, yhat = yhat)
 
@@ -73,20 +73,6 @@ powerPlot.default <- function(y, yhat, axis = c("standard", "inverted"),
     p <- p + stat_smooth(method = "lm", se = se)
   }
 
-  if (metrics == TRUE) {
-    RMSE <- paste("RMSE = ", brf(Metrics::rmse(y, yhat), nsmall = 0))
-    MAE <- paste("MAE = ", brf(Metrics::mae(y, yhat), nsmall = 0))
-    MAPE <- paste("MAPE =", pct(Metrics::mape(y, yhat), digits = 2))
-
-    p <- p +
-      ggpmisc::geom_label_npc(aes(npcx = "left", npcy = "top", label = RMSE),
-                              color = "blue") +
-      ggpmisc::geom_label_npc(aes(npcx = "right", npcy = "bottom", label = MAE),
-                              color = "darkgreen") +
-      ggpmisc::geom_label_npc(aes(npcx = "center", npcy = "bottom", label = MAPE),
-                              color = "red")
-  }
-
   if (R2 == TRUE){
     RSQ <- substitute(R^2~"="~r2,
                       list(r2 = brf(cor(y, yhat)^2, nsmall = 2)))
@@ -97,6 +83,32 @@ powerPlot.default <- function(y, yhat, axis = c("standard", "inverted"),
                               color = "darkblue")
   }
 
+  if (isFALSE(metrics)) {
+
+    return(p)
+
+    } else {
+
+      if (isTRUE(metrics)) metrics <- c("rmse", "mae", "mape")
+
+      npcx <- c(rmse = "left", mae = "right", mape = "center")
+      npcy <- c(rmse = "top", mae = "bottom", mape = "bottom")
+      col <- c(rmse = "blue", mae = "darkgreen", mape = "red")
+      require(Metrics)
+      a <- vector(mode = "character", length = 0)
+      for (metric in metrics) {
+        a[[metric]] <- paste(metric, " = ",
+                   brf(do.call(metric, args = list(y, yhat)),
+                       nsmall = 0))
+      }
+      df <- data.frame(x.char = npcx[metrics], y.char =  npcy[metrics],
+                       text = a[metrics], color = col[metrics])
+      p <- p +
+        ggpmisc::geom_label_npc(data = df,
+                                aes(npcx = x.char, npcy = y.char, label = text),
+                                color = col[metrics]
+                                )
+    }
   return(p)
 
 }
