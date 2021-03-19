@@ -23,31 +23,25 @@ powerPlot <- function(y, yhat, ...) {
 #' are printed.
 #' @examples
 #' library(sf)
-#' dados <- st_drop_geometry(centro_2015)
+#' dados <- st_drop_geometry(centro_2015[1:50, ])
 #' dados$padrao <- as.numeric(dados$padrao)
 #' fit <- lm(log(valor) ~ area_total + quartos + suites + garagens +
 #' log(dist_b_mar) + I(1/padrao), dados, subset = -c(31, 39))
 #' s <- summary(fit)
 #' # Mediana
 #' library(ggplot2)
-#' p <- powerPlot(fit, scale = "original", func = "log", axis = "inverted", )
+#' y <- dados$valor[-c(31, 39)]
+#' yhat <- exp(fitted(fit))
+#' p <- powerPlot(y, yhat, axis = "inverted")
 #' p + labs(title = "Poder de Predição", subtitle = "Mediana")
 #' # Média
-#' y <- na.omit(dados$valor)[-c(31, 39)]
 #' yhat <- exp(fitted(fit) + s$sigma^2/2)
 #' p1 <- powerPlot(y = y, yhat = yhat , axis = "inverted")
 #' p1 + labs(title = "Poder de Predição", subtitle = "Média")
 #' # Moda
-#' p2 <- powerPlot(y = na.omit(dados$valor)[-c(31, 39)],
-#'                 yhat = exp(fitted(fit) - s$sigma^2), axis = "inverted")
+#' yhat <- exp(fitted(fit) - s$sigma^2)
+#' p2 <- powerPlot(y = y, yhat = yhat, axis = "inverted")
 #' p2 + labs(title = "Poder de Predição", subtitle = "Moda")
-#' fit <- lm(I(valor^(1/3)) ~ area_total + quartos + suites + garagens +
-#' log(dist_b_mar) + I(1/padrao), dados, subset = -c(31, 39, 42))
-#' s <- summary(fit)
-#' powerPlot(y = na.omit(dados$valor)[-c(31, 39, 42)],
-#'           yhat = fitted(fit)^3 + 3*fitted(fit)*s$sigma^2,
-#'           metrics = FALSE
-#' )
 #' @export
 powerPlot.default <- function(y, yhat, axis = c("standard", "inverted"),
                               smooth = TRUE, se = FALSE,
@@ -84,11 +78,8 @@ powerPlot.default <- function(y, yhat, axis = c("standard", "inverted"),
   }
 
   if (isFALSE(metrics)) {
-
     return(p)
-
     } else {
-
       if (isTRUE(metrics)) metrics <- c("rmse", "mae", "mape")
 
       npcx <- c(rmse = "left", mae = "right", mape = "center")
@@ -110,7 +101,6 @@ powerPlot.default <- function(y, yhat, axis = c("standard", "inverted"),
                                 )
     }
   return(p)
-
 }
 
 #' @rdname powerPlot
@@ -124,7 +114,7 @@ powerPlot.default <- function(y, yhat, axis = c("standard", "inverted"),
 #' powerPlot(fit, se = TRUE)
 #' powerPlot(fit, smooth = FALSE)
 #' powerPlot(fit, axis = "inverted")
-#' p <- powerPlot(fit, func = "log", axis = "inverted")
+#' p <- powerPlot(fit, scale = "original", func = "log", axis = "inverted")
 #' p + labs(title = "Poder de Predição", subtitle = "Em milhões de Reais")
 #' # Changes Dep Var Transformation
 #' fit <- lm(sqrt(valor) ~ area_total + quartos + suites + garagens +
