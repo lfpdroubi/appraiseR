@@ -71,7 +71,7 @@ powerPlot.default <- function(y, yhat, axis = c("standard", "inverted"),
     RSQ <- substitute(R^2~"="~r2,
                       list(r2 = brf(cor(y, yhat)^2, nsmall = 2)))
     p <- p +
-      ggpmisc::geom_label_npc(aes(npcx = "center", npcy = "top",
+      ggpp::geom_label_npc(aes(npcx = "center", npcy = "top",
                                   label = as.character(as.expression(RSQ))),
                               parse = TRUE,
                               color = "darkblue")
@@ -95,7 +95,7 @@ powerPlot.default <- function(y, yhat, axis = c("standard", "inverted"),
       df <- data.frame(x.char = npcx[metrics], y.char =  npcy[metrics],
                        text = a[metrics], color = col[metrics])
       p <- p +
-        ggpmisc::geom_label_npc(data = df,
+        ggpp::geom_label_npc(data = df,
                                 aes(npcx = x.char, npcy = y.char, label = text),
                                 color = col[metrics]
                                 )
