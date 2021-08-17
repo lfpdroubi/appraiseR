@@ -44,7 +44,7 @@ powerPlot <- function(y, yhat, ...) {
 #' p2 + labs(title = "Poder de Predição", subtitle = "Moda")
 #' @export
 powerPlot.default <- function(y, yhat, axis = c("standard", "inverted"),
-                              smooth = TRUE, se = FALSE,
+                              smooth = TRUE, methods = "lm", se = FALSE,
                               metrics = c("rmse", "mae"), R2 = TRUE, ...){
   axis <- match.arg(axis)
   invres <- data.frame(y = y, yhat = yhat)
@@ -64,7 +64,11 @@ powerPlot.default <- function(y, yhat, axis = c("standard", "inverted"),
   }
 
   if (smooth == TRUE) {
-    p <- p + stat_smooth(method = "lm", se = se)
+    i <- 2
+    for (method in methods) {
+      i <- i + 1
+      p <- p + stat_smooth(method = method, se = se, color = i)
+    }
   }
 
   if (R2 == TRUE){
