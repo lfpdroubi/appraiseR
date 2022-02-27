@@ -31,4 +31,106 @@ loteamento
 A tibble containing a sample of 20 plots in subdivision in Florianopolis.
 Paradigm situation: dry, flat, 15m front width and 30~60m length.
 }
+\examples{
+data(loteamento)
+
+# Fatores do IBAPE/SP 2005 (aditivo), cf. Hochheim (2005 , p.82)
+loteamento <- within(loteamento, {
+               Coferta <- ifelse(tipo == "oferta", 1.11, 1)
+               Cfrente <- (frente/15)^0.15
+               Ctopo <- ifelse(topo == "plano", 1,
+                          ifelse(inclinacao/100 >= .20, 0.85,
+                            ifelse(inclinacao/100 > .10,  0.90,
+                              ifelse(inclinacao/100 > 0, .95,
+                                ifelse(inclinacao/100 >= -.05, .95,
+                                  ifelse(inclinacao/100 >= -.10, .9,
+                                    ifelse(inclinacao/100 >= -.20, .80, .70)))))))
+               Cpedo <- ifelse(pedologia == "seco", 1, .6)
+               Chom <-  (1 + ((Coferta - 1) + (Cfrente - 1) +
+                                      (Ctopo - 1) + (Cpedo - 1)))
+               PU <- valor/area
+               PUhom <- PU/Chom
+}
+)
+
+# Saneamento da amostra
+outlier_analysis(loteamento$PUhom)
+outlier_analysis(loteamento$PUhom, "2_sd")
+outlier_analysis(loteamento$PUhom, "chauvenet")
+
+# Avaliacao final
+PUmedio <- mean(loteamento$PUhom[-c(7, 19)])
+sdPU <- sd(loteamento$PUhom[-c(7, 19)])
+
+# Poder de predicao
+loteamento <- within(loteamento, P <- PUmedio*area*Chom)
+powerPlot(y = loteamento$valor[-c(7, 19)], yhat = loteamento$P[-c(7, 19)],
+           axis = "inverted")
+
+# Fatores IBAPE/SP 2011 (misto)
+
+loteamento <- within(loteamento, {
+               Coferta <- ifelse(tipo == "oferta", 1.11, 1)
+               Cfrente <- (frente/15)^0.15
+               Ctopo <- ifelse(topo == "plano", 1,
+                          ifelse(inclinacao/100 >= .20, 0.85,
+                            ifelse(inclinacao/100 > .10,  0.90,
+                              ifelse(inclinacao/100 > 0, .95,
+                                ifelse(inclinacao/100 >= -.05, .95,
+                                  ifelse(inclinacao/100 >= -.10, .9,
+                                    ifelse(inclinacao/100 >= -.20, .80, .70)))))))
+               Cpedo <- ifelse(pedologia == "seco", 1, .6)
+               Chom <-  Coferta*(1 + ((Cfrente - 1) + (Ctopo - 1) +
+                                  (Cpedo - 1)))
+               PU <- valor/area
+               PUhom <- PU/Chom
+}
+)
+
+# Saneamento da amostra
+outlier_analysis(loteamento$PUhom)
+outlier_analysis(loteamento$PUhom, "2_sd")
+outlier_analysis(loteamento$PUhom, "chauvenet")
+
+# Avaliacao final
+PUmedio <- mean(loteamento$PUhom[-c(7, 19)])
+sdPU <- sd(loteamento$PUhom[-c(7, 19)])
+
+# Poder de predicao
+loteamento <- within(loteamento, P <- PUmedio*area*Chom)
+powerPlot(y = loteamento$valor[-c(7, 19)], yhat = loteamento$P[-c(7, 19)],
+           axis = "inverted")
+
+# Fatores multiplicativos
+loteamento <- within(loteamento, {
+               Coferta <- ifelse(tipo == "oferta", 1.11, 1)
+               Cfrente <- (frente/15)^0.25
+               Chom <-  Coferta*Cfrente*Ctopo*Cpedo
+               PU <- valor/area
+               PUhom <- PU/Chom
+}
+)
+
+# Saneamento da amostra
+outlier_analysis(loteamento$PUhom)
+outlier_analysis(loteamento$PUhom, "2_sd")
+outlier_analysis(loteamento$PUhom, "chauvenet")
+
+# Avaliacao final
+PUmedio <- mean(loteamento$PUhom[-c(7, 19)])
+sdPU <- sd(loteamento$PUhom[-c(7, 19)])
+
+# Poder de predicao
+loteamento <- within(loteamento, P <- PUmedio*area*Chom)
+powerPlot(y = loteamento$valor[-c(7, 19)], yhat = loteamento$P[-c(7, 19)],
+           axis = "inverted")
+
+# Regressao Linear
+fit <- lm(log(PU) ~ log(frente/15) + tipo + poly(inclinacao, 2) + pedologia,
+           data = loteamento, subset = -c(7, 19))
+powerPlot(fit, axis = "inverted", scale = "original", func = "log")
+p <- predict(fit, newdata = list(frente = 15, tipo = "venda", inclinacao = 0,
+                              pedologia = "seco"))
+exp(p)
+}
 \keyword{datasets}

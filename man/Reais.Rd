@@ -5,7 +5,7 @@
 \alias{reais}
 \title{Wrapper around brformat}
 \usage{
-Reais(x, prefix = "R$", ...)
+Reais(x, prefix = "R$ ", ...)
 
 reais(...)
 }

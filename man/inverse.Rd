@@ -10,7 +10,7 @@ inverse(x, func)
 \item{x}{A vector or object of type}
 
 \item{func}{a function of the box-cox family (rsqr(), rec(), rsqrt(), log(),
-sqrt(), I() and sqr())}
+cubroot(), sqrt(), I() and sqr())}
 }
 \value{
 a

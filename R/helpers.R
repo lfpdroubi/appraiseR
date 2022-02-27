@@ -318,7 +318,7 @@ brf <- brformat
 #' Reais(100)
 #' @export
 #'
-Reais <- function(x, prefix = "R$", ...) {
+Reais <- function(x, prefix = "R$ ", ...) {
   paste(prefix, brformat(x, ...), sep = "")
 }
 

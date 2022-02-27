@@ -38,8 +38,8 @@ Centro Tecnológico da UFSC. Florianópolis/SC.
 zilli_2020
 }
 \description{
-A SpatialPointsDataFrame containing a sample of 50 apartaments with
-prices and other attributes in Florianopolis' downtown
+A SpatialPointsDataFrame containing a sample of 225 apartaments with
+prices and other attributes in 3 different Florianopolis' neighbourhoods.
 }
 \examples{
 data(zilli_2020)

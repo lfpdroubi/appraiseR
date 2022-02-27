@@ -42,7 +42,7 @@ Imports:
     Metrics,
     ggpmisc,
     ggpp
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Suggests: 
     broom,
     knitr,
@@ -50,5 +50,6 @@ Suggests:
     scales,
     stringi,
     usethis,
-    kableExtra
+    kableExtra,
+    effects
 VignetteBuilder: knitr

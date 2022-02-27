@@ -16,6 +16,7 @@ powerPlot(y, yhat, ...)
   yhat,
   axis = c("standard", "inverted"),
   smooth = TRUE,
+  methods = "lm",
   se = FALSE,
   metrics = c("rmse", "mae"),
   R2 = TRUE,
@@ -79,21 +80,21 @@ library(ggplot2)
 y <- dados$valor[-c(31, 39)]
 yhat <- exp(fitted(fit))
 p <- powerPlot(y, yhat, axis = "inverted")
-p + labs(title = "Poder de PrediÃ§Ã£o", subtitle = "Mediana")
-# MÃ©dia
+p + labs(title = "Poder de Predição", subtitle = "Mediana")
+# Média
 yhat <- exp(fitted(fit) + s$sigma^2/2)
 p1 <- powerPlot(y = y, yhat = yhat , axis = "inverted")
-p1 + labs(title = "Poder de PrediÃ§Ã£o", subtitle = "MÃ©dia")
+p1 + labs(title = "Poder de Predição", subtitle = "Média")
 # Moda
 yhat <- exp(fitted(fit) - s$sigma^2)
 p2 <- powerPlot(y = y, yhat = yhat, axis = "inverted")
-p2 + labs(title = "Poder de PrediÃ§Ã£o", subtitle = "Moda")
+p2 + labs(title = "Poder de Predição", subtitle = "Moda")
 powerPlot(fit)
 powerPlot(fit, se = TRUE)
 powerPlot(fit, smooth = FALSE)
 powerPlot(fit, axis = "inverted")
 p <- powerPlot(fit, scale = "original", func = "log", axis = "inverted")
-p + labs(title = "Poder de PrediÃ§Ã£o", subtitle = "Em milhÃµes de Reais")
+p + labs(title = "Poder de Predição", subtitle = "Em milhões de Reais")
 # Changes Dep Var Transformation
 fit <- lm(sqrt(valor) ~ area_total + quartos + suites + garagens +
 log(dist_b_mar) + I(1/padrao), dados)

@@ -29,4 +29,16 @@ centro_2015
 A SpatialPointsDataFrame containing a sample of 50 apartaments with
 prices and other attributes in Florianopolis' downtown
 }
+\examples{
+data(centro_2015)
+centro_2015$padrao <- as.numeric(centro_2015$padrao)
+fit <- lm(log(valor) ~ area_total + quartos + suites + garagens +
+              log(dist_b_mar) + I(1/padrao), data = centro_2015)
+# Look for outliers
+library(car)
+qqPlot(fit)
+fit1 <- update(fit, subset = -c(31, 39))
+qqPlot(fit1)
+summary(fit1)
+}
 \keyword{datasets}

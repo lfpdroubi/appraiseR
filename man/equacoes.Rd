@@ -4,12 +4,29 @@
 \alias{equacoes}
 \title{Regression equation}
 \usage{
-equacoes(object, precision = 10000)
+equacoes(
+  object,
+  type = c("reg", "est"),
+  inline = TRUE,
+  func,
+  accuracy = 100,
+  f = round,
+  errorTerm = TRUE
+)
 }
 \arguments{
 \item{object}{object of class \code{lm}}
 
-\item{precision}{the precision required for coefficients}
+\item{type}{the equation type required: regression (reg) or estimation (est).}
+
+\item{inline}{the equation mode. TRUE for inline equations or FALSE for
+displayed mode.}
+
+\item{func}{transformation applied to dependent variable.}
+
+\item{accuracy}{number to round to; for POSIXct objects, a number of seconds}
+
+\item{f}{rounding function: floor, ceiling or round}
 }
 \description{
 Givens a \link{lm} object, returns its regression equation

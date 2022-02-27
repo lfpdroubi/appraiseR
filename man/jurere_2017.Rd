@@ -34,4 +34,10 @@ jurere_2017
 A tibble containing a sample of 20 plots in subdivision in Florianopolis.
 Paradigm situation: dry, flat, 15m front width and 30~60m length.
 }
+\examples{
+data(jurere_2017)
+jurere_2017$PAVIMENTOS <- as.factor(jurere_2017$PAVIMENTOS)
+fit <- lm(VU ~ AREA + TESTADA + log(DIST_MAR) + PAVIMENTOS,
+          data = jurere_2017, subset = -c(11, 27, 29))
+}
 \keyword{datasets}

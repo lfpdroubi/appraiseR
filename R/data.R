@@ -44,6 +44,17 @@ centro_2015 <- sf::st_as_sf(centro_2015)
 #' }
 #' @source \strong{HOCHHEIM, Norberto}. \emph{Engenharia de avaliacoes
 #' imobiliarias: Modulo Basico}. Florianopolis: IBAPE/SC, 2015, p.21-22
+#' @examples
+#' data(centro_2015)
+#' centro_2015$padrao <- as.numeric(centro_2015$padrao)
+#' fit <- lm(log(valor) ~ area_total + quartos + suites + garagens +
+#'               log(dist_b_mar) + I(1/padrao), data = centro_2015)
+#' # Look for outliers
+#' library(car)
+#' qqPlot(fit)
+#' fit1 <- update(fit, subset = -c(31, 39))
+#' qqPlot(fit1)
+#' summary(fit1)
 "centro_2015"
 
 zilli_2020 <- suppressWarnings(readr::read_csv2("./inst/zilli.csv"))
@@ -65,8 +76,8 @@ zilli_2020 <- sf::st_as_sf(zilli_2020)
 
 #' Prices of 225 Florianopolis' apartaments in 3 neighborhoods
 #'
-#' A SpatialPointsDataFrame containing a sample of 50 apartaments with
-#' prices and other attributes in Florianopolis' downtown
+#' A SpatialPointsDataFrame containing a sample of 225 apartaments with
+#' prices and other attributes in 3 different Florianopolis' neighbourhoods.
 #'
 #' @format A tibble with 53 rows (50 samples and 3 apartments to be
 #'   appraised) and 7 variables:
@@ -185,11 +196,113 @@ loteamento <- readr::read_csv("./inst/loteamento_residencial.csv")
 #' }
 #' @source \strong{HOCHHEIM, Norberto}. \emph{Engenharia de Avaliacoes I}.
 #' Florianopolis: IBAPE/SC, 2005, p.74
+#' @examples
+#' data(loteamento)
+#'
+#' # Fatores do IBAPE/SP 2005 (aditivo), cf. Hochheim (2005 , p.82)
+#' loteamento <- within(loteamento, {
+#'                Coferta <- ifelse(tipo == "oferta", 1.11, 1)
+#'                Cfrente <- (frente/15)^0.15
+#'                Ctopo <- ifelse(topo == "plano", 1,
+#'                           ifelse(inclinacao/100 >= .20, 0.85,
+#'                             ifelse(inclinacao/100 > .10,  0.90,
+#'                               ifelse(inclinacao/100 > 0, .95,
+#'                                 ifelse(inclinacao/100 >= -.05, .95,
+#'                                   ifelse(inclinacao/100 >= -.10, .9,
+#'                                     ifelse(inclinacao/100 >= -.20, .80, .70)))))))
+#'                Cpedo <- ifelse(pedologia == "seco", 1, .6)
+#'                Chom <-  (1 + ((Coferta - 1) + (Cfrente - 1) +
+#'                                       (Ctopo - 1) + (Cpedo - 1)))
+#'                PU <- valor/area
+#'                PUhom <- PU/Chom
+#' }
+#' )
+#'
+#' # Saneamento da amostra
+#' outlier_analysis(loteamento$PUhom)
+#' outlier_analysis(loteamento$PUhom, "2_sd")
+#' outlier_analysis(loteamento$PUhom, "chauvenet")
+#'
+#' # Avaliacao final
+#' PUmedio <- mean(loteamento$PUhom[-c(7, 19)])
+#' sdPU <- sd(loteamento$PUhom[-c(7, 19)])
+#'
+#' # Poder de predicao
+#' loteamento <- within(loteamento, P <- PUmedio*area*Chom)
+#' powerPlot(y = loteamento$valor[-c(7, 19)], yhat = loteamento$P[-c(7, 19)],
+#'            axis = "inverted")
+#'
+#' # Fatores IBAPE/SP 2011 (misto)
+#'
+#' loteamento <- within(loteamento, {
+#'                Coferta <- ifelse(tipo == "oferta", 1.11, 1)
+#'                Cfrente <- (frente/15)^0.15
+#'                Ctopo <- ifelse(topo == "plano", 1,
+#'                           ifelse(inclinacao/100 >= .20, 0.85,
+#'                             ifelse(inclinacao/100 > .10,  0.90,
+#'                               ifelse(inclinacao/100 > 0, .95,
+#'                                 ifelse(inclinacao/100 >= -.05, .95,
+#'                                   ifelse(inclinacao/100 >= -.10, .9,
+#'                                     ifelse(inclinacao/100 >= -.20, .80, .70)))))))
+#'                Cpedo <- ifelse(pedologia == "seco", 1, .6)
+#'                Chom <-  Coferta*(1 + ((Cfrente - 1) + (Ctopo - 1) +
+#'                                   (Cpedo - 1)))
+#'                PU <- valor/area
+#'                PUhom <- PU/Chom
+#' }
+#' )
+#'
+#' # Saneamento da amostra
+#' outlier_analysis(loteamento$PUhom)
+#' outlier_analysis(loteamento$PUhom, "2_sd")
+#' outlier_analysis(loteamento$PUhom, "chauvenet")
+#'
+#' # Avaliacao final
+#' PUmedio <- mean(loteamento$PUhom[-c(7, 19)])
+#' sdPU <- sd(loteamento$PUhom[-c(7, 19)])
+#'
+#' # Poder de predicao
+#' loteamento <- within(loteamento, P <- PUmedio*area*Chom)
+#' powerPlot(y = loteamento$valor[-c(7, 19)], yhat = loteamento$P[-c(7, 19)],
+#'            axis = "inverted")
+#'
+#' # Fatores multiplicativos
+#' loteamento <- within(loteamento, {
+#'                Coferta <- ifelse(tipo == "oferta", 1.11, 1)
+#'                Cfrente <- (frente/15)^0.25
+#'                Chom <-  Coferta*Cfrente*Ctopo*Cpedo
+#'                PU <- valor/area
+#'                PUhom <- PU/Chom
+#' }
+#' )
+#'
+#' # Saneamento da amostra
+#' outlier_analysis(loteamento$PUhom)
+#' outlier_analysis(loteamento$PUhom, "2_sd")
+#' outlier_analysis(loteamento$PUhom, "chauvenet")
+#'
+#' # Avaliacao final
+#' PUmedio <- mean(loteamento$PUhom[-c(7, 19)])
+#' sdPU <- sd(loteamento$PUhom[-c(7, 19)])
+#'
+#' # Poder de predicao
+#' loteamento <- within(loteamento, P <- PUmedio*area*Chom)
+#' powerPlot(y = loteamento$valor[-c(7, 19)], yhat = loteamento$P[-c(7, 19)],
+#'            axis = "inverted")
+#'
+#' # Regressao Linear
+#' fit <- lm(log(PU) ~ log(frente/15) + tipo + poly(inclinacao, 2) + pedologia,
+#'            data = loteamento, subset = -c(7, 19))
+#' powerPlot(fit, axis = "inverted", scale = "original", func = "log")
+#' p <- predict(fit, newdata = list(frente = 15, tipo = "venda", inclinacao = 0,
+#'                               pedologia = "seco"))
+#' exp(p)
+
 "loteamento"
 
 jurere_2017 <- readr::read_csv2("./inst/jurere.csv")
 
-jurere_2017$PAVIMENTO <- as.factor(jurere_2017$PAVIMENTO)
+jurere_2017$PAVIMENTOS <- as.factor(jurere_2017$PAVIMENTOS)
 jurere_2017$TOPOGRAFIA <- as.factor(jurere_2017$TOPOGRAFIA)
 
 jurere_2017 <-
@@ -225,6 +338,21 @@ jurere_2017 <- sf::st_as_sf(jurere_2017)
 #'   \item DATA: date
 #'   \item FONTE: source
 #' }
+#' @examples
+#' data(jurere_2017)
+#' fit <- lm(log(VU) ~ log(AREA)*log(TESTADA) + log(DIST_MAR) + PAVIMENTOS,
+#'           data = jurere_2017)
+#' library(effects)
+#' plot(predictorEffects(fit, residuals = T))
+#' # Centering
+#' library(dplyr)
+#' jurere_2017 <- mutate(jurere_2017,
+#'                        AREA = AREA/450,
+#'                        TESTADA = TESTADA/15,
+#'                        DIST_MAR = DIST_MAR/33)
+#' fit1 <- lm(log(VU) ~ log(AREA) + log(TESTADA) + log(DIST_MAR) + PAVIMENTOS,
+#'           data = jurere_2017, subset = -c(11, 27, 29))
+#'
 "jurere_2017"
 
 trivelloni_2005 <- readr::read_csv2("./inst/trivelloni_2005.csv")
@@ -279,5 +407,5 @@ trivelloni_2005 <-
 
 trivelloni_2005 <- sf::st_as_sf(trivelloni_2005)
 
-# usethis::use_data(centro_2015, zilli_2020, trindade, jungles, loteamento,
-#                   jurere_2017, trivelloni_2005, overwrite = TRUE)
+usethis::use_data(centro_2015, zilli_2020, trindade, jungles, loteamento,
+                  jurere_2017, trivelloni_2005, overwrite = TRUE)
