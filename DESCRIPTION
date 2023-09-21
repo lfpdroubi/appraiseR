@@ -41,15 +41,16 @@ Imports:
     stringr,
     Metrics,
     ggpmisc,
-    ggpp
-RoxygenNote: 7.1.2
+    ggpp,
+    forcats,
+    usethis
+RoxygenNote: 7.2.3
 Suggests: 
     broom,
     knitr,
     rmarkdown,
     scales,
     stringi,
-    usethis,
     kableExtra,
     effects
 VignetteBuilder: knitr
