@@ -31,7 +31,7 @@ plotdf <- function(formula, data){
   for (i in predictors) {
     if (is.character(mf[, i]) | is.factor(mf[, i]))
       p[[i]] <- bboxplot(y = response, g = i, data = mf)+
-        scale_y_continuous(labels = scales::label_number_si(accuracy = .01,
+        scale_y_continuous(labels = scales::label_number(accuracy = .01,
                                                             big.mark = ".",
                                                             decimal.mark = ",")) +
         xlab(predictors[i]) +
@@ -40,10 +40,10 @@ plotdf <- function(formula, data){
       p[[i]] <- ggplot(mf, aes_(x = as.name(i), y = as.name(response))) +
                          geom_point() +
                          stat_smooth(method = "lm", se = F)+
-        scale_y_continuous(labels = scales::label_number_si(accuracy = .01,
+        scale_y_continuous(labels = scales::label_number(accuracy = .01,
                                                             big.mark = ".",
                                                             decimal.mark = ",")) +
-        scale_x_continuous(labels = scales::label_number_si(accuracy = .01,
+        scale_x_continuous(labels = scales::label_number(accuracy = .01,
                                                             big.mark = ".",
                                                             decimal.mark = ",")) +
         theme(axis.text.x=element_text(angle = 45, vjust = 1, hjust = 1))
