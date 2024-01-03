@@ -143,12 +143,12 @@ powerPlot.lm <- function(object, func, ...) {
 
   if (!missing(func)) {
     p <- p +
-      scale_y_continuous(labels = scales::label_number_si(accuracy = .01,
-                                                          big.mark = ".",
-                                                          decimal.mark = ",")) +
-      scale_x_continuous(labels = scales::label_number_si(accuracy = .01,
-                                                          big.mark = ".",
-                                                          decimal.mark = ","))
+      scale_y_continuous(labels = scales::label_number(accuracy = .01,
+                                                       big.mark = ".",
+                                                       decimal.mark = ",")) +
+      scale_x_continuous(labels = scales::label_number(accuracy = .01,
+                                                       big.mark = ".",
+                                                       decimal.mark = ","))
   }
 
   return(p)
@@ -216,12 +216,12 @@ powerPlot.lmerMod <-  function(object, func, ...){
 
   if (!missing(func)) {
     p <- p +
-      scale_y_continuous(labels = scales::label_number_si(accuracy = .01,
-                                                          big.mark = ".",
-                                                          decimal.mark = ",")) +
-      scale_x_continuous(labels = scales::label_number_si(accuracy = .01,
-                                                          big.mark = ".",
-                                                          decimal.mark = ","))
+      scale_y_continuous(labels = scales::label_number(accuracy = .01,
+                                                       big.mark = ".",
+                                                       decimal.mark = ",")) +
+      scale_x_continuous(labels = scales::label_number(accuracy = .01,
+                                                       big.mark = ".",
+                                                       decimal.mark = ","))
   }
   return(p)
 }
@@ -256,12 +256,12 @@ powerPlot.rq <-  function(object, func, ...){
 
   if (!missing(func)) {
     p <- p +
-      scale_y_continuous(labels = scales::label_number_si(accuracy = .01,
-                                                          big.mark = ".",
-                                                          decimal.mark = ",")) +
-      scale_x_continuous(labels = scales::label_number_si(accuracy = .01,
-                                                          big.mark = ".",
-                                                          decimal.mark = ","))
+      scale_y_continuous(labels = scales::label_number(accuracy = .01,
+                                                       big.mark = ".",
+                                                       decimal.mark = ",")) +
+      scale_x_continuous(labels = scales::label_number(accuracy = .01,
+                                                       big.mark = ".",
+                                                       decimal.mark = ","))
   }
   return(p)
 }

@@ -141,9 +141,9 @@ plotFactor <- function(x, object,
     geom_boxplot(aes_(fill = as.name(variable))) +
     xlab(variable) +
     theme(legend.position="none") +
-    scale_y_continuous(labels = scales::label_number_si(accuracy = .01,
-                                                        big.mark = ".",
-                                                        decimal.mark = ","))
+    scale_y_continuous(labels = scales::label_number(accuracy = .01,
+                                                     big.mark = ".",
+                                                     decimal.mark = ","))
   if(!missing(local)) {
     p_local <- ifelse(missing(func), p_local, inverse(p_local, func))
     if (elasticidade == TRUE) {
@@ -235,12 +235,12 @@ plotContinuousVariable <- function(x, object,
   p <- ggplot(data = pred, aes_(x = as.name(variable), y = as.name(response))) +
     geom_line(size = 1) +
     theme(legend.position="bottom") +
-    scale_y_continuous(labels = scales::label_number_si(accuracy = .01,
-                                                        big.mark = ".",
-                                                        decimal.mark = ",")) +
-    scale_x_continuous(labels = scales::label_number_si(accuracy = .01,
-                                                        big.mark = ".",
-                                                        decimal.mark = ",")) +
+    scale_y_continuous(labels = scales::label_number(accuracy = .01,
+                                                     big.mark = ".",
+                                                     decimal.mark = ",")) +
+    scale_x_continuous(labels = scales::label_number(accuracy = .01,
+                                                     big.mark = ".",
+                                                     decimal.mark = ",")) +
     theme(axis.text.x=element_text(angle = 45, vjust = 1, hjust = 1))
 
 
