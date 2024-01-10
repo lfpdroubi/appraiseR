@@ -45,18 +45,20 @@ allperm <- function(data, subset, select = colnames(data),
                                   r = sum(zeros == FALSE & factors == FALSE),
                                   v = nam_t, repeats.allowed=T)
 
+  # Insere os nomes das variaveis de df no data.frame perm1
+  colnames(perm1) <- intersect(colnames(df[which(zeros == FALSE)]),
+                               colnames(df[which(factors == FALSE)]))
+
   # permutacao de algumas transformacoes pelas variaveis de nam_t2
-  if (sum(zeros == TRUE) > 0)
+  if (sum(zeros == TRUE) > 0) {
     perm2 <- gtools::permutations(n=length(nam_t2),
                                   r = sum(zeros == TRUE),
                                   v = nam_t2, repeats.allowed=T)
-
-  # Insere os nomes das variaveis de df nos data.frames perm1 e perm2
-  colnames(perm1) <- intersect(colnames(df[which(zeros == FALSE)]),
-                               colnames(df[which(factors == FALSE)]))
-  colnames(perm2) <- colnames(df[which(zeros == TRUE)])
-
-  p <- merge(perm1, perm2)
+    colnames(perm2) <- colnames(df[which(zeros == TRUE)])
+    p <- merge(perm1, perm2)
+  } else {
+    p <- perm1
+  }
 
   # reordena a matriz p de acordo com  a sequencia das variaveis de df
   p <- p[, colnames(df[which(factors == FALSE)])]
