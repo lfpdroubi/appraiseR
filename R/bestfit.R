@@ -18,6 +18,9 @@ bestfitEst <- function(X, y, t, p, response){
 
   ## Calculo do R2 de cada combinacao
   R2 <- vector(mode = "numeric", length = nrow(p))
+  ll <- vector(mode = "numeric", length = nrow(p))
+  Akaike <- vector(mode = "numeric", length = nrow(p))
+  Bayes <- vector(mode = "numeric", length = nrow(p))
 
   ## Loop: a cada iteracao, verifica apenas as transformacoes que mudaram da
   ## iteracao anterior
@@ -26,15 +29,26 @@ bestfitEst <- function(X, y, t, p, response){
     n <- paste(a, names(a), sep = ".")
     for (j in seq_along(a))
       M[,names(a)[j]] <- t[,n[j]]
-    fit <- RcppEigen::fastLmPure(M[,-1], M[,1])
-    R2[i] <- miscTools::rSquared(M[,response], fit$residuals)
+    fit <- RcppEigen::fastLmPure(X = M[,-1], y = M[,1], method = 0L)
+    res <- fit$residuals
+    R2[i] <- miscTools::rSquared(M[,response], res)
+    k.original <- length(fit$coefficients)
+    df.ll <- k.original + 1
+    n <- nrow(M)
+    ll <- 0.5*(- n*(log(2*pi) + 1 - log(n) + log(sum(res^2))))
+    Akaike[i] <- -2*ll + 2*df.ll
+    Bayes[i] <- -2*ll + log(n)*df.ll
+    #Akaike[i] <- n*(log(2*pi) + 1 + log((sum(res^2)/n))) + ((df.ll)*2)
+   # Bayes[i] <- BIC(fit)
   }
 
   ## Calculo de R2 ajustado e formatacao dos dados para impressao em tela
   n <- nrow(M)
   gl <- fit$df.residual
   R2 <- 1-((n-1)/gl)*(1-R2)
-  list(adj.R2 = R2)
+  AIC <- Akaike
+  BIC <- Bayes
+  list(adj.R2 = R2, AIC = AIC, BIC = BIC)
 }
 
 #' Best fit models
@@ -121,6 +135,8 @@ bestfit <- function(formula, data, subset,
   ## Join combinations with adj.R2 vector in a single data frame
   z$tab <- data.frame(id = seq(nrow(p)), p)
   z$tab$adj_R2 <- z$adj.R2
+  z$tab$AIC <- z$AIC
+  z$tab$BIC <- z$BIC
   z$tab <- z$tab[order(-z$tab[,"adj_R2"]),]
   z$tab[,"id"] <- seq(nrow(z$tab))
 
