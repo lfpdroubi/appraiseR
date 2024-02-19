@@ -10,64 +10,68 @@
 #'   be ploted.
 #' @param ca (T/F) should the limits of the invertal of arbitration be plotted?
 #' @param av (T/F) should the arbitrated value be plotted?
-#' @param local Data Frame to be used for calculate the estimates
+#' @param at list to be used for calculate the estimates
 #' (defaults for center of each variable).
 #' @param \dots further arguments passed to predict.lm.
 #' @export
 #' @examples
 #' library(sf)
 #' data(centro_2015)
-#' dados <- st_drop_geometry(centro_2015)
-#' mod1 <- lm(sqrt(valor) ~ sqrt(area_total) + suites, dados)
-#' plotVar(mod1, "area_total")
-#' plotVar(mod1, "area_total", func = "sqrt")
-#' plotVar(mod1, "suites")
-#' plotVar(mod1, "suites", func = "sqrt")
-#' plotVar(mod1, "area_total", interval = "confidence", ca = TRUE)
-#' plotVar(mod1, "area_total", interval = "confidence", func = "sqrt", ca = TRUE)
-#' mod <- lm(log(valor) ~ ., data = dados)
+#' mod <- lm(sqrt(valor) ~ sqrt(area_total) + suites, data = centro_2015)
 #' plotVar(mod, "area_total")
-#' plotVar(mod, "area_total", interval = "confidence")
-#' plotVar(mod, "area_total", interval = "prediction")
-#' plotVar(mod, "area_total", interval = "prediction", ca = TRUE)
-#' plotVar(mod, "area_total", interval = "both")
-#' plotVar(mod, "area_total", "log")
-#' plotVar(mod, "area_total", "log", ca = TRUE)
-#' plotVar(mod, "area_total", "log", interval = "confidence")
-#' plotVar(mod, "area_total", "log", interval = "prediction")
-#' plotVar(mod, "area_total", "log", interval = "both")
-#' plotVar(mod, "area_total", interval = "both", ca = TRUE,
-#'         local = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+#' plotVar(mod, "area_total", func = "sqrt")
+#' plotVar(mod, "suites")
+#' plotVar(mod, "suites", func = "sqrt")
+#' plotVar(mod, "area_total", interval = "confidence", ca = TRUE)
+#' plotVar(mod, "area_total", interval = "confidence", func = "sqrt", ca = TRUE)
+#' fit <- lm(log(valor) ~ area_total + quartos + suites + garagens + dist_b_mar
+#'                        + padrao,
+#'           data = centro_2015)
+#' plotVar(fit, "area_total")
+#' plotVar(fit, "area_total", interval = "confidence")
+#' plotVar(fit, "area_total", interval = "prediction")
+#' plotVar(fit, "area_total", interval = "both")
+#' plotVar(fit, "area_total", "log")
+#' plotVar(fit, "area_total", "log", ca = TRUE)
+#' plotVar(fit, "area_total", "log", interval = "confidence")
+#' plotVar(fit, "area_total", "log", interval = "prediction")
+#' plotVar(fit, "area_total", "log", interval = "both")
+#' plotVar(fit, "area_total", interval = "both", ca = TRUE,
+#'         at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'         dist_b_mar = 250, padrao = "medio"))
-#' plotVar(mod, "area_total", func = "log", interval = "both", ca = TRUE,
-#'         local = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+#' plotVar(fit, "area_total", func = "log", interval = "both", ca = TRUE,
+#'         at = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'         dist_b_mar = 250, padrao = "medio"), av = 1100000)
-#' plotVar(mod, "padrao")
-#' plotVar(mod, "padrao", ca = TRUE)
-#' plotVar(mod, "padrao", func = "log", ca = TRUE)
-#' plotVar(mod, "padrao", interval = "confidence")
-#' plotVar(mod, "padrao", interval = "prediction")
-#' plotVar(mod, "padrao", interval = "both")
-#' plotVar(mod, "padrao", func = "log", interval = "confidence",
-#' local = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
-#'         dist_b_mar = 250, padrao = "medio"))
-#' plotVar(mod, "padrao", func = "log", interval = "prediction",
-#' local = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
-#'         dist_b_mar = 250, padrao = "medio"), av = 1100000)
-#' plotVar(mod, "area_total", func = "log", interval = "prediction",
-#' local = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
-#'         dist_b_mar = 250, padrao = "medio"), av = 1100000, ca = TRUE)
-#' dados$padrao <- relevel(dados$padrao, ref="alto")
-#' mod <- lm(log(valor) ~ ., data = dados)
-#' plotVar(mod, "padrao", interval = "confidence")
-#' plotVar(mod, "padrao", interval = "confidence", func = "log")
+#' plotVar(fit, "padrao")
+#' plotVar(fit, "padrao", ca = TRUE)
+#' plotVar(fit, "padrao", func = "log", ca = TRUE)
+#' plotVar(fit, "padrao", interval = "confidence")
+#' plotVar(fit, "padrao", interval = "prediction")
+#' plotVar(fit, "padrao", interval = "both")
+#' plotVar(fit, "padrao", func = "log", interval = "confidence",
+#'         at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+#'                   dist_b_mar = 250, padrao = "medio"))
+#' plotVar(fit, "padrao", func = "log", interval = "prediction",
+#'         at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+#'                         dist_b_mar = 250, padrao = "medio"),
+#'         av = 1100000)
+#' plotVar(fit, "area_total", func = "log", interval = "prediction",
+#'         at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+#'                   dist_b_mar = 250, padrao = "medio"),
+#'         av = 1100000, ca = TRUE)
+#' centro_2015$padrao <- relevel(centro_2015$padrao, ref="medio")
+#' mod2 <- lm(log(valor) ~ area_total + quartos + suites + garagens + dist_b_mar
+#'                        + padrao,
+#'                        data = centro_2015)
+#' plotVar(mod2, "padrao", interval = "confidence")
+#' plotVar(mod2, "padrao", interval = "confidence", func = "log")
 
 plotVar <- function(object, variable, func,
                     interval = c("none", "confidence", "prediction", "both"),
                     level = 0.80,
                     ca = FALSE,
                     av,
-                    local, ...){
+                    at, ...){
   interval <- match.arg(interval)
   z <- object
   df <- eval(stats::getCall(z)$data)
@@ -82,17 +86,17 @@ plotVar <- function(object, variable, func,
 
   if (is.factor(variavel[, variable, drop = T])){
     plotFactor(variable, z, interval = interval, level = level, func = func,
-               ca = ca, av = av, local = local, ...)
+               ca = ca, av = av, at = at, ...)
   } else {
     plotContinuousVariable(variable, z, interval = interval, level = level,
-                           func = func, ca = ca, av = av, local = local, ...)
+                           func = func, ca = ca, av = av, at = at, ...)
   }
 }
 #' export
 plotFactor <- function(x, object,
                        interval =  c("none", "confidence", "prediction", "both"),
                        level = 0.80,
-                       local,
+                       at,
                        func,
                        ca = FALSE,
                        av,
@@ -109,12 +113,12 @@ plotFactor <- function(x, object,
   variavel <- df[, variable, drop = FALSE]
   grid <- unique(variavel)
 
-  if (missing(local)) {
+  if (missing(at)) {
     new <- data.frame(grid, lapply(df[setdiff(preds, variable)], centre))
     p_local <- NULL
   } else {
-    new <- data.frame(grid, local[setdiff(preds, variable)])
-    p_local <- predict(z, newdata = local)
+    new <- data.frame(grid, at[setdiff(preds, variable)])
+    p_local <- predict(z, newdata = at)
   }
   if(interval != "both") {
     Y <- stats::predict.lm(object = z, newdata = remove_missing_levels(z, new),
@@ -144,15 +148,15 @@ plotFactor <- function(x, object,
     scale_y_continuous(labels = scales::label_number(accuracy = .01,
                                                      big.mark = ".",
                                                      decimal.mark = ","))
-  if(!missing(local)) {
+  if(!missing(at)) {
     p_local <- ifelse(missing(func), p_local, inverse(p_local, func))
     if (elasticidade == TRUE) {
-      cat(elasticidade(z, variable, func, local, factor = +1), " ")
+      cat(elasticidade(z, variable, func, at, factor = +1), " ")
     }
     if (!missing(av)) {
-      p_local <- data.frame(y = p_local, local, av = av)
+      p_local <- data.frame(y = p_local, at, av = av)
     } else {
-      p_local <- data.frame(y = p_local, local)
+      p_local <- data.frame(y = p_local, at)
     }
     names(p_local)[1] <- response
     p <- p + geom_point(data = p_local,
@@ -164,7 +168,7 @@ plotFactor <- function(x, object,
   if (ca == TRUE & missing(func)) {
     message("Campo de Arbítrio somente possivel na escala original.")
   }
-  if (!missing(av) & missing(local)){
+  if (!missing(av) & missing(at)){
     message("Valor arbitrado somente pode ser plotado caso seja informado local.")
   } else if (!missing(av)) {
     p <- p + geom_point(data = p_local,
@@ -176,71 +180,55 @@ plotFactor <- function(x, object,
 }
 #'
 #' @export
-plotContinuousVariable <- function(x, object,
-                                   interval =  c("none", "confidence", "prediction", "both"),
-                                   level = 0.80,
-                                   local,
-                                   func,
-                                   ca = FALSE,
-                                   av,
-                                   elasticidade = TRUE,
-                                   ...){
+plotContinuousVariable <-
+  function(x, object,
+           system = "ggplot2",
+           interval =  c("none", "confidence", "prediction", "both"),
+           level = 0.80,
+           func,
+           at,
+           ca = FALSE,
+           av,
+           elasticidade = TRUE,
+           ...){
+
+  system <- match.arg(system)
   interval <- match.arg(interval)
   variable <- x
   z <- object
   params <- parameters(z)
   response <- params$response
-  preds <- params$predictors
 
-  df <- as.data.frame(eval(stats::getCall(z)$data))
-  variavel <- df[, variable, drop = FALSE]
+  # Calling predictResponse()
 
-  grid <- seq(min(df[, variable], na.rm = TRUE),
-              max(df[, variable], na.rm = TRUE),
-              length = 101)
-
-  if (missing(local)) {
-    new <- data.frame(grid, lapply(df[setdiff(preds, variable)], centre))
-    p_local <- NULL
+  if (!missing(func)){
+    if (!missing(at)){
+      predResp <- predictResponse(x, object, interval = interval, level = level,
+                               func = func, at = at, ...)
+    } else {
+      predResp <- predictResponse(x, object, interval = interval, level = level,
+                                  func = func, ...)
+    }
+  } else if (missing(at)) {
+    predResp <- predictResponse(x, object, interval = interval, level = level,
+                                ...)
   } else {
-    new <- data.frame(grid, local)
-    p_local <- predict(z, newdata = local)
+    predResp <- predictResponse(x, object, interval = interval, level = level,
+                                at = at, ...)
   }
 
-  names(new)[1] <- variable
+  pred <- predResp$pred
+  grid <- predResp$grid
+  p_local <- predResp$p_local
 
-  if(interval != "both") {
-    Y <- stats::predict.lm(object = z, newdata = new, interval = interval,
-                           level = level, ...)
-  } else {
-    Y1 <- stats::predict.lm(object = z, newdata = remove_missing_levels(z, new),
-                            interval = "confidence", level = level, ...)
-    Y2 <- stats::predict.lm(object = z, newdata = remove_missing_levels(z, new),
-                            interval = "prediction", level = level, ...)
-    Y1 <- as.data.frame(Y1)
-    Y2 <- as.data.frame(Y2)
-    Y <- dplyr::inner_join(Y1, Y2, by = "fit")
-  }
-
-  if (!missing(func)) {
-    Y <- inverse(Y, func)
-    Y <- cbind(Y, campo_arbitrio(Y))
-  }
-
-  pred <- data.frame(grid, Y)
-  colnames(pred)[1] <- variable
-  colnames(pred)[2] <- response
+  if (system == 'ggplot2'){
 
   # Basic Plot
   p <- ggplot(data = pred, aes_(x = as.name(variable), y = as.name(response))) +
     geom_line(size = 1) +
     theme(legend.position="bottom") +
-    scale_y_continuous(labels = scales::label_number(accuracy = .01,
-                                                     big.mark = ".",
-                                                     decimal.mark = ",")) +
-    scale_x_continuous(labels = scales::label_number(accuracy = .01,
-                                                     big.mark = ".",
-                                                     decimal.mark = ",")) +
+    scale_y_continuous(labels = scales::label_number_auto()) +
+    scale_x_continuous(labels = scales::label_number_auto()) +
     theme(axis.text.x=element_text(angle = 45, vjust = 1, hjust = 1))
 
 
@@ -272,16 +260,16 @@ plotContinuousVariable <- function(x, object,
       theme(legend.position="none")
   }
 
-  # Adds point of local argument, if not missing
-  if(!missing(local)) {
+  # Adds point of 'at' argument, if not missing
+  if(!missing(at)) {
     p_local <- ifelse(missing(func), p_local, inverse(p_local, func))
     if (elasticidade == TRUE) {
-      cat(elasticidade(z, variable, func, local), " ")
+      cat(elasticidade(z, variable, func, at), " ")
     }
     if (!missing(av)) {
-      p_local <- data.frame(y = p_local, local, av = av)
+      p_local <- data.frame(y = p_local, at, av = av)
     } else {
-      p_local <- data.frame(y = p_local, local)
+      p_local <- data.frame(y = p_local, at)
     }
     names(p_local)[1] <- response
     p <- p + geom_point(data = p_local,
@@ -292,7 +280,7 @@ plotContinuousVariable <- function(x, object,
   }
 
   # Adds arbitrated value, if not missing
-  if (!missing(av) & missing(local)){
+  if (!missing(av) & missing(at)){
     message("Valor arbitrado somente pode ser plotado caso seja informado local.")
   } else if (!missing(av)) {
     p <- p + geom_point(data = p_local,
@@ -301,4 +289,5 @@ plotContinuousVariable <- function(x, object,
                         size = 2)
   }
   return(p)
+  }
 }
