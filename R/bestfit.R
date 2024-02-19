@@ -38,8 +38,6 @@ bestfitEst <- function(X, y, t, p, response){
     ll <- 0.5*(- n*(log(2*pi) + 1 - log(n) + log(sum(res^2))))
     Akaike[i] <- -2*ll + 2*df.ll
     Bayes[i] <- -2*ll + log(n)*df.ll
-    #Akaike[i] <- n*(log(2*pi) + 1 + log((sum(res^2)/n))) + ((df.ll)*2)
-   # Bayes[i] <- BIC(fit)
   }
 
   ## Calculo de R2 ajustado e formatacao dos dados para impressao em tela
@@ -137,7 +135,7 @@ bestfit <- function(formula, data, subset,
   z$tab$adj_R2 <- z$adj.R2
   z$tab$AIC <- z$AIC
   z$tab$BIC <- z$BIC
-  z$tab <- z$tab[order(-z$tab[,"adj_R2"]),]
+  z$tab <- z$tab[order(z$tab[,"AIC"]),]
   z$tab[,"id"] <- seq(nrow(z$tab))
 
   z$call <- cl
