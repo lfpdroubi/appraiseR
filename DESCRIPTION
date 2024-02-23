@@ -37,7 +37,6 @@ Imports:
     readr,
     reshape2,
     sf,
-    sp,
     stringr,
     Metrics,
     ggpmisc,

@@ -18,12 +18,8 @@ centro_2015$padrao %<>% readr::parse_factor(padrao_levels)
 
 ## Transform data.frames to SpatialPointsDataFrame
 
-centro_2015 <-
-  sp::SpatialPointsDataFrame(coords = centro_2015[c("E", "N")],
-                             data = subset(centro_2015, select = -c(E,N)),
-                             proj4string = sp::CRS("+init=epsg:31982"))
-
-centro_2015 <- sf::st_as_sf(centro_2015)
+centro_2015 <- sf::st_as_sf(centro_2015,
+                            coords = c("E", "N"), crs = 31982)
 
 #' Prices of 50 Florianopolis' downtown apartaments
 #'
@@ -67,12 +63,8 @@ zilli_2020 <- within(zilli_2020, {
   BRO <- factor(BRO, levels = c("Centro", "Agronomica", "Trindade"))
   })
 
-zilli_2020 <-
-  sp::SpatialPointsDataFrame(coords = zilli_2020[c("COORD_E", "COORD_N")],
-                             data = subset(zilli_2020, select = -c(COORD_E, COORD_N)),
-                             proj4string = sp::CRS("+init=epsg:31982"))
-
-zilli_2020 <- sf::st_as_sf(zilli_2020)
+zilli_2020 <- sf::st_as_sf(zilli_2020,
+                           coords = c("COORD_E", "COORD_N"), crs = 31982)
 
 #' Prices of 225 Florianopolis' apartaments in 3 neighborhoods
 #'
@@ -305,12 +297,8 @@ jurere_2017 <- readr::read_csv2("./inst/jurere.csv")
 jurere_2017$PAVIMENTOS <- as.factor(jurere_2017$PAVIMENTOS)
 jurere_2017$TOPOGRAFIA <- as.factor(jurere_2017$TOPOGRAFIA)
 
-jurere_2017 <-
-  sp::SpatialPointsDataFrame(coords = jurere_2017[c("E", "N")],
-                             data = subset(jurere_2017, select = -c(E,N)),
-                             proj4string = sp::CRS("+proj=utm +zone=22 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"))
-
-jurere_2017 <- sf::st_as_sf(jurere_2017)
+jurere_2017 <- sf::st_as_sf(jurere_2017,
+                            coords = c("E", "N"), crs = 31982)
 
 #' Land division data
 #'
@@ -398,14 +386,140 @@ trivelloni_2005 %<>%
 
 trivelloni_2005 <- trivelloni_2005[, -1]
 
-trivelloni_2005 <-
-  sp::SpatialPointsDataFrame(coords = trivelloni_2005[c("E", "N")],
-                             data = subset(trivelloni_2005, select = -c(E, N)),
-                             proj4string = sp::CRS("+proj=utm +zone=22 +south
-                                                   +units=m +ellps=aust_SA
-                                                   +towgs84=-67.35,3.88,-38.22"))
+trivelloni_2005 <- sf::st_as_sf(trivelloni_2005,
+                                coords = c("E", "N"),
+                                crs = 5527)
 
-trivelloni_2005 <- sf::st_as_sf(trivelloni_2005)
+#' Urban large parcels data
+#'
+#' A tibble containing a sample of 19 large parcels.
+#'
+#' @format A tibble with 19 rows and 4 variables:
+#' \itemize{
+#'   \item R: id
+#'   \item Ficha: another id (unused)
+#'   \item VU: unitary value per sq. meters
+#'   \item Area: area, in sq. meters
+#' }
+#' @examples
+#' data(glebas)
+#' fit <- lm(rec(VU) ~ log(Area), data = glebas)
+#' library(effects)
+#' plot(predictorEffects(fit, residuals = T), id = T,
+#'       axes = list(
+#'         grid = TRUE,
+#'         y=list(transform=list(trans=rec, inverse=rec), lab = "VU")
+#'         )
+#'      )
+#' # Issue: Influential Point 4 (see also plot(fit))
+#'
+#' # Solution:
+#' fit1 <- update(fit, rec(VU)~log(Area), subset = -4)
+#' plot(predictorEffects(fit1, residuals = T), id = T,
+#'       axes = list(
+#'         grid = TRUE,
+#'         y=list(transform=list(trans=rec, inverse=rec), lab = "VU")
+#'       )
+#'     )
+"glebas"
+
+glebas <- readr::read_csv2("./inst/glebas.csv")
+
+#' Urban large parcels with built area data
+#'
+#' A tibble containing a sample of 20 large parcels with different built areas.
+#'
+#' @format A tibble with 20 rows and 5 variables:
+#' \itemize{
+#'   \item R: id
+#'   \item Ficha: another id (unused)
+#'   \item VI: sale price
+#'   \item AT: land area, in sq. meters
+#'   \item AC: Built area, in sq. meters
+#' }
+#' @examples
+#' data(glebas2)
+#' fit <- lm(VI ~ log(AT) + AC, data = glebas2)
+#' library(effects)
+#' plot(predictorEffects(fit, residuals = T), id = T,
+#'       axes = list(
+#'         grid = TRUE,
+#'         x = list(rotate=30)
+#' ))
+#' powerPlot(fit, axis="inverted", smooth = TRUE, methods = c("lm", "loess"))
+#' # Issue: Influential Points 5 and 10 (see also plot(fit))
+#'
+#' # Solution 1 (better to interpret):
+#' fit1 <- update(fit, VI ~ AT + AC, subset = -c(2, 5,10))
+#' plot(predictorEffects(fit1, residuals = T), id = T,
+#'       axes = list(
+#'         grid = TRUE,
+#'         x = list(rotate=30)
+#' ))
+#' powerPlot(fit1, axis = "inverted", smooth = TRUE, methods = c("lm", "loess"))
+#' predict(fit1, newdata = list(AT = 9123.50, AC = 2272.47),
+#'              interval = 'confidence', level = .80)
+#' # + 30% higher value than predicted with the original fit
+#'
+#' # Solution 2 (just to add some nonlinear relationship between the original
+#'                variables)
+#' fit2 <- update(fit, sqrt(VI) ~ sqrt(AT) + sqrt(AC), subset = -c(2, 10))
+#' plot(predictorEffects(fit2, residuals = T), id = T,
+#'       axes = list(
+#'         grid = TRUE,
+#'         x = list(rotate=30),
+#'         y = list(transform=list(trans=sqrt, inverse=sqr), lab = "VI")
+#' ))
+#' powerPlot(fit2, axis = "inverted", smooth = TRUE, methods = c("lm", "loess"),
+#'             func="sqrt") # note bias and nonlinearity
+#'
+#' predict(fit2, newdata = list(AT = 9123.50, AC = 2272.47),
+#'              interval = 'confidence', level = .80)
+#' # Almost 50% higher value than predicted with the original fit
+"glebas2"
+
+glebas2 <- readr::read_csv2("./inst/glebas2.csv")
+
+#' Urban large parcels in different urban contexts
+#'
+#' A tibble containing a sample of 17 large parcels within differents urban
+#' contexts.
+#'
+#' @format A tibble with 17 rows and 5 variables:
+#' \itemize{
+#'   \item R: id
+#'   \item VU: unitary value per sq. meters
+#'   \item AT: land area, in sq. meters
+#'   \item ACESSO: dummy variable that indicates if the area is direct reachble
+#'   or not
+#'   \item SUP: dummy variable that indicates if the area was landfilled
+#' }
+#' @examples
+#' data(glebas3)
+#' fit <- lm(log(VU) ~ I(AT^-1) + ACESSO + SUP, data = glebas3)
+#' library(effects)
+#' plot(predictorEffects(fit, residuals = T), id = T,
+#'       axes = list(
+#'         grid = TRUE,
+#'         x = list(rotate=30),
+#'         y = list(transform=list(trans=log, inverse=exp), lab = "VU")
+#' ))
+#' powerPlot(fit, axis="inverted", smooth = TRUE, methods = c("lm", "loess"))
+#' p <- predict(fit, newdata = list(AT = 60000, ACESSO = factor(0),
+#'                                   SUP = factor(1)),
+#'                interval = "confidence", level = .80
+#'             )
+#' exp(p)
+#' amplitude(exp(p)) # very good!
+
+"glebas3"
+
+glebas3 <- readr::read_csv2("./inst/glebas3.csv")
+glebas3 <- within(glebas3,{
+  ACESSO <- factor(ACESSO)
+  SUP <- factor(SUP)
+})
 
 usethis::use_data(centro_2015, zilli_2020, trindade, jungles, loteamento,
-                  jurere_2017, trivelloni_2005, overwrite = TRUE)
+                  jurere_2017, trivelloni_2005, glebas, glebas2, glebas3,
+                  overwrite = TRUE)
