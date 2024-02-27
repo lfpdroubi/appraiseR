@@ -520,6 +520,20 @@ glebas3 <- within(glebas3,{
   SUP <- factor(SUP)
 })
 
+#' Different relations between reserved prices and listing prices
+#'
+#'
+atibaia <- readr::read_csv2('inst/atibaia.csv')
+atibaia <- within(atibaia, {
+  VUoferta <- ValorOfertado/AreaConstruida
+  VUvenda <- ValorVendido/AreaConstruida
+  FatorOferta <- ValorVendido/ValorOfertado
+  PC <- factor(PadraoConstrutivo, levels = c("Simples", "Médio", "Superior", "Fino"))
+  OrigemComprador <- factor(OrigemComprador)
+  Localizacao <- factor(Localizacao)
+  FinalidadeCompra <- factor(FinalidadeCompra)
+})
+
 usethis::use_data(centro_2015, zilli_2020, trindade, jungles, loteamento,
                   jurere_2017, trivelloni_2005, glebas, glebas2, glebas3,
-                  overwrite = TRUE)
+                  atibaia, overwrite = TRUE)

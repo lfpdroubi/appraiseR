@@ -1,0 +1,149 @@
+﻿Id;Endereco;Descricao;Bairro;AreaConstruida;DataTransacao;Data;Localizacao;IndiceFiscal;PadraoConstrutivo;OrigemComprador;FinalidadeCompra;ValorOfertado;ValorVendido
+1;Al dos Canário, 160;"3 suites, sala para dois
+ambientes, pisicina";Serra da Estrela;262;mai/17;29;Condomínio;150;Fino;Atibaia;Moradia;950000;890000
+2;Al dos Canário, 120;"3 suites, sala para dois
+ambientes, pisicina";Serra da Estrela;219;nov/15;11;Condomínio;150;Fino;São Paulo;Lazer;810000;765000
+3;Al dos Canários, 220;"4 dormitórios, sendo 2
+suites, área courmet,";Serra da Estrela;264,3;jun/15;6;Condomínio;150;Fino;Atibaia;Moradia;890000;850000
+4;Al Rouxinol, 30;"3 suites, sala para dois
+ambientes, pisicina";Serra da Estrela;312;nov/15;11;Condomínio;150;Fino;Atibaia;Moradia;910000;850000
+5;Rua Rouxinol, 120;"sala para 3 ambientes,
+lavabo, 3 suites, área";Shambala;331,82;abr/15;4;Condomínio;120;Fino;Atibaia;Lazer;1300000;1200000
+6;Rua Manacás, 530;"4 suites, sala para 3
+ambientes, área gourmt,";Porto Atibaia;427;jun/16;18;Condomínio;200;Fino;Atibaia;Moradia;1800000;1525000
+7;Al. Beija-flor, 190;"4 suítes, lavabo, a de
+serviço, piscina e";Serra da Estrela;236;fev/17;26;Condomínio;150;Fino;Atibaia;Moradia;880000;800000
+8;Av Paulista, 1005 - casa 01;"3 suites, lavabo, ala ampla,
+churrasqueira";Jd Paulista;216;ago/15;8;Rua;300;Fino;Bragança P;Moradia;850000;790000
+9;Av Paulista, 1005 - casa 04;"3 suites, lavabo, ala ampla,
+churrasqueira";Jd Paulista;234;jan/16;25;Rua;300;Fino;São Paulo;Moradia;900000;850000
+10;Rua das Felícias,179;"3 suites, sala ampla, lavabo,
+churrasqueira";Jd Estãncia Bras;451;fev/15;2;Rua;100;Fino;Santos;Moradia;800000;800000
+11;Rua 4, 180;"4 Suites, área gourmt,
+piscina";Água Verde;305;jun/17;30;Condomínio;400;Fino;Atibaia;Moradia;1450000;1350000
+12;Rua Santhiago, 105;"4 Suites, área gourmt,
+piscina";Jd Flamboyant;410;nov/15;11;Rua;400;Fino;Atibaia;Moradia;1700000;1415000
+13;Al dos Canários,200;"3 suites, churrasqueira,
+piscina";Serra da Estrela;195;jan/16;13;Condomínio;150;Fino;São Paulo;Moradia;750000;720000
+14;Al Sabiá, Q D Lote 17;"3 suites, churrasqueira,
+piscina";Serra da Estrela;258;out/15;10;Condomínio;150;Fino;Atibaia;Moradia;900000;880000
+15;Al das Perdizes, 25;"3 suites, churrasqueira,
+piscina";Serra da Estrela;274;fev/16;14;Condomínio;150;Fino;Atibaia;Moradia;900000;800000
+16;Rua Papa Paulo I, 100;"4 dormitórios, sendo 2
+suites, área courmet,";Jd Santa Luzia;600;abr/16;16;Rua;400;Fino;Atibaia;Moradia;1800000;1200000
+17;"Rua prof Zilda Barreto
+Pacitte";"4 suites, sala para 3
+ambientes, área gourmt,";Vl Santista;300;nov/16;23;Rua;500;Fino;São Paulo;Lazer;1200000;980000
+18;Al Dos Canários, 100;"3 suites, sala ampla, lavabo,
+churrasqueira e pisicna";Serra da Estrela;195;out/15;10;Condomínio;150;Fino;Santos;Moradia;800000;700000
+19;Al Nicolau Tebecherani, 80;"3 dormitórios, 1 suite, sala
+para 2 ambientes, piscina,";Jd São Nicolau;195;jun/16;18;Rua;250;Médio;Atibaia;Moradia;650000;630000
+20;Al Sabiá, 50;"3 suites, lavabo,sala para 2
+ambientes";Parque das Garç;198,13;dez/16;24;Condomínio;200;Médio;São Paulo;Moradia;600000;450000
+21;Rua Josias Rocha, 425B;"3 suites, lavabo, área de
+serviço";Itapetinga;124,99;jul/16;19;Rua;50;Médio;Atibaia;Investimento;450000;430000
+22;Rua Sorocaba, 10;"4 dormitórios, área gourmet,
+piscina, sala para 3";Jardim Paulista;285;out/16;22;Rua;300;Médio;São Paulo;Lazer;960000;800000
+23;Rua José Bonifácio, 204;3 dormitórios, lavabo;Jardim Brasil;196;ago/16;20;Rua;300;Médio;São Paulo;Investimento;470000;410000
+24;"Al. Nicolau João
+Tebecherani, 80 - Casa 2";"3 dormitórios, 1 suite,
+lavabo";Jd Santa Luzia;156;fev/16;14;Rua;400;Médio;Atibaia;Moradia;670000;630000
+25;Rua São Vicente, 975;"3 dormitórios sendo 1 suite,
+lavabo";Jd Paulista;111,5;abr/16;16;Rua;300;Médio;São Paulo;Moradia;420000;420000
+26;Al Lorena, 730 casa A;"3 dormitórios sendo 1 suite,
+lavabo";Jd do Lago;111,72;mai/17;29;Rua;500;Médio;Atibaia;Moradia;420000;400000
+27;Al Jundiaí, 622;"3 dormitórios sendo 1 suite,
+lavabo";Jd do Lago;145;jan/15;1;Rua;500;Médio;São Paulo;Moradia;460000;440000
+28;"Rua José Amadeu Orestes
+Pergola, 435";"3 suites, lavabo,
+churrasqueira, piscina";Jd Siriema;283;jan/15;1;Rua;400;Médio;São Paulo;Moradia;650000;620000
+29;Rua Suina, 355;3 suites, lavabo;Vl Giglio;143;jan/15;1;Rua;500;Médio;Atibaia;Moradia;620000;610000
+30;Av Barretos, 684;"3 dormitórios, sendo 1 suite,
+sala ampla e lavabo";Jd do Lago;135;ago/15;8;Rua;500;Médio;São Paulo;Moradia;490000;480000
+31;"Av Coronel Miguel Brizola
+de Oliveira, 159";"3 dormitórios, sala, cozinha,
+piscina";Jd Alvinópolis;111,8;out/16;22;Rua;600;Médio;Atibaia;Moradia;400000;360000
+32;"Rua Caçapava, 45 - Casa
+A";"3 dormitórios, sendo 1 suite,
+sala ampla e lavabo";Jd Paulista;111,5;fev/17;26;Rua;300;Médio;São Paulo;Moradia;530000;500000
+33;"Rua Caçapava, 45 - Casa
+B";"3 dormitórios, sendo 1 suite,
+sala ampla e lavabo";Jd Paulista;111,5;abr/17;28;Rua;300;Médio;São Paulo;Moradia;420000;400000
+34;"Rua Cipriano Negrão, 45 -
+Casa A";"3 dormitórios, sendo 1 suite,
+sala ampla e lavabo";Jd Maristela;109;mai/17;29;Rua;250;Médio;São Paulo;Moradia;390000;390000
+35;"Rua Cipriano Negrão, 45 -
+Casa B";"3 dormitórios, sendo 1 suite,
+sala ampla e lavabo";Jd Maristela;109;jun/17;30;Rua;250;Médio;São Paulo;Moradia;390000;390000
+36;"Rua Armando mantovani,
+105 - Casa A";"3 dormitórios sendo 1 suite,
+lavabo";Jd América;114;jun/16;18;Rua;400;Médio;São Paulo;Moradia;390000;380000
+37;"Rua Armando mantovani,
+105 - Casa B";"3 dormitórios sendo 1 suite,
+lavabo";Jd América;114;jun/16;18;Rua;400;Médio;São Paulo;Moradia;390000;375000
+38;Estrada dos Pereiras, s/n;"3 suites, área gourmet,
+piscina";Ribeirão dos Por;200;dez/16;24;Rua;100;Médio;Atibaia;Investimento;550000;500000
+39;"Rua Diamante Calderon,
+160";"3 suites, churrasqueira,
+piscina";Jd Suely;362;jun/16;18;Rua;100;Médio;Atibaia;Moradia;680000;620000
+40;Rua Coronel Brizola, 575;"2 suites, sala, cozinha,
+lavabo e churrasqueira";Jd Alvinópolis;124,5;abr/16;16;Rua;600;Médio;Atibaia;Moradia;350000;343000
+41;Rua Guarujá , 872;"3 suites, lavabo, sala ampla
+e churrasqueira";Jd Paulista;141,2;jul/16;19;Rua;300;Médio;São Paulo;Moradia;470000;450000
+42;Rua dos Coqueiros, 495;"3 dormotórios, sendo 1
+suite, sala para 2 ambientes";Jd dos Pinheiros;183,75;ago/16;20;Rua;350;Médio;Atibaia;Moradia;650000;600000
+43;Rua Gonçalves Dias, 449;"2 dormitórios sendo uma
+suite e lavabo";Jd Cerejeiras;140,35;out/16;22;Rua;350;Médio;São Paulo;Moradia;320000;300000
+44;Av Juca Peçanha, 1900;"3 suites, sala ampla, lavabo,
+churrasqueira";Vl Santista;167;fev/17;26;Rua;500;Médio;São Paulo;Investimento;640000;620000
+45;Al Paraiba, 155;"3 dormitórios, sendo 1 suite,
+sala ampla e lavabo";Jd Paulista;150;mar/16;15;Rua;300;Médio;Atibaia;Moradia;550000;540000
+46;"Rua Alcides Cintra Bueno,
+244";"3 dormitórios, sendo 1 suite,
+sala ampla e lavabo";Morumbi;238,5;jan/17;25;Rua;300;Médio;São Paulo;Moradia;600000;590000
+47;Rua Dos Crisântemos, 750;"2 dormitórios, sendo 1 suite,
+sala, lavabo";Jd dos Pinheiros;65;fev/16;14;Rua;350;Médio;Atibaia;Moradia;350000;325000
+48;Al Campinas, 355 - Casa 5;"3 dormitórios, sendo 1 suite,
+sala ampla e lavabo";Jd Paulista;156;abr/16;16;Rua;300;Médio;São Paulo;Moradia;490000;475000
+49;"Rua Antonio Silva Bueno,
+264";"2 dormitórios, sendo uma
+suite, lavabo";Vl Giglio;107,34;mai/16;17;Rua;500;Médio;Atibaia;Moradia;395000;365000
+50;Rua Dálias, 426;"3 dormitórios, sendo 1 suite,
+sala ampla e lavabo";Jd dos Pinheiros;150;out/16;22;Rua;350;Médio;Atibaia;Moradia;430000;400000
+51;"Rua Moaci Verde Silva,
+Casa B";"3 dormitórios, sendo 1 suite,
+sala ampla e lavabo";Jd Siriema;111;mar/15;3;Rua;400;Médio;São Paulo;Moradia;460000;430000
+52;"Rua Gerson Beloni, 65 -
+Casa B";"3 dormitórios, sendo 1 suite,
+sala ampla e lavabo";Recreio Maristel;110;ago/15;8;Rua;250;Médio;Atibaia;Moradia;450000;424000
+53;Av Dona Gertrudes, 1499;"2 dormitórios, sala,
+banheiro, cozinha";Jd Alvinópolis;125,14;mar/15;3;Rua;600;Médio;Atibaia;Investimento;405000;390000
+54;Av Piracicaba, 477;"3 dormitórios, sendo 1 suite,
+sala ampla e lavabo";Jd do Lago;137;ago/15;8;Rua;500;Médio;São Paulo;Moradia;550000;530000
+55;Av Orquideas, 87;"3 dormitórios sendo 1 suite,
+lavabo, piscina,";Jd Siriema;320;dez/15;12;Rua;400;Médio;São Paulo;Moradia;750000;705000
+56;Rua das Margaridas, 93;"sala, cozinha, 2 dormitórios
+com 1 suite";Caetetuba;97,11;abr/17;28;Rua;50;Médio;São Paulo;Moradia;275000;269000
+57;Rua Licínio Carpineli, 101;"2 dormitórios, sendo 1 suite,
+edícula, garagem coberta";Terceiro Centen;99,5;jun/17;30;Rua;300;Médio;Atibaia;Investimento;390000;355000
+58;Rua das juçaras, 105;"2 dormitórios, sendo 1 suite,
+sala, lavabo";Jd das Palmeiras;105;jun/16;18;Rua;60;Médio;São Paulo;Moradia;350000;300000
+59;"Rua Tranquilo Luis Rosa,
+182";"2 dormitrórios sendo 1 suite,
+sala coz e banheiro";Jd Maristela;77;mai/16;17;Rua;250;Médio;São Paulo;Moradia;350000;330000
+60;"Rua Vereador edmundo
+Zanoni, 555 - Casa B";"2 dormitórios sendo uma
+suite e lavabo";Jd Bogota;70;abr/16;16;Rua;300;Médio;Atibaia;Moradia;180000;180000
+61;Rua Santa Luzia, 58;"2 dormitórios, sala,
+banheiro, cozinha";Caetetuba;61;out/16;22;Rua;50;Simples;Atibaia;Moradia;180000;170000
+62;"Rua Maurício dos Santos,
+201";"4 dormitórios, sendo 2
+suites, área courmet,";Vl Petrópolis;265;abr/16;16;Rua;500;Superior;São Paulo;Moradia;790000;720000
+63;"Rua Lamartine Fagundes,
+860";"4 dormitórios, sendo 2
+suites, área courmet,";Jd Siriema;294;dez/16;24;Rua;400;Superior;Atibaia;Moradia;800000;720000
+64;"Rua José Amadeu Orestes
+Pergola, 394";"4 dormitórios, sendo 1 suite,
+área gourmet, piscina";Jd Siriema;305;fev/15;2;Rua;400;Superior;São Paulo;Moradia;700000;670000
+65;Rua São Caetano, 168;"4 dormitórios, sendo 2
+suites, área courmet,";Jd Paulista;265;mai/15;5;Rua;300;Superior;Atibaia;Moradia;720000;680000
