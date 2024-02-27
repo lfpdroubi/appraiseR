@@ -17,31 +17,38 @@
 #' @examples
 #' library(sf)
 #' data(centro_2015)
-#' mod <- lm(sqrt(valor) ~ sqrt(area_total) + suites, data = centro_2015)
-#' plotVar(mod, "area_total")
-#' plotVar(mod, "area_total", func = "sqrt")
-#' plotVar(mod, "suites")
-#' plotVar(mod, "suites", func = "sqrt")
-#' plotVar(mod, "area_total", interval = "confidence", ca = TRUE)
-#' plotVar(mod, "area_total", interval = "confidence", func = "sqrt", ca = TRUE)
-#' fit <- lm(log(valor) ~ area_total + quartos + suites + garagens + dist_b_mar
-#'                        + padrao,
+#' centro_2015 <- within(centro_2015, VU <- valor/area_total)
+#' fit <- lm(log(VU) ~ log(area_total) + quartos + suites + garagens +
+#'             log(dist_b_mar) + padrao,
 #'           data = centro_2015)
 #' plotVar(fit, "area_total")
-#' plotVar(fit, "area_total", interval = "confidence")
+#' plotVar(fit, "area_total", residuals = TRUE)
+#' plotVar(fit, "area_total", interval = "both", residuals = TRUE)
+#' plotVar(fit, "dist_b_mar", interval = "both", residuals = TRUE)
+#' plotVar(fit, "area_total", interval = "both", residuals = TRUE,
+#'         at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+#'         dist_b_mar = 250, padrao = "medio"))
+#' plotVar(fit, "area_total", func = "log")
+#' plotVar(fit, "suites")
+#' plotVar(fit, "suites", func = "log")
+#' plotVar(fit, "area_total", interval = "confidence", ca = TRUE)
+#' plotVar(fit, "area_total", interval = "confidence", func = "log", ca = TRUE)
 #' plotVar(fit, "area_total", interval = "prediction")
 #' plotVar(fit, "area_total", interval = "both")
-#' plotVar(fit, "area_total", "log")
-#' plotVar(fit, "area_total", "log", ca = TRUE)
-#' plotVar(fit, "area_total", "log", interval = "confidence")
-#' plotVar(fit, "area_total", "log", interval = "prediction")
-#' plotVar(fit, "area_total", "log", interval = "both")
+#' # Both intervals + CA
 #' plotVar(fit, "area_total", interval = "both", ca = TRUE,
 #'         at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'         dist_b_mar = 250, padrao = "medio"))
-#' plotVar(fit, "area_total", func = "log", interval = "both", ca = TRUE,
-#'         at = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
-#'         dist_b_mar = 250, padrao = "medio"), av = 1100000)
+#' # Same above + Point valuation at R$ 5.650,00 /m2
+#' plotVar(fit, "area_total", interval = "both",
+#'         at = data.frame(area_total = 205, quartos = 3, suites = 1,
+#'                         garagens = 2, dist_b_mar = 250, padrao = "medio"),
+#'         ca = TRUE, av = log(5650))
+#' # Same above, in the original scale
+#' plotVar(fit, "area_total", interval = "both", func = 'log',
+#'         at = data.frame(area_total = 205, quartos = 3, suites = 1,
+#'                         garagens = 2, dist_b_mar = 250, padrao = "medio"),
+#'         ca = TRUE, av = 5650)
 #' plotVar(fit, "padrao")
 #' plotVar(fit, "padrao", ca = TRUE)
 #' plotVar(fit, "padrao", func = "log", ca = TRUE)
@@ -53,18 +60,22 @@
 #'                   dist_b_mar = 250, padrao = "medio"))
 #' plotVar(fit, "padrao", func = "log", interval = "prediction",
 #'         at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
-#'                         dist_b_mar = 250, padrao = "medio"),
-#'         av = 1100000)
-#' plotVar(fit, "area_total", func = "log", interval = "prediction",
+#'                   dist_b_mar = 250, padrao = "medio"),
+#'         av = 5650)
+#' # Remove outliers
+#' fit2 <- update(fit, .~.-suites, subset = -c(31,39, 45))
+#' plotVar(fit2, "padrao", func = "log", interval = "prediction",
 #'         at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'                   dist_b_mar = 250, padrao = "medio"),
-#'         av = 1100000, ca = TRUE)
-#' centro_2015$padrao <- relevel(centro_2015$padrao, ref="medio")
-#' mod2 <- lm(log(valor) ~ area_total + quartos + suites + garagens + dist_b_mar
-#'                        + padrao,
-#'                        data = centro_2015)
-#' plotVar(mod2, "padrao", interval = "confidence")
-#' plotVar(mod2, "padrao", interval = "confidence", func = "log")
+#'         av = 5650)
+#' plotVar(fit2, "area_total", func = "log", interval = "both",
+#'         at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+#'                   dist_b_mar = 250, padrao = "medio"),
+#'         ca = TRUE, av = 5650)
+#' plotVar(fit2, "dist_b_mar", func = "log", interval = "both",
+#'         at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+#'                   dist_b_mar = 250, padrao = "medio"),
+#'         ca = TRUE, av = 5650)
 
 plotVar <- function(object, variable, func,
                     interval = c("none", "confidence", "prediction", "both"),
@@ -73,22 +84,23 @@ plotVar <- function(object, variable, func,
                     av,
                     at, ...){
   interval <- match.arg(interval)
-  z <- object
-  df <- eval(stats::getCall(z)$data)
-  vars <- all.vars(stats::formula(z))
-  params <- parameters(z)
+  DF <- eval(stats::getCall(object)$data)
+  vars <- all.vars(stats::formula(object))
+  params <- parameters(object)
   response <- params$response
   preds <- params$predictors
 
-  df %<>% dplyr::as_tibble() %>% dplyr::mutate_if(is.character, as.factor)
+  DF %<>% dplyr::as_tibble() %>% dplyr::mutate_if(is.character, as.factor)
 
-  variavel <- df[, variable, drop = FALSE]
+  variavel <- DF[, variable, drop = FALSE]
 
   if (is.factor(variavel[, variable, drop = T])){
-    plotFactor(variable, z, interval = interval, level = level, func = func,
-               ca = ca, av = av, at = at, ...)
+    plotFactor(variable, object,
+               interval = interval, level = level,
+               func = func, ca = ca, av = av, at = at, ...)
   } else {
-    plotContinuousVariable(variable, z, interval = interval, level = level,
+    plotContinuousVariable(variable, object,
+                           interval = interval, level = level,
                            func = func, ca = ca, av = av, at = at, ...)
   }
 }
@@ -104,54 +116,57 @@ plotFactor <- function(x, object,
                        ...){
   interval <- match.arg(interval)
   variable <- x
-  z <- object
-  params <- parameters(z)
+  params <- parameters(object)
   response <- params$response
   preds <- params$predictors
+  coeffs <- coef(object)
 
-  df <- as.data.frame(eval(stats::getCall(z)$data))
-  variavel <- df[, variable, drop = FALSE]
+  DF <- as.data.frame(eval(stats::getCall(object)$data))
+  variavel <- DF[, variable, drop = FALSE]
   grid <- unique(variavel)
 
   if (missing(at)) {
-    new <- data.frame(grid, lapply(df[setdiff(preds, variable)], centre))
+    new <- data.frame(grid, lapply(DF[setdiff(preds, variable)], centre))
     p_local <- NULL
   } else {
     new <- data.frame(grid, at[setdiff(preds, variable)])
-    p_local <- predict(z, newdata = at)
+    p_local <- predict(object, newdata = at)
   }
   if(interval != "both") {
-    Y <- stats::predict.lm(object = z, newdata = remove_missing_levels(z, new),
+    Y <- stats::predict.lm(object = object,
+                           newdata = remove_missing_levels(object, new),
                            interval = interval, level = level, ...)
   } else {
     message("Plotagem de ambos os intervalos disponivel apenas para variaveis
               continuas. Adotado intervalo de predicao")
-    Y <- stats::predict.lm(object = z, newdata = remove_missing_levels(z, new),
+    Y <- stats::predict.lm(object = object,
+                           newdata = remove_missing_levels(object, new),
                            interval = "prediction", level = level, ...)
   }
   if (!missing(func)) {
     Y <- inverse(Y, func)
     Y <- cbind(Y, campo_arbitrio(Y))
   }
+
   pred <- data.frame(new[ , variable, drop = FALSE], Y)
   pred_plot <- reshape2::melt(pred,
                               id.var = variable,
                               value.name = response,
                               variable.name = "var")
+
   p <- ggplot(data = pred_plot, aes(x = reorder(!!as.name(variable),
                                                 !!as.name(response),
                                                 median),
                                     y = !!as.name(response))) +
-    geom_boxplot(aes_(fill = as.name(variable))) +
+    geom_boxplot(aes(fill = .data[[variable]])) +
     xlab(variable) +
     theme(legend.position="none") +
-    scale_y_continuous(labels = scales::label_number(accuracy = .01,
-                                                     big.mark = ".",
-                                                     decimal.mark = ","))
+    scale_y_continuous(labels = scales::label_number_auto())
+
   if(!missing(at)) {
     p_local <- ifelse(missing(func), p_local, inverse(p_local, func))
     if (elasticidade == TRUE) {
-      cat(elasticidade(z, variable, func, at, factor = +1), " ")
+      cat(elasticidade(object, variable, func, at, factor = +1), " ")
     }
     if (!missing(av)) {
       p_local <- data.frame(y = p_local, at, av = av)
@@ -160,10 +175,10 @@ plotFactor <- function(x, object,
     }
     names(p_local)[1] <- response
     p <- p + geom_point(data = p_local,
-                        aes_(x = as.name(variable),
-                             y = as.name(response)),
+                        aes(x = .data[[variable]],
+                            y = .data[[response]]),
                         color = "red",
-                        size = 2)
+                        size = 3)
   }
   if (ca == TRUE & missing(func)) {
     message("Campo de Arbítrio somente possivel na escala original.")
@@ -172,9 +187,9 @@ plotFactor <- function(x, object,
     message("Valor arbitrado somente pode ser plotado caso seja informado local.")
   } else if (!missing(av)) {
     p <- p + geom_point(data = p_local,
-                        aes_(x = as.name(variable), y = ~av),
+                        aes(x = .data[[variable]], y = .data$av),
                         color = "purple",
-                        size = 2)
+                        size = 3)
   }
   return(p)
 }
@@ -185,6 +200,7 @@ plotContinuousVariable <-
            system = "ggplot2",
            interval =  c("none", "confidence", "prediction", "both"),
            level = 0.80,
+           residuals = FALSE,
            func,
            at,
            ca = FALSE,
@@ -194,38 +210,49 @@ plotContinuousVariable <-
 
   system <- match.arg(system)
   interval <- match.arg(interval)
+  DF <-  eval(stats::getCall(object)$data)
   variable <- x
-  z <- object
-  params <- parameters(z)
+  params <- parameters(object)
   response <- params$response
+  coeffs <- coef(object)
 
   # Calling predictResponse()
 
   if (!missing(func)){
     if (!missing(at)){
-      predResp <- predictResponse(x, object, interval = interval, level = level,
-                               func = func, at = at, ...)
+      predResp <- predictResponse(variable, object,
+                                  interval = interval, level = level,
+                                  func = func, at = at,
+                                  residuals = residuals, ...)
     } else {
-      predResp <- predictResponse(x, object, interval = interval, level = level,
-                                  func = func, ...)
+      predResp <- predictResponse(variable, object,
+                                  interval = interval, level = level,
+                                  func = func, residuals = residuals, ...)
     }
   } else if (missing(at)) {
-    predResp <- predictResponse(x, object, interval = interval, level = level,
-                                ...)
+    predResp <- predictResponse(variable, object,
+                                interval = interval, level = level,
+                                residuals = residuals, ...)
   } else {
-    predResp <- predictResponse(x, object, interval = interval, level = level,
-                                at = at, ...)
+    predResp <- predictResponse(variable, object,
+                                interval = interval, level = level,
+                                at = at, residuals = residuals, ...)
   }
 
   pred <- predResp$pred
   grid <- predResp$grid
   p_local <- predResp$p_local
+  mframe <- predResp$mframe
+  pres <- predResp$pres
 
   if (system == 'ggplot2'){
 
   # Basic Plot
-  p <- ggplot(data = pred, aes_(x = as.name(variable), y = as.name(response))) +
-    geom_line(size = 1) +
+  # see https://ggplot2.tidyverse.org/articles/ggplot2-in-packages.html
+  p <- ggplot(data = pred,
+              aes(x = .data[[variable]], y = .data[[response]])
+              ) +
+    geom_line(linewidth = 1) +
     theme(legend.position="bottom") +
     scale_y_continuous(labels = scales::label_number_auto()) +
     scale_x_continuous(labels = scales::label_number_auto()) +
@@ -238,33 +265,56 @@ plotContinuousVariable <-
       message("Campo de Arbítrio somente possivel na escala original.")
     } else {
       p <- p +
-        geom_line(aes_string(y = "C.A.I."), linetype = 2) +
-        geom_line(aes_string(y = "C.A.S."), linetype = 2)
+        geom_line(aes(y = .data$C.A.I.), linetype = 2) +
+        geom_line(aes(y = .data$C.A.S.), linetype = 2)
     }
   }
 
   # Adds chosen intervals ribbons, if any
   if (interval == "both") {
     p <- p +
-      geom_ribbon(aes_(ymin = ~lwr.y, ymax = ~upr.y,
+      geom_ribbon(aes(ymin = .data$lwr.y, ymax = .data$upr.y,
                        colour = "grey", alpha = 0.25),
                   stat = "identity") +
-      geom_ribbon(aes_(ymin = ~lwr.x, ymax = ~upr.x,
-                       colour = "grey", alpha = .25),
+      geom_ribbon(aes(ymin = .data$lwr.x, ymax = .data$upr.x,
+                      colour = "grey", alpha = .25),
                   stat = "identity") +
       theme(legend.position="none")
   } else if (interval != "none"){
-    p <- p + geom_ribbon(aes_(ymin = ~lwr, ymax = ~upr,
-                              colour = "grey", alpha = 0.5),
+    p <- p + geom_ribbon(aes(ymin = .data$lwr, ymax = .data$upr,
+                             colour = "grey", alpha = 0.5),
                          stat = "identity") +
       theme(legend.position="none")
   }
 
+  # Adds partial residuals, if residuals = TRUE
+
+  if (residuals == TRUE & missing(func) & missing(at)) {
+    vars <- attr(terms(object), "variables")
+
+    sel <- lapply(vars, all.vars)[-1]
+
+    res <- lapply(all.vars(terms(object)), \(x) which(sapply(sel, \(y) x %in% y)))
+    res <- setNames(res, all.vars(terms(object)))
+
+    k <- predict(object = object,
+                 newdata = lapply(DF, centre))
+
+    partialResiduals <-
+      data.frame(X = mframe[, variable, drop = T],
+                 Y = pres[, res[[variable]]-1] + k
+                 )
+    p <- p +
+      geom_point(data = partialResiduals,
+                 aes(x = .data$X, y = .data$Y),
+                 pch = 4)
+  }
+
   # Adds point of 'at' argument, if not missing
-  if(!missing(at)) {
+  if (!missing(at)) {
     p_local <- ifelse(missing(func), p_local, inverse(p_local, func))
     if (elasticidade == TRUE) {
-      cat(elasticidade(z, variable, func, at), " ")
+      cat(elasticidade(object, variable, func, at), " ")
     }
     if (!missing(av)) {
       p_local <- data.frame(y = p_local, at, av = av)
@@ -273,10 +323,10 @@ plotContinuousVariable <-
     }
     names(p_local)[1] <- response
     p <- p + geom_point(data = p_local,
-                        aes_(x = as.name(variable),
-                             y = as.name(response)),
+                        aes(x = .data[[variable]],
+                            y = .data[[response]]),
                         color = "red",
-                        size = 2)
+                        size = 3)
   }
 
   # Adds arbitrated value, if not missing
@@ -284,9 +334,9 @@ plotContinuousVariable <-
     message("Valor arbitrado somente pode ser plotado caso seja informado local.")
   } else if (!missing(av)) {
     p <- p + geom_point(data = p_local,
-                        aes_(x = as.name(variable), y = ~av),
+                        aes(x = .data[[variable]], y = .data$av),
                         color = "purple",
-                        size = 2)
+                        size = 3)
   }
   return(p)
   }

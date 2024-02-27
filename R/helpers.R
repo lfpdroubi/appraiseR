@@ -194,6 +194,12 @@ centre.factor <- function(x, FUN, na.rm = TRUE, ...){
     }
   return(x)
 }
+#' centre(centro_2015$geometry)
+#' @export
+centre.sfc_POINT <- function(x, FUN = mean, ...){
+  z <- sf::st_coordinates(x)
+  apply(z, 2, FUN, ...)
+}
 
 #' Extract object parameters
 #'
