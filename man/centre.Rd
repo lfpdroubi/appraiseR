@@ -9,9 +9,9 @@ the vector is numeric or a factor.}
 \usage{
 centre(x, ...)
 
-\method{centre}{numeric}(x, na.rm = TRUE, ...)
+\method{centre}{numeric}(x, FUN = median, na.rm = TRUE, ...)
 
-\method{centre}{factor}(x, na.rm = TRUE, ...)
+\method{centre}{factor}(x, FUN, na.rm = TRUE, ...)
 }
 \arguments{
 \item{x}{an object for which a method has been defined, or a
@@ -32,11 +32,16 @@ Return the median value or the modal value of a vector, depending on whether
 the vector is numeric or a factor.
 }
 \examples{
-vec <- c(-3, -2, 0, 1, 1, 3)
-centre(vec)
-vec <- c(-3, -2, 0, 1, 1, 3)
-vec <- as.factor(vec)
-centre(vec)
-dados <- st_drop_geometry(centro_2015)
-centre(dados$padrao)
+x <- c(-3, -2, 0, NA, 1, 1, 3)
+centre(x) # .5 (default is median(x))
+centre(x, FUN = mean) # 0
+centre(x, FUN = raster::modal) # 1
+y <- c(-3, -2, 0, 1, 1, 3)
+y <- as.factor(y)
+centre(y) # the reference level
+centre(y, FUN = raster::modal) # the most frequent (modal) value
+library(sf)
+data(centro_2015)
+centre(centro_2015$padrao) # the reference level
+centre(centro_2015$padrao, FUN = raster::modal) # the most frequent value
 }

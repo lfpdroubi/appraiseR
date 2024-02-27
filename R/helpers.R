@@ -164,25 +164,35 @@ centre <- function(x, ...) UseMethod("centre")
 
 #' @rdname centre
 #' @examples
-#' vec <- c(-3, -2, 0, 1, 1, 3)
-#' centre(vec)
+#' x <- c(-3, -2, 0, NA, 1, 1, 3)
+#' centre(x) # .5 (default is median(x))
+#' centre(x, FUN = mean) # 0
+#' centre(x, FUN = raster::modal) # 1
 #' @export
-centre.numeric <- function(x, na.rm = TRUE, ...) {
-  x <- stats::median(x, na.rm = na.rm, ...)
-  x
+centre.numeric <- function(x, FUN = median, na.rm = TRUE, ...) {
+  FUN(x, na.rm = na.rm, ...)
 }
 
 #' @rdname centre
 #' @examples
-#' vec <- c(-3, -2, 0, 1, 1, 3)
-#' vec <- as.factor(vec)
-#' centre(vec)
-#' dados <- st_drop_geometry(centro_2015)
-#' centre(dados$padrao)
+#' y <- c(-3, -2, 0, 1, 1, 3)
+#' y <- as.factor(y)
+#' centre(y) # the reference level
+#' centre(y, FUN = raster::modal) # the most frequent (modal) value
+#' library(sf)
+#' data(centro_2015)
+#' centre(centro_2015$padrao) # the reference level
+#' centre(centro_2015$padrao, FUN = raster::modal) # the most frequent value
 #' @export
-centre.factor <- function(x, na.rm = TRUE, ...){
-  x <- raster::modal(x, na.rm = na.rm)
-  x
+centre.factor <- function(x, FUN, na.rm = TRUE, ...){
+  #x <- raster::modal(x, na.rm = na.rm)
+
+  if (missing(FUN)) {
+    x <- levels(x)[1]
+  } else {
+    x <- FUN(x, na.rm = na.rm, ...)
+    }
+  return(x)
 }
 
 #' Extract object parameters
@@ -221,7 +231,7 @@ parameters.lm <- function(object, ...) {
   resp <- all.vars(update(myformula, . ~ 1))
   preds <- setdiff(vars, resp)
 
-  lhs <- myformula[[2]]
+  lhs <- rownames(attr(z$terms, "factors"))[1]
   rhs <- myformula[[3]]
 
   param <-
