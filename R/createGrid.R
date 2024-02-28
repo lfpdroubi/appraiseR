@@ -16,13 +16,35 @@
 #' @param \dots further arguments passed to predict.lm.
 #' @export
 #' @examples
+#' # Crete random bivariate normal data just for testing
+#' library(MASS)
+#' sample_mean <- c(10000, 250)
+#' sample_cov <- matrix(c(1000^2, -37500,
+#'                        -37500, 50^2),
+#'                      ncol = 2, byrow = T)
+#' n <- 10
+#' set.seed(1)
+#' dados <- mvrnorm(n = n,
+#'                 mu = sample_mean,
+#'                 Sigma = sample_cov)
+#' colnames(dados) <- c("VU", "Area")
+#' dados <- as.data.frame(dados)
+#'
+#' fit <- lm(VU ~ Area, data = dados)
+#' createGrid("Area", fit)
+#' #
+#' # Test with real data
 #' library(sf)
 #' data(centro_2015)
-#' dados <- st_drop_geometry(centro_2015)
-#' mod <- lm(sqrt(valor) ~ sqrt(area_total) + quartos + suites, dados)
-#' p <- createGrid("area_total", mod)
-#' p <- createGrid("area_total", mod,
-#'                 at = list(area_total = 205, quartos = 3, suites = 1))
+#' centro_2015 <- within(centro_2015, VU <- valor/area_total)
+#' fit <- lm(sqrt(VU) ~ sqrt(area_total) + quartos + suites + garagens +
+#'           sqrt(dist_b_mar) + padrao,
+#'           data = centro_2015)
+#' createGrid("area_total", fit)
+#' createGrid("area_total", fit,
+#'            at = list(area_total = 205, quartos = 3, suites = 1,
+#'                      garagens = 2, dist_b_mar = 250, padrao = "medio"))
+#'
 
 createGrid <- function(x, object, at, ...){
   variable <- x
@@ -30,20 +52,29 @@ createGrid <- function(x, object, at, ...){
   response <- params$response
   preds <- params$predictors
 
-  df <- as.data.frame(eval(stats::getCall(object)$data))
-  variavel <- df[, variable, drop = FALSE]
+  DF <- as.data.frame(eval(stats::getCall(object)$data))
+  variavel <- DF[, variable, drop = FALSE]
 
-  grid <- seq(min(df[, variable], na.rm = TRUE),
-              max(df[, variable], na.rm = TRUE),
+  grid <- seq(min(DF[, variable], na.rm = TRUE),
+              max(DF[, variable], na.rm = TRUE),
               length = 101)
 
-  if (missing(at)) {
-    new <- data.frame(grid, lapply(df[setdiff(preds, variable)], centre))
-    p_local <- NULL
+  if (length(preds)>1) {
+    if (missing(at)) {
+      new <- data.frame(grid, lapply(DF[, setdiff(preds, variable)], centre))
+      p_local <- NULL
+    } else {
+      new <- data.frame(grid, at[setdiff(preds, variable)])
+      p_local <- predict(object, newdata = at)
+    }
   } else {
-    new <- data.frame(grid, at)
-    p_local <- predict(object, newdata = at)
+    new <- data.frame(grid)
+    if (missing(at)){
+      p_local <- NULL
+    } else
+      p_local <- predict(object, newdata = at)
   }
+
 
   names(new)[1] <- variable
 

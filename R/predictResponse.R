@@ -8,17 +8,17 @@
 #' library(sf)
 #' data(centro_2015)
 #' centro_2015 <- within(centro_2015, VU <- valor/area_total)
-#' mod <- lm(rsqrt(VU) ~ rsqrt(area_total) + sqrt(quartos) + suites +
-#'           sqrt(garagens) + rsqrt(dist_b_mar) + padrao,
-#'           data = centro_2015, subset = -c(4, 31, 39))
-#' p <- predictResponse("area_total", mod)
+#' fit<- lm(log(VU) ~ log(area_total) + quartos + suites +
+#'           garagens + log(dist_b_mar) + padrao,
+#'           data = centro_2015, subset = -c(31, 39))
+#' p <- predictResponse("area_total", fit)
 #' p
 predictResponse <-
   function(x, object,
            interval =  c("none", "confidence", "prediction", "both"),
            level = 0.80,
            at,
-           func,
+           FUN,
            residuals = FALSE,
            ...){
 
@@ -26,6 +26,7 @@ predictResponse <-
   variable <- x
   params <- parameters(object)
   response <- params$response
+  depvarTrans <- params$depvarTrans
   predictors <- params$predictors
 
   if(!missing(at))  grid <- createGrid(variable, object, at = at) else
@@ -35,23 +36,30 @@ predictResponse <-
   p_local <- grid$p_local
 
   if(interval != "both") {
-    Y <- stats::predict.lm(object = object, newdata = new, interval = interval,
+    y <- stats::predict.lm(object = object, newdata = new, interval = interval,
                            level = level, ...)
   } else {
-    Y1 <- stats::predict.lm(object = object,
+    yc <- stats::predict.lm(object = object,
                             newdata = remove_missing_levels(object, new),
                             interval = "confidence", level = level, ...)
-    Y2 <- stats::predict.lm(object = object,
+    yp <- stats::predict.lm(object = object,
                             newdata = remove_missing_levels(object, new),
                             interval = "prediction", level = level, ...)
-    Y1 <- as.data.frame(Y1)
-    Y2 <- as.data.frame(Y2)
-    Y <- dplyr::inner_join(Y1, Y2, by = "fit")
+    yc <- as.data.frame(yc)
+    yp <- as.data.frame(yp)
+    y <- dplyr::inner_join(yc, yp, by = "fit", suffix = c(".conf", ".pred"))
   }
 
-  if (!missing(func)) {
-    Y <- inverse(Y, func)
+  if (!missing(FUN)) {
+    Y <- inverse(y, FUN)
     Y <- cbind(Y, campo_arbitrio(Y))
+  } else if (is.na(depvarTrans)){
+    Y <- cbind(y, campo_arbitrio(y))
+  } else {
+    Y <- inverse(y, FUN = depvarTrans)
+    CA <- campo_arbitrio(Y)
+    Y <- cbind(Y, CA)
+    Y <- inverse(Y, FUN = invFunc(depvarTrans))
   }
 
   pred <- data.frame(new[, variable], Y)

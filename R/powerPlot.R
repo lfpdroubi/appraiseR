@@ -119,10 +119,10 @@ powerPlot.default <- function(y, yhat, system = c("base", "ggplot2", "lattice"),
                              brf(do.call(metric, args = list(y, yhat)),
                                  nsmall = 0))
       }
-      df <- data.frame(x.char = npcx[metrics], y.char =  npcy[metrics],
+      DF <- data.frame(x.char = npcx[metrics], y.char =  npcy[metrics],
                        text = a[metrics], color = col[metrics])
       p <- p +
-        ggpp::geom_label_npc(data = df,
+        ggpp::geom_label_npc(data = DF,
                              aes(npcx = x.char, npcy = y.char, label = text),
                              color = col[metrics]
         )
@@ -179,7 +179,7 @@ powerPlot.default <- function(y, yhat, system = c("base", "ggplot2", "lattice"),
 #' @rdname powerPlot
 #' @param object object of class \code{\link{lm}}, \code{\link{rq}},
 #' \code{\link{lmerMod}} or \code{\link{bestfit}}.
-#' @param func function used to transform the dependent variable (the inverse
+#' @param FUN function used to transform the dependent variable (the inverse
 #' of this function will be used to retransform the data to the original scale).
 #' @param \dots further args passed to powerPlot.default
 #' @examples
@@ -187,12 +187,12 @@ powerPlot.default <- function(y, yhat, system = c("base", "ggplot2", "lattice"),
 #' par(pty="s") #default par(pty="m")
 #' powerPlot(fit)
 #' powerPlot(fit, main = "Poder de Predição")
-#' powerPlot(fit, func = "log",
+#' powerPlot(fit, FUN = "log",
 #'           main = "Poder de Predição")
 #' title(sub = "Em reais", adj = 1)
 #' powerPlot(fit, axis = "inverted")
 #' p <- powerPlot(fit, system = "ggplot2",
-#'                func = "log", axis = "inverted")
+#'                FUN = "log", axis = "inverted")
 #' p +
 #'   labs(title = "Poder de Predição", subtitle = "Em Reais") +
 #'   theme(aspect.ratio = 1)
@@ -200,10 +200,10 @@ powerPlot.default <- function(y, yhat, system = c("base", "ggplot2", "lattice"),
 #' fit1 <- lm(sqrt(valor) ~ area_total + quartos + suites + garagens +
 #'           log(dist_b_mar) + I(1/padrao), centro_2015)
 #' powerPlot(fit1)
-#' powerPlot(fit1, func = "sqrt", axis = "inverted")
+#' powerPlot(fit1, FUN = "sqrt", axis = "inverted")
 #' @export
 #'
-powerPlot.lm <- function(object, func, system = c("base", "ggplot2", "lattice"),
+powerPlot.lm <- function(object, FUN, system = c("base", "ggplot2", "lattice"),
                          ...) {
   z <- object
   data <- stats::model.frame(z)
@@ -213,29 +213,25 @@ powerPlot.lm <- function(object, func, system = c("base", "ggplot2", "lattice"),
   depvar <- params$response
   lhs <- params$lhs
 
-  df <- expand.model.frame(model = z, extras = depvar, na.expand = TRUE)
-  df$`.fitted` <- fitted(z)
-  #df <- broom::augment(z, data = df)
+  DF <- expand.model.frame(model = z, extras = depvar, na.expand = TRUE)
+  DF$`.fitted` <- fitted(z)
+  #DF <- broom::augment(z, data = DF)
 
-  if (!missing(func)) {
-    df[, ".Fitted"] <- inverse(df[, ".fitted"], func)
-    y <- df[, depvar]
-    yhat <- df[, ".Fitted"]
+  if (!missing(FUN)) {
+    DF[, ".Fitted"] <- inverse(DF[, ".fitted"], FUN)
+    y <- DF[, depvar]
+    yhat <- DF[, ".Fitted"]
   } else {
-    y <- df[, lhs]
-    yhat <- df[, ".fitted"]
+    y <- DF[, lhs]
+    yhat <- DF[, ".fitted"]
   }
 
   if (system == "ggplot2") {
-    if (!missing(func)) {
+    if (!missing(FUN)) {
       p <- powerPlot(y, yhat, system = system, ...)
       p <- p +
-        scale_y_continuous(labels = scales::label_number(accuracy = .01,
-                                                         big.mark = ".",
-                                                         decimal.mark = ",")) +
-        scale_x_continuous(labels = scales::label_number(accuracy = .01,
-                                                         big.mark = ".",
-                                                         decimal.mark = ","))
+        scale_y_continuous(labels = scales::label_number_auto()) +
+        scale_x_continuous(labels = scales::label_number_auto())
       return(p)
     } else {
       p <- powerPlot(y, yhat, system = system, ...)
@@ -281,9 +277,9 @@ powerPlot.bestfit <- function(object, fit = 1,
   s <- summary(object, fit = fit)
   z <- s$fit
   response <- object$response
-  func <- as.character(object$tab[fit, response])
+  FUN <- as.character(object$tab[fit, response])
   if (scale == "original"){
-    p <- powerPlot.lm(z, func = func, ...)
+    p <- powerPlot.lm(z, FUN = FUN, ...)
   } else {
     p <- powerPlot.lm(z, ...)
   }
@@ -297,24 +293,24 @@ powerPlot.bestfit <- function(object, fit = 1,
 #' Mfit <- lmer(log(valor) ~ area_total + quartos + suites + garagens +
 #' dist_b_mar + (1|padrao), dados)
 #' powerPlot(Mfit)
-#' powerPlot(Mfit, func = "log")
+#' powerPlot(Mfit, FUN = "log")
 #' @export
 #'
-powerPlot.lmerMod <-  function(object, func, ...){
+powerPlot.lmerMod <-  function(object, FUN, ...){
   require(broom.mixed)
   z <- object
 
   Y <- z@resp$y
   Y_ajustado <- z@resp$mu
 
-  if (!missing(func)) {
-    Y <- inverse(Y, func)
-    Y_ajustado <- inverse(Y_ajustado, func)
+  if (!missing(FUN)) {
+    Y <- inverse(Y, FUN)
+    Y_ajustado <- inverse(Y_ajustado, FUN)
   }
 
   p <- powerPlot(Y, Y_ajustado, ...)
 
-  if (!missing(func)) {
+  if (!missing(FUN)) {
     p <- p +
       scale_y_continuous(labels = scales::label_number(accuracy = .01,
                                                        big.mark = ".",
@@ -340,21 +336,21 @@ powerPlot.lmerMod <-  function(object, func, ...){
 #' powerPlot(medFit, axis = "inverted")
 #' @export
 #'
-powerPlot.rq <-  function(object, func, ...){
+powerPlot.rq <-  function(object, FUN, ...){
   z <- object
   data <- stats::model.frame(z)
 
   Y <- data[, attr(z$terms, "response")]
   Y_ajustado <- z$fitted.values
 
-  if (!missing(func)) {
-    Y <- inverse(Y, func)
-    Y_ajustado <- inverse(Y_ajustado, func)
+  if (!missing(FUN)) {
+    Y <- inverse(Y, FUN)
+    Y_ajustado <- inverse(Y_ajustado, FUN)
   }
 
   p <- powerPlot(y = Y, yhat = Y_ajustado, ...)
 
-  if (!missing(func)) {
+  if (!missing(FUN)) {
     p <- p +
       scale_y_continuous(labels = scales::label_number(accuracy = .01,
                                                        big.mark = ".",

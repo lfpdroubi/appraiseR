@@ -91,7 +91,7 @@ iaao_Ratio.default <- function(AssessedValue, SalePrice,
 
 }
 #' @param object An object of class lm.
-#' @param func function used to transform the response (defaults to identity)
+#' @param FUN function used to transform the response (defaults to identity)
 #' @param \dots further arguments passed to \code{iaao_Ratio}.
 #' @examples
 #' # Applied to centro_2015 dataset
@@ -99,16 +99,16 @@ iaao_Ratio.default <- function(AssessedValue, SalePrice,
 #' dados$padrao <- as.numeric(dados$padrao)
 #' fit <- lm(log(valor)~area_total + quartos + suites + garagens +
 #' log(dist_b_mar) + I(1/padrao), data = dados, subset = -c(31, 39))
-#' iaao_Ratio(object = fit, func = "log")
+#' iaao_Ratio(object = fit, FUN = "log")
 #' @rdname iaao_Ratio
 #' @export
-iaao_Ratio.lm <- function(object, func = "identity", ...){
+iaao_Ratio.lm <- function(object, FUN = "identity", ...){
   z <- object
   fitted <- fitted(z)
   mf <- stats::model.frame(z)
   y <- stats::model.response(mf)
   Y <- data.frame(AssessedValue = fitted, SalePrice = y)
-  Y <- inverse(Y, func = func)
+  Y <- inverse(Y, FUN = FUN)
   s <- iaao_Ratio(AssessedValue = Y$AssessedValue,
                   SalePrice = Y$SalePrice, ...)
   return(s)

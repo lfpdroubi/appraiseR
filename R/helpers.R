@@ -71,9 +71,9 @@ rec <- power(-1)
 #' @examples
 #'
 #' rsqrt(4)
-#' rsqrt(1:10)
+#' rsqrt(sqr(1:10))
 
-rsqrt <- power(-0.5)
+rsqrt <- power(1/2)
 
 #' Square of a number
 #'
@@ -96,32 +96,43 @@ sqr <- power(2)
 
 cube <- power(3)
 
+#' Cubic root of a number
+#'
+#' @param x a numeric vector or array
+#' @export
+#' @examples
+#'
+#' cubroot(8)
+
+cubroot <- power(1/3)
+
 #' Returns the inverse of the function f (character)
 #'
-#' @param func a function of the box-cox family (rsqr(), rec(), rsqrt(), log(),
+#' @param FUN a function of the box-cox family (rsqr(), rec(), rsqrt(), log(),
 #' cubroot(), sqrt(), I() and sqr())
 #' @return the inverse function, in character format.
 #' @export
 #' @examples
 #' invFunc("log")
 
-invFunc <- function(func){
-  switch(func,
+invFunc <- function(FUN){
+  switch(FUN,
          rsqr = "rsqrt",
          rec = "rec",
          rsqrt = "rsqr",
          log = "exp",
-         cubroot = "cube",
+         exp = "log",
          sqrt = "sqr",
-         identity = "identity",
-         sqr = "sqrt"
+         sqr = "sqrt",
+         cube = "cubroot",
+         cubroot = "cube"
   )
 }
 
 #' Returns a vector generated with the inverse of the function f
 #'
 #' @param x A vector or object of type
-#' @param func a function of the box-cox family (rsqr(), rec(), rsqrt(), log(),
+#' @param FUN a function of the box-cox family (rsqr(), rec(), rsqrt(), log(),
 #' cubroot(), sqrt(), I() and sqr())
 #' @return a
 #' @export
@@ -139,16 +150,18 @@ invFunc <- function(func){
 #' inverse(Y, "log")
 #'
 
-inverse <- function(x, func) {
-  switch(func,
+inverse <- function(x, FUN) {
+  switch(FUN,
          rsqr = appraiseR::rsqrt(x),
          rec = appraiseR::rec(x),
          rsqrt = appraiseR::rsqr(x),
          log = exp(x),
+         exp = log(x),
          cubroot = appraiseR::cube(x),
          sqrt = appraiseR::sqr(x),
          identity = identity(x),
-         sqr = sqrt(x)
+         sqr = sqrt(x),
+         cube = appraiseR::cubroot(x)
   )
 }
 
@@ -240,10 +253,21 @@ parameters.lm <- function(object, ...) {
   lhs <- rownames(attr(z$terms, "factors"))[1]
   rhs <- myformula[[3]]
 
+  if (stringr::str_detect(lhs, paste("\\(", resp, "\\)", sep = ""))) {
+    depvarTrans <- stringr::str_replace(lhs,
+                                        pattern = paste("\\(", resp, "\\)",
+                                                        sep = ""),
+                                        replacement = "")
+  } else {
+    depvarTrans <- NA
+  }
+
+
   param <-
     list(parameters = c(resp, preds),
          predictors = preds,
          response = resp,
+         depvarTrans = depvarTrans,
          lhs = lhs,
          rhs = rhs,
          data = data,
@@ -376,16 +400,18 @@ pct <- porcento
 #' @param type the equation type required: regression (reg) or estimation (est).
 #' @param inline the equation mode. TRUE for inline equations or FALSE for
 #' displayed mode.
-#' @param func transformation applied to dependent variable.
+#' @param FUN transformation applied to dependent variable.
 #' @param accuracy number to round to; for POSIXct objects, a number of seconds
 #' @param f rounding function: floor, ceiling or round
 #' @examples
-#' dados <- st_drop_geometry(centro_2015)
-#' fit <- lm(log(valor) ~ ., dados)
+#' data(centro_2015)
+#' centro_2015 <- within(centro_2015, VU <- valor/area_total)
+#' fit <- lm(log(VU) ~ log(area_total) + quartos + suites + garagens +
+#'            log(dist_b_mar) + padrao, centro_2015)
 #' equacoes(fit)
-#' equacoes(fit, precision = 1)
+#' equacoes(fit, accuracy = .01)
 #' @export
-equacoes <- function(object, type = c("reg", "est"), inline = TRUE, func,
+equacoes <- function(object, type = c("reg", "est"), inline = TRUE, FUN,
                      accuracy = 100, f = round, errorTerm = TRUE){
   z <- object
   myformula <- stats::formula(z)
@@ -411,8 +437,8 @@ equacoes <- function(object, type = c("reg", "est"), inline = TRUE, func,
 
   if (type == "reg"){
     Formula <- paste(lhs, "=", rhs)
-  } else if (!missing(func)) {
-    Formula <- paste(lhs, " = ", appraiseR::invFunc(func), "(", rhs, ")",
+  } else if (!missing(FUN)) {
+    Formula <- paste(lhs, " = ", appraiseR::invFunc(FUN), "(", rhs, ")",
                      sep = "")
   } else {
     message("Estimation regression asked but no transformation passed.")

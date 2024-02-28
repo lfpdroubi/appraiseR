@@ -3,7 +3,7 @@
 #' \code{plotvar} plots model variables with confidence/prediction intervals
 #' @param object object of class lm
 #' @param variable variable to be plotted against response variable
-#' @param func function used to transform the response (optional)
+#' @param FUN function used to transform the response (optional)
 #' @param interval the type of interval calculation (provided to predict.lm) to
 #'   be ploted.
 #' @param level Tolerance/confidence level (provided to predict.lm) to
@@ -23,66 +23,69 @@
 #'           data = centro_2015)
 #' plotVar(fit, "area_total")
 #' plotVar(fit, "area_total", residuals = TRUE)
+#' plotVar(fit, "area_total", interval = "confidence", residuals = TRUE)
+#' plotVar(fit, "area_total", interval = "prediction", residuals = TRUE)
 #' plotVar(fit, "area_total", interval = "both", residuals = TRUE)
-#' plotVar(fit, "dist_b_mar", interval = "both", residuals = TRUE)
-#' plotVar(fit, "area_total", interval = "both", residuals = TRUE,
-#'         at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
-#'         dist_b_mar = 250, padrao = "medio"))
-#' plotVar(fit, "area_total", func = "log")
+#' plotVar(fit, "area_total", interval = "both", ca = TRUE, residuals = TRUE)
+#' plotVar(fit, "area_total", FUN = "log")
+#' plotVar(fit, "area_total", FUN = "log",
+#'         interval = "both", ca = TRUE, residuals = TRUE)
 #' plotVar(fit, "suites")
-#' plotVar(fit, "suites", func = "log")
+#' plotVar(fit, "suites", FUN = "log")
 #' plotVar(fit, "area_total", interval = "confidence", ca = TRUE)
-#' plotVar(fit, "area_total", interval = "confidence", func = "log", ca = TRUE)
+#' plotVar(fit, "area_total", interval = "confidence", FUN = "log", ca = TRUE)
 #' plotVar(fit, "area_total", interval = "prediction")
 #' plotVar(fit, "area_total", interval = "both")
 #' # Both intervals + CA
 #' plotVar(fit, "area_total", interval = "both", ca = TRUE,
-#'         at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
-#'         dist_b_mar = 250, padrao = "medio"))
+#'         at = list(area_total = 205, quartos = 3, suites = 1,
+#'                   garagens = 2, dist_b_mar = 250, padrao = "medio"))
 #' # Same above + Point valuation at R$ 5.650,00 /m2
 #' plotVar(fit, "area_total", interval = "both",
 #'         at = data.frame(area_total = 205, quartos = 3, suites = 1,
 #'                         garagens = 2, dist_b_mar = 250, padrao = "medio"),
 #'         ca = TRUE, av = log(5650))
 #' # Same above, in the original scale
-#' plotVar(fit, "area_total", interval = "both", func = 'log',
+#' plotVar(fit, "area_total", interval = "both", FUN = 'log',
 #'         at = data.frame(area_total = 205, quartos = 3, suites = 1,
 #'                         garagens = 2, dist_b_mar = 250, padrao = "medio"),
 #'         ca = TRUE, av = 5650)
 #' plotVar(fit, "padrao")
 #' plotVar(fit, "padrao", ca = TRUE)
-#' plotVar(fit, "padrao", func = "log", ca = TRUE)
+#' plotVar(fit, "padrao", FUN = "log", ca = TRUE)
 #' plotVar(fit, "padrao", interval = "confidence")
 #' plotVar(fit, "padrao", interval = "prediction")
 #' plotVar(fit, "padrao", interval = "both")
-#' plotVar(fit, "padrao", func = "log", interval = "confidence",
+#' plotVar(fit, "padrao", FUN = "log", interval = "confidence",
 #'         at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'                   dist_b_mar = 250, padrao = "medio"))
-#' plotVar(fit, "padrao", func = "log", interval = "prediction",
+#' plotVar(fit, "padrao", FUN = "log", interval = "prediction",
 #'         at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'                   dist_b_mar = 250, padrao = "medio"),
 #'         av = 5650)
 #' # Remove outliers
 #' fit2 <- update(fit, .~.-suites, subset = -c(31,39, 45))
-#' plotVar(fit2, "padrao", func = "log", interval = "prediction",
+#' plotVar(fit2, "padrao", FUN = "log", interval = "prediction",
 #'         at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'                   dist_b_mar = 250, padrao = "medio"),
 #'         av = 5650)
-#' plotVar(fit2, "area_total", func = "log", interval = "both",
+#' plotVar(fit2, "area_total", FUN = "log", interval = "both",
 #'         at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'                   dist_b_mar = 250, padrao = "medio"),
 #'         ca = TRUE, av = 5650)
-#' plotVar(fit2, "dist_b_mar", func = "log", interval = "both",
+#' plotVar(fit2, "dist_b_mar", FUN = "log", interval = "both",
 #'         at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
 #'                   dist_b_mar = 250, padrao = "medio"),
 #'         ca = TRUE, av = 5650)
 
-plotVar <- function(object, variable, func,
+plotVar <- function(object, variable, FUN,
                     interval = c("none", "confidence", "prediction", "both"),
                     level = 0.80,
                     ca = FALSE,
                     av,
-                    at, ...){
+                    at,
+                    #at = lapply(eval(getCall(object)$data), centre),
+                    ...){
   interval <- match.arg(interval)
   DF <- eval(stats::getCall(object)$data)
   vars <- all.vars(stats::formula(object))
@@ -97,11 +100,11 @@ plotVar <- function(object, variable, func,
   if (is.factor(variavel[, variable, drop = T])){
     plotFactor(variable, object,
                interval = interval, level = level,
-               func = func, ca = ca, av = av, at = at, ...)
+               FUN = FUN, ca = ca, av = av, at = at, ...)
   } else {
     plotContinuousVariable(variable, object,
                            interval = interval, level = level,
-                           func = func, ca = ca, av = av, at = at, ...)
+                           FUN = FUN, ca = ca, av = av, at = at, ...)
   }
 }
 #' export
@@ -109,7 +112,7 @@ plotFactor <- function(x, object,
                        interval =  c("none", "confidence", "prediction", "both"),
                        level = 0.80,
                        at,
-                       func,
+                       FUN,
                        ca = FALSE,
                        av,
                        elasticidade = TRUE,
@@ -143,8 +146,8 @@ plotFactor <- function(x, object,
                            newdata = remove_missing_levels(object, new),
                            interval = "prediction", level = level, ...)
   }
-  if (!missing(func)) {
-    Y <- inverse(Y, func)
+  if (!missing(FUN)) {
+    Y <- inverse(Y, FUN)
     Y <- cbind(Y, campo_arbitrio(Y))
   }
 
@@ -153,6 +156,8 @@ plotFactor <- function(x, object,
                               id.var = variable,
                               value.name = response,
                               variable.name = "var")
+
+  col <- RColorBrewer::brewer.pal(n = 8, "Set1")
 
   p <- ggplot(data = pred_plot, aes(x = reorder(!!as.name(variable),
                                                 !!as.name(response),
@@ -164,9 +169,9 @@ plotFactor <- function(x, object,
     scale_y_continuous(labels = scales::label_number_auto())
 
   if(!missing(at)) {
-    p_local <- ifelse(missing(func), p_local, inverse(p_local, func))
+    p_local <- ifelse(missing(FUN), p_local, inverse(p_local, FUN))
     if (elasticidade == TRUE) {
-      cat(elasticidade(object, variable, func, at, factor = +1), " ")
+      cat(elasticidade(object, variable, FUN, at, factor = +1), " ")
     }
     if (!missing(av)) {
       p_local <- data.frame(y = p_local, at, av = av)
@@ -177,18 +182,18 @@ plotFactor <- function(x, object,
     p <- p + geom_point(data = p_local,
                         aes(x = .data[[variable]],
                             y = .data[[response]]),
-                        color = "red",
+                        color = col[8],
                         size = 3)
   }
-  if (ca == TRUE & missing(func)) {
-    message("Campo de Arbítrio somente possivel na escala original.")
-  }
+  # if (ca == TRUE & missing(FUN)) {
+  #   message("Campo de Arbítrio somente possivel na escala original.")
+  # }
   if (!missing(av) & missing(at)){
     message("Valor arbitrado somente pode ser plotado caso seja informado local.")
   } else if (!missing(av)) {
     p <- p + geom_point(data = p_local,
                         aes(x = .data[[variable]], y = .data$av),
-                        color = "purple",
+                        color = col[4],
                         size = 3)
   }
   return(p)
@@ -201,7 +206,7 @@ plotContinuousVariable <-
            interval =  c("none", "confidence", "prediction", "both"),
            level = 0.80,
            residuals = FALSE,
-           func,
+           FUN,
            at,
            ca = FALSE,
            av,
@@ -210,24 +215,25 @@ plotContinuousVariable <-
 
   system <- match.arg(system)
   interval <- match.arg(interval)
-  DF <-  eval(stats::getCall(object)$data)
+  DF <-  as.data.frame(eval(stats::getCall(object)$data))
   variable <- x
   params <- parameters(object)
   response <- params$response
+  predictors <- params$predictors
   coeffs <- coef(object)
 
   # Calling predictResponse()
 
-  if (!missing(func)){
+  if (!missing(FUN)){
     if (!missing(at)){
       predResp <- predictResponse(variable, object,
                                   interval = interval, level = level,
-                                  func = func, at = at,
+                                  FUN = FUN, at = at,
                                   residuals = residuals, ...)
     } else {
       predResp <- predictResponse(variable, object,
                                   interval = interval, level = level,
-                                  func = func, residuals = residuals, ...)
+                                  FUN = FUN, residuals = residuals, ...)
     }
   } else if (missing(at)) {
     predResp <- predictResponse(variable, object,
@@ -245,6 +251,8 @@ plotContinuousVariable <-
   mframe <- predResp$mframe
   pres <- predResp$pres
 
+  col <- RColorBrewer::brewer.pal(n = 8, "Set1")
+
   if (system == 'ggplot2'){
 
   # Basic Plot
@@ -252,44 +260,47 @@ plotContinuousVariable <-
   p <- ggplot(data = pred,
               aes(x = .data[[variable]], y = .data[[response]])
               ) +
-    geom_line(linewidth = 1) +
+    #geom_line(lwd = 2, lty = 1, color = col[2]) +
     theme(legend.position="bottom") +
     scale_y_continuous(labels = scales::label_number_auto()) +
     scale_x_continuous(labels = scales::label_number_auto()) +
     theme(axis.text.x=element_text(angle = 45, vjust = 1, hjust = 1))
 
-
-  # Adds CA, if TRUE
-  if (ca == TRUE) {
-    if (missing(func)) {
-      message("Campo de Arbítrio somente possivel na escala original.")
-    } else {
-      p <- p +
-        geom_line(aes(y = .data$C.A.I.), linetype = 2) +
-        geom_line(aes(y = .data$C.A.S.), linetype = 2)
-    }
-  }
-
   # Adds chosen intervals ribbons, if any
   if (interval == "both") {
     p <- p +
-      geom_ribbon(aes(ymin = .data$lwr.y, ymax = .data$upr.y,
-                       colour = "grey", alpha = 0.25),
+      geom_ribbon(aes(ymin = .data$lwr.pred, ymax = .data$upr.pred),
+                  colour = "grey",
+                  fill = "grey",
+                  alpha = 0.25,
                   stat = "identity") +
-      geom_ribbon(aes(ymin = .data$lwr.x, ymax = .data$upr.x,
-                      colour = "grey", alpha = .25),
+      geom_ribbon(aes(ymin = .data$lwr.conf, ymax = .data$upr.conf),
+                  colour = "grey",
+                  fill = "grey",
+                  alpha = .75,
                   stat = "identity") +
       theme(legend.position="none")
   } else if (interval != "none"){
-    p <- p + geom_ribbon(aes(ymin = .data$lwr, ymax = .data$upr,
-                             colour = "grey", alpha = 0.5),
+    p <- p + geom_ribbon(aes(ymin = .data$lwr, ymax = .data$upr),
+                         colour = "grey",
+                         fill = "grey",
+                         alpha = 0.25,
                          stat = "identity") +
       theme(legend.position="none")
   }
 
+  p <- p + geom_line(lwd = 1.5, lty = 1, color = col[2])
+
+  # Adds CA, if TRUE
+  if (ca == TRUE) {
+    p <- p +
+      geom_line(aes(y = .data$C.A.I.), lty = 5, lwd = 1) +
+      geom_line(aes(y = .data$C.A.S.), lty = 5, lwd = 1)
+  }
+
   # Adds partial residuals, if residuals = TRUE
 
-  if (residuals == TRUE & missing(func) & missing(at)) {
+  if (residuals == TRUE & missing(FUN)) {
     vars <- attr(terms(object), "variables")
 
     sel <- lapply(vars, all.vars)[-1]
@@ -297,24 +308,41 @@ plotContinuousVariable <-
     res <- lapply(all.vars(terms(object)), \(x) which(sapply(sel, \(y) x %in% y)))
     res <- setNames(res, all.vars(terms(object)))
 
-    k <- predict(object = object,
-                 newdata = lapply(DF, centre))
+    new <- lapply(DF[, predictors, drop = FALSE], centre)
 
-    partialResiduals <-
-      data.frame(X = mframe[, variable, drop = T],
-                 Y = pres[, res[[variable]]-1] + k
-                 )
+    if (missing(at)) {
+      k <- predict(object = object,
+                   newdata = new)
+
+      partialResiduals <-
+        data.frame(X = mframe[, variable, drop = T],
+                   Y = pres[, res[[variable]]-1] + k
+        )
+    } else {
+        new_k <- new
+        new_k[setdiff(names(new_k), variable)] <-
+          at[setdiff(names(new_k), variable)]
+
+      k <- predict(object = object,
+                   newdata = new_k)
+
+      partialResiduals <-
+        data.frame(X = mframe[, variable, drop = T],
+                   Y = pres[, res[[variable]]-1] + k
+                   )
+    }
     p <- p +
       geom_point(data = partialResiduals,
                  aes(x = .data$X, y = .data$Y),
-                 pch = 4)
+                 pch = 19, color = col[5])
+
   }
 
   # Adds point of 'at' argument, if not missing
   if (!missing(at)) {
-    p_local <- ifelse(missing(func), p_local, inverse(p_local, func))
+    p_local <- ifelse(missing(FUN), p_local, inverse(p_local, FUN))
     if (elasticidade == TRUE) {
-      cat(elasticidade(object, variable, func, at), " ")
+      cat(elasticidade(object, variable, FUN, at), " ")
     }
     if (!missing(av)) {
       p_local <- data.frame(y = p_local, at, av = av)
@@ -325,7 +353,8 @@ plotContinuousVariable <-
     p <- p + geom_point(data = p_local,
                         aes(x = .data[[variable]],
                             y = .data[[response]]),
-                        color = "red",
+                        #color = "red",
+                        color = col[8],
                         size = 3)
   }
 
@@ -335,7 +364,8 @@ plotContinuousVariable <-
   } else if (!missing(av)) {
     p <- p + geom_point(data = p_local,
                         aes(x = .data[[variable]], y = .data$av),
-                        color = "purple",
+                        #color = "purple",
+                        color = col[4],
                         size = 3)
   }
   return(p)
