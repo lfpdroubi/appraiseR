@@ -51,8 +51,8 @@ createGrid <- function(x, object, at, ...){
   params <- parameters(object)
   response <- params$response
   preds <- params$predictors
+  DF <- params$data
 
-  DF <- as.data.frame(eval(stats::getCall(object)$data))
   variavel <- DF[, variable, drop = FALSE]
 
   grid <- seq(min(DF[, variable], na.rm = TRUE),
@@ -61,7 +61,8 @@ createGrid <- function(x, object, at, ...){
 
   if (length(preds)>1) {
     if (missing(at)) {
-      new <- data.frame(grid, lapply(DF[, setdiff(preds, variable)], centre))
+      new <- data.frame(grid, lapply(DF[, setdiff(preds, variable), drop = F],
+                                     centre))
       p_local <- NULL
     } else {
       new <- data.frame(grid, at[setdiff(preds, variable)])

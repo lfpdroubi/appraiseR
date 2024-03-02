@@ -4,12 +4,12 @@
 \alias{inverse}
 \title{Returns a vector generated with the inverse of the function f}
 \usage{
-inverse(x, func)
+inverse(x, FUN)
 }
 \arguments{
 \item{x}{A vector or object of type}
 
-\item{func}{a function of the box-cox family (rsqr(), rec(), rsqrt(), log(),
+\item{FUN}{a function of the box-cox family (rsqr(), rec(), rsqrt(), log(),
 cubroot(), sqrt(), I() and sqr())}
 }
 \value{

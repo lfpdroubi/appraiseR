@@ -30,16 +30,17 @@ powerPlot <- function(y, yhat, ...) {
 #'           log(dist_b_mar) + I(1/padrao),
 #'           data = centro_2015, subset = -c(31, 39))
 #' s <- summary(fit)
-#' centro_2015 <- expand.model.frame(fit, ~ valor + dist_b_mar + padrao)
+#' centro_2015 <- expand.model.frame(fit, ~ valor + dist_b_mar + padrao,
+#'                                   na.expand = T)
 #' # Transformed Scale:
-#' y <- centro_2015$`log(valor)`[complete.cases(centro_2015)]
+#' y <- centro_2015$`log(valor)`
 #' powerPlot(y = y, yhat = fitted(fit),
 #'           system = "ggplot2", Smooth = TRUE)
 #' powerPlot(y = y, yhat = fitted(fit),
 #'           system = "ggplot2", Smooth = TRUE, axis = "inverted")
 #' # Original Scale:
 #' ## Mediana
-#' Y <- centro_2015$valor[complete.cases(centro_2015)]
+#' Y <- centro_2015$valor
 #' YHAT <-  exp(fitted(fit))
 #' p <- powerPlot(y = Y,
 #'                yhat = YHAT,
@@ -73,26 +74,28 @@ powerPlot.default <- function(y, yhat, system = c("base", "ggplot2", "lattice"),
   system <- match.arg(system)
   metrics <- match.arg(metrics, several.ok = TRUE)
 
+  col <- RColorBrewer::brewer.pal(n = 8, "Set1")
+
   if (system == "ggplot2") {
     invres <- data.frame(y = y, yhat = yhat)
     if (axis == "inverted") {
       p <- ggplot(invres, aes(x = yhat, y = y)) +
-        geom_point(alpha=0.5) +
+        geom_point(colour = col[5], alpha=0.5) +
         xlab(bquote(~hat(Y))) +
         ylab("Y") +
-        geom_abline(color = "red")
+        geom_abline(color = col[1])
     } else {
       p <- ggplot(invres, aes(x = y, y = yhat)) +
-        geom_point(alpha=0.5) +
+        geom_point(colour = col[5], alpha=0.5) +
         ylab(bquote(~hat(Y))) +
         xlab("Y") +
-        geom_abline(color = "red")
+        geom_abline(color = col[1])
     }
     if (Smooth == TRUE) {
-      i <- 2
+      i <- 0
       for (method in methods) {
-        i <- i + 1
-        p <- p + stat_smooth(method = method, se = se, color = i)
+        i <- i + 2
+        p <- p + stat_smooth(method = method, se = se, color = col[i])
       }
     }
 
@@ -155,21 +158,21 @@ powerPlot.default <- function(y, yhat, system = c("base", "ggplot2", "lattice"),
       abline(a = 0, b = 1, col = "red")
     } else {
       car::scatterplot(x = yhat, y = y,
-                       col = "grey",
+                       col = col[5],
                        boxplots = "",
                        id = T,
                        pch = 20,
                        cex = .75,
                        las = 1,
                        pty = "s",
-                       regLine = list(method=lm, lty=1, lwd=2, col="green"),
-                       smooth=list(smoother = loessLine, style = "none",
-                                   lty.smooth = 1, col.smooth = "blue"),
+                       regLine = list(method=lm, lty=1, lwd=2, col=col[2]),
+                       smooth=list(smoother = car::loessLine(), style = "none",
+                                   lty.smooth = 1, col.smooth = col[4]),
                        xlab = bquote(~hat(Y)),
                        ylab = "Y",
                        ...
       )
-      abline(a = 0, b = 1, col = "red")
+      abline(a = 0, b = 1, col = col[1])
     }
 
   }

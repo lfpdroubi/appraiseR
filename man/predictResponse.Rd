@@ -10,7 +10,8 @@ predictResponse(
   interval = c("none", "confidence", "prediction", "both"),
   level = 0.8,
   at,
-  func,
+  FUN,
+  residuals = FALSE,
   ...
 )
 }
@@ -21,8 +22,10 @@ model terms with or without confidence/prediction intervals
 \examples{
 library(sf)
 data(centro_2015)
-dados <- st_drop_geometry(centro_2015)
-mod <- lm(sqrt(valor) ~ sqrt(area_total) + quartos + suites, dados)
-p <- predictResponse("area_total", mod)
+centro_2015 <- within(centro_2015, VU <- valor/area_total)
+fit<- lm(log(VU) ~ log(area_total) + quartos + suites +
+          garagens + log(dist_b_mar) + padrao,
+          data = centro_2015, subset = -c(31, 39))
+p <- predictResponse("area_total", fit)
 p
 }

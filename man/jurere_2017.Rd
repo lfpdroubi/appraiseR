@@ -36,8 +36,18 @@ Paradigm situation: dry, flat, 15m front width and 30~60m length.
 }
 \examples{
 data(jurere_2017)
-jurere_2017$PAVIMENTOS <- as.factor(jurere_2017$PAVIMENTOS)
-fit <- lm(VU ~ AREA + TESTADA + log(DIST_MAR) + PAVIMENTOS,
+fit <- lm(log(VU) ~ log(AREA)*log(TESTADA) + log(DIST_MAR) + PAVIMENTOS,
+          data = jurere_2017)
+library(effects)
+plot(predictorEffects(fit, residuals = T))
+# Centering
+library(dplyr)
+jurere_2017 <- mutate(jurere_2017,
+                       AREA = AREA/450,
+                       TESTADA = TESTADA/15,
+                       DIST_MAR = DIST_MAR/33)
+fit1 <- lm(log(VU) ~ log(AREA) + log(TESTADA) + log(DIST_MAR) + PAVIMENTOS,
           data = jurere_2017, subset = -c(11, 27, 29))
+
 }
 \keyword{datasets}

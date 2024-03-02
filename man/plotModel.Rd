@@ -27,51 +27,189 @@ be ploted with the model.}
 \item{level}{Tolerance/confidence level (provided to predict.lm) to be
 ploted.}
 
-\item{func}{function used to transform the response (optional)}
+\item{FUN}{function used to transform the response (optional)}
 
-\item{local}{Data Frame to be used for calculate the estimates
+\item{at}{Data Frame to be used to calculate the predictions, instead of
+mean values.
 (defaults for center of each variable).}
 }
 \description{
 \code{plotModel} plots \code{\link{bestfit}} models
 }
 \examples{
-library(sf)
-data <- st_drop_geometry(centro_2015)
-dados <- data
-dados$padrao <- as.numeric(dados$padrao)
-## plotModel.lm
-fit <- lm(log(valor)~area_total + quartos + suites + garagens +
-            log(dist_b_mar) + I(1/padrao),
-            data = dados, subset = -c(31, 39))
+# 1. Crete random bivariate normal data just for testing
+
+library(MASS)
+
+sample_cov <- matrix(c(1000^2, -25000,
+                       -25000,  50^2),
+                     ncol = 2, byrow = T)
+n <- 50
+set.seed(4)
+dados <- mvrnorm(n = n,
+                mu = c(5000, 360),
+                Sigma = sample_cov,
+                empirical = T)
+colnames(dados) <- c("VU", "Area")
+dados <- as.data.frame(dados)
+
+fit <- lm(VU ~ Area, data = dados)
+
 plotModel(fit)
-plotModel(fit, interval = "both", level = .80)
+plotModel(fit, residuals = T)
+plotModel(fit, residuals = T, at = list(Area = 275))
+plotModel(fit, residuals = T, at = list(Area = 275),
+          interval = "both", level = .80,
+          av = 6725, ca = TRUE,
+          )
+
+# 2. Random data with variables transformation (log-log)
+
+m <- c(5000, 360)
+s <- c(1000, 50)
+r <- -0.75
+
+sigma <- sqrt(log(s^2/m^2 + 1))
+mu <- log(m) - sigma^2/2
+rho <- log(r*prod(s)/prod(m) + 1)
+
+set.seed(1)
+dados <- exp(mvrnorm(n = n, mu = mu, Sigma = diag(sigma^2 - rho) + rho,
+             empirical = TRUE))
+colnames(dados) <- c("VU", "Area")
+dados <- as.data.frame(dados)
+
+fit <- lm(log(VU)~log(Area), data = dados)
+
+plotModel(fit)
+plotModel(fit, residuals = T)
+plotModel(fit, residuals = T, at = list(Area = 500))
+plotModel(fit, residuals = T, at = list(Area = 500),
+          interval = "both", level = .80,
+          ca = TRUE)
+plotModel(fit, residuals = T, at = list(Area = 500),
+          interval = "both", level = .80,
+          ca = TRUE, av = log(3850))
+
+plotModel(fit, residuals = T, at = list(Area = 500), FUN = "log",
+          interval = "both", level = .80,
+          ca = TRUE, av = 3850)
+
+# 3. Random data with 2 covariates
+
+##                VU      Area    Frente
+sigma <- matrix(c( 1000^2, -60000, -750,
+                   -60000,  100^2,  240,
+                   -750,      240, 3^2),
+                ncol = 3, byrow = T)
+
+set.seed(1)
+dados <- mvrnorm(n=100,
+                 mu=c(5000, 360, 12),
+                 Sigma=sigma,
+                 empirical = T)
+colnames(dados) <- c("VU", "Area", "Frente")
+dados <- as.data.frame(dados)
+
+fit <- lm(VU ~ Area + Frente, data = dados)
+
+plotModel(fit, residuals = TRUE)
+plotModel(fit, interval = "both", ca = TRUE, residuals = T,
+          at = list(Area = 360, Frente = 12))
+
+plotModel(fit, interval = "both", ca = TRUE, residuals = T,
+          at = list(Area = 360, Frente = 12),
+          av = 5750)
+
+# 4. Random data with 2 covariates and transformations (Cobb-Douglas)
+
+m <- c(5000, 360, 12)
+s <- c(1000, 50, 3)
+ryx1 <- -0.60
+ryx2 <- -0.25
+rx1x2 <- .80
+
+sigma <- sqrt(log(s^2/m^2 + 1))
+mu <- log(m) - sigma^2/2
+rhoyx1 <- log(ryx1*prod(s[1:2])/prod(m[1:2]) + 1)
+rhoyx2 <- log(ryx2*prod(s[c(1, 3)])/prod(m[c(1, 3)]) + 1)
+rhox1x2 <- log(rx1x2*prod(s[2:3])/prod(m[2:3]) + 1)
+
+##                     VU           Area         Frente
+Sigma <- matrix(c(sigma[1]^2,       rhoyx1,      rhoyx2, # VU
+                      rhoyx1,   sigma[2]^2,     rhox1x2, # Area
+                      rhoyx2,      rhox1x2, sigma[3]^2), # Frente
+                ncol = 3, byrow = T)
+set.seed(1)
+dados <- exp(mvrnorm(n=100, mu=  mu, Sigma = Sigma,
+                     empirical = T))
+colnames(dados) <- c("VU", "Area", "Frente")
+dados <- as.data.frame(dados)
+
+fit <- lm(log(VU) ~ log(Area) + log(Frente), data = dados)
+
+plotModel(fit, residuals = TRUE)
+
+plotModel(fit, interval = "both", ca = TRUE, residuals = T,
+          at = list(Area = 450, Frente = 18), av = log(4850))
+
+plotModel(fit, interval = "both", ca = TRUE, residuals = T, FUN = "log",
+          at = list(Area = 450, Frente = 18), av = 4850)
+
+# 5. With real data
+
+library(sf)
+data(centro_2015)
+centro_2015 <- within(centro_2015, VU <- valor/area_total)
+fit <- lm(log(VU) ~ log(area_total) + quartos + suites + garagens +
+            log(dist_b_mar) + padrao,
+          data = centro_2015)
+plotModel(fit)
+plotModel(fit, interval = "both", level = .80, ca = TRUE)
+plotModel(fit, interval = "both", level = .80, ca = TRUE, residuals = T)
+plotModel(fit, at = list(area_total = 205, quartos = 3, suites = 1,
+                         garagens = 2, dist_b_mar = 250, padrao = 'medio'))
+plotModel(fit, at = list(area_total = 205, quartos = 3, suites = 1,
+                         garagens = 2, dist_b_mar = 250, padrao = 'medio'),
+          interval = "both")
+plotModel(fit, at = list(area_total = 205, quartos = 3, suites = 1,
+                         garagens = 2, dist_b_mar = 250, padrao = 'medio'),
+          interval = "both", ca = TRUE)
+plotModel(fit, at = list(area_total = 205, quartos = 3, suites = 1,
+                         garagens = 2, dist_b_mar = 250, padrao = 'medio'),
+          interval = "both", ca = TRUE, residuals = TRUE,
+          av = log(5650))
 ## On the original scale
-plotModel(fit, interval = "both", level = .80, func = "log")
-plotModel(fit, interval = "both", level = .80, func = "log", ca = TRUE,
-        local = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
-                     dist_b_mar = 250, padrao = 2))
-plotModel(fit, interval = "both", level = .80, func = "log", ca = TRUE,
-        local = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
-                     dist_b_mar = 250, padrao = 2),
-          av = 1100000)
-mod <- lm(log(valor) ~ ., data = data)
-plotModel(mod)
-plotModel(mod, interval = "confidence")
-plotModel(mod, interval = "confidence", func = "log")
-plotModel(mod, interval = "confidence",
-        local = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
-        dist_b_mar = 250, padrao = "medio"))
-plotModel(mod, interval = "confidence", func = "log",
-        local = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
-        dist_b_mar = 250, padrao = "medio"))
+plotModel(fit, interval = "both", level = .80, FUN = "log", ca = TRUE)
+plotModel(fit, interval = "both", level = .80, FUN = "log",
+          at = data.frame(area_total = 205, quartos = 3, suites = 1,
+                          garagens = 2, dist_b_mar = 250, padrao = 'medio'),
+          ca = TRUE)
+plotModel(fit, interval = "both", level = .80, FUN = "log",
+          at = data.frame(area_total = 205, quartos = 3, suites = 1,
+                          garagens = 2, dist_b_mar = 250, padrao = 'medio'),
+          ca = TRUE, av = 5650)
+
+# 5.1 Another model, with same data (apostila Prof. Norberto Hochheim)
+
+dados <- within(centro_2015, padrao <- as.numeric(padrao))
+fit1 <- lm(log(valor) ~ area_total + quartos + suites + garagens +
+            log(dist_b_mar) +I(1/padrao),
+            data = dados, subset = -c(31, 39))
+plotModel(fit1, interval = "both", level = .80,
+          at = data.frame(area_total = 205, quartos = 3, suites = 1,
+                          garagens = 2, dist_b_mar = 250, padrao = 2),
+          ca = TRUE, av = log(1100000),
+          residuals = T)
+#
+# plotModel.besfit()
 
 dados <- st_drop_geometry(centro_2015)
 best_fit <- bestfit(valor ~ .,  data = dados)
 plotModel(best_fit)
 plotModel(best_fit, fit = 514, scale = "original", interval = "both",
           ca = TRUE,
-          local = list(area_total = 205, quartos = 3, suites = 1,
+          at = list(area_total = 205, quartos = 3, suites = 1,
           garagens = 2, dist_b_mar = 250, padrao = "medio"),
           av = 1100000)
 best_fit <- bestfit(valor ~ .,  data = data)
@@ -82,11 +220,11 @@ plotModel(best_fit, fit = 514, scale = "original", interval = "both",
           ca = TRUE)
 plotModel(best_fit, fit = 514, scale = "original", interval = "both",
           ca = TRUE,
-          local = list(area_total = 205, quartos = 3, suites = 1,
+          at = list(area_total = 205, quartos = 3, suites = 1,
           garagens = 2, dist_b_mar = 250, padrao = 2), av = 1100000)
 plotModel(best_fit, interval = "confidence") # choose another fit
 plotModel(best_fit, interval = "confidence", scale = "original",
-        local = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+        at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
         dist_b_mar = 250, padrao = 2))
 
 }

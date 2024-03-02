@@ -10,7 +10,7 @@ iaao_Ratio(x, ...)
 
 \method{iaao_Ratio}{default}(AssessedValue, SalePrice, OutlierTrimming = FALSE)
 
-\method{iaao_Ratio}{lm}(object, func = "identity", ...)
+\method{iaao_Ratio}{lm}(object, FUN = "identity", ...)
 }
 \arguments{
 \item{\dots}{further arguments passed to \code{iaao_Ratio}.}
@@ -25,7 +25,7 @@ modelo)}
 
 \item{object}{An object of class lm.}
 
-\item{func}{function used to transform the response (defaults to identity)}
+\item{FUN}{function used to transform the response (defaults to identity)}
 }
 \value{
 COD, PRD (ratios) and PRB according to IAOO
@@ -50,5 +50,5 @@ dados <- st_drop_geometry(centro_2015)
 dados$padrao <- as.numeric(dados$padrao)
 fit <- lm(log(valor)~area_total + quartos + suites + garagens +
 log(dist_b_mar) + I(1/padrao), data = dados, subset = -c(31, 39))
-iaao_Ratio(object = fit, func = "log")
+iaao_Ratio(object = fit, FUN = "log")
 }

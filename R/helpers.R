@@ -230,20 +230,57 @@ parameters <- function(object, ...) {
 
 #' @rdname parameters
 #' @examples
-#' dados <- centro_2015@data
-#' fit <- lm(log(valor) ~ ., dados)
+#' # 1. Real dataset
+#'
+#' data(centro_2015)
+#' centro_2015 <- st_drop_geometry(centro_2015)
+#' fit <- lm(log(valor) ~ ., centro_2015)
 #' p <- parameters(fit)
 #' p$parameters
+#' p$rhs
 #' p$predictors
 #' p$response
+#' p$lhs
+#' p$depvarTrans
+#' p$data
+#'
+#' # 2. Random generated data
+#'
+#' n <- 20
+#' set.seed(1)
+#' Frente <- rnorm(n = n, mean = 12, sd = 2.5)
+#' Prof <- rnorm(n = n, mean = 25, sd = 5)
+#' Area <- Frente*Prof
+#' # quadratic relationship
+#' VU <- 5000 - 10*Area + .005*Area^2 + 10*Frente + rnorm(n, mean = 0, sd = 150)
+#' d <- data.frame(VU, Area, Frente, Prof)
+#' fit <- lm(VU ~ poly(Area, 2) + Frente, data = d)
+#' p <- parameters(fit)
+#' p$parameters
+#' p$rhs
+#' p$predictors
+#' p$response
+#' p$lhs
+#' p$depvarTrans
+#' p$data
+#'
+#' fit1 <- lm(VU ~ poly(Area, 2, raw=TRUE) + Frente, data = d)
+#' p <- parameters(fit1)
+#' p$parameters
+#' p$rhs
+#' p$predictors
+#' p$response
+#' p$lhs
+#' p$depvarTrans
 #' p$data
 #' @export
 #'
 parameters.lm <- function(object, ...) {
   z <- object
+
   cl <- stats::getCall(z)
   myformula <- stats::formula(z)
-  data <- eval(cl$data)
+  data <- as.data.frame(eval(object$call$data))
   vars <- all.vars(myformula)
   tt <- terms(myformula)
 

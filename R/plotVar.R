@@ -23,6 +23,7 @@
 #'           data = centro_2015)
 #' plotVar(fit, "area_total")
 #' plotVar(fit, "area_total", residuals = TRUE)
+#' plotVar(fit, "area_total", residuals = TRUE, colour = padrao)
 #' plotVar(fit, "area_total", interval = "confidence", residuals = TRUE)
 #' plotVar(fit, "area_total", interval = "prediction", residuals = TRUE)
 #' plotVar(fit, "area_total", interval = "both", residuals = TRUE)
@@ -31,12 +32,11 @@
 #' plotVar(fit, "area_total", FUN = "log",
 #'         interval = "both", ca = TRUE, residuals = TRUE)
 #' plotVar(fit, "suites")
-#' plotVar(fit, "suites", FUN = "log")
-#' plotVar(fit, "area_total", interval = "confidence", ca = TRUE)
-#' plotVar(fit, "area_total", interval = "confidence", FUN = "log", ca = TRUE)
-#' plotVar(fit, "area_total", interval = "prediction")
-#' plotVar(fit, "area_total", interval = "both")
-#' # Both intervals + CA
+#' plotVar(fit, "suites", interval = "confidence")
+#' plotVar(fit, "suites", interval = "confidence", FUN = "log")
+#'
+#' # Plot model passing through point 'at'
+#'
 #' plotVar(fit, "area_total", interval = "both", ca = TRUE,
 #'         at = list(area_total = 205, quartos = 3, suites = 1,
 #'                   garagens = 2, dist_b_mar = 250, padrao = "medio"))
@@ -50,6 +50,9 @@
 #'         at = data.frame(area_total = 205, quartos = 3, suites = 1,
 #'                         garagens = 2, dist_b_mar = 250, padrao = "medio"),
 #'         ca = TRUE, av = 5650)
+#'
+#' # Plotting factors
+#'
 #' plotVar(fit, "padrao")
 #' plotVar(fit, "padrao", ca = TRUE)
 #' plotVar(fit, "padrao", FUN = "log", ca = TRUE)
@@ -206,11 +209,12 @@ plotContinuousVariable <-
            interval =  c("none", "confidence", "prediction", "both"),
            level = 0.80,
            residuals = FALSE,
+           colour,
            FUN,
            at,
            ca = FALSE,
            av,
-           elasticidade = TRUE,
+           elasticidade = FALSE,
            ...){
 
   system <- match.arg(system)
@@ -220,6 +224,7 @@ plotContinuousVariable <-
   params <- parameters(object)
   response <- params$response
   predictors <- params$predictors
+  depvarTrans <- params$depvarTrans
   coeffs <- coef(object)
 
   # Calling predictResponse()
@@ -318,6 +323,7 @@ plotContinuousVariable <-
         data.frame(X = mframe[, variable, drop = T],
                    Y = pres[, res[[variable]]-1] + k
         )
+      MODELFRAME <- cbind(mframe, partialResiduals)
     } else {
         new_k <- new
         new_k[setdiff(names(new_k), variable)] <-
@@ -330,32 +336,56 @@ plotContinuousVariable <-
         data.frame(X = mframe[, variable, drop = T],
                    Y = pres[, res[[variable]]-1] + k
                    )
+      MODELFRAME <- cbind(mframe, partialResiduals)
     }
-    p <- p +
-      geom_point(data = partialResiduals,
-                 aes(x = .data$X, y = .data$Y),
-                 pch = 19, color = col[5])
 
+    if (missing(colour)){
+      p <- p +
+        geom_point(data = MODELFRAME,
+                   aes(x = .data$X, y = .data$Y),
+                   pch = 19, color = col[5], alpha = .5)
+    } else {
+      p <- p +
+        geom_point(data = MODELFRAME,
+                   aes(x = .data$X, y = .data$Y, colour = {{colour}}),
+                   pch = 19, alpha = .5) +
+        theme(legend.position = "bottom",
+              legend.box="horizontal",
+              legend.title=element_text(size=10)) +
+        guides(colour = guide_legend(title.position="top",
+                                     title.hjust = 0.5))
+    }
   }
 
   # Adds point of 'at' argument, if not missing
   if (!missing(at)) {
     p_local <- ifelse(missing(FUN), p_local, inverse(p_local, FUN))
-    if (elasticidade == TRUE) {
-      cat(elasticidade(object, variable, FUN, at), " ")
-    }
     if (!missing(av)) {
       p_local <- data.frame(y = p_local, at, av = av)
     } else {
       p_local <- data.frame(y = p_local, at)
     }
+
     names(p_local)[1] <- response
+
     p <- p + geom_point(data = p_local,
                         aes(x = .data[[variable]],
                             y = .data[[response]]),
                         #color = "red",
                         color = col[8],
-                        size = 3)
+                        size = 3) +
+      labs(caption = paste(variable, "=", at[variable], ";",
+                           response, "=",
+                           ifelse(missing(FUN) & !is.na(depvarTrans),
+                                  brf(inverse(p_local[response], depvarTrans)),
+                                  brf(p_local[response])
+                                  )
+                           )
+           )
+  }
+
+  if (elasticidade == TRUE & !missing(at)) {
+    cat(elasticidade(object, variable, FUN, at), " ")
   }
 
   # Adds arbitrated value, if not missing
@@ -366,7 +396,21 @@ plotContinuousVariable <-
                         aes(x = .data[[variable]], y = .data$av),
                         #color = "purple",
                         color = col[4],
-                        size = 3)
+                        size = 3) +
+      labs(caption = paste(variable, "=", at[variable], ";",
+                           response, "=",
+                           ifelse(missing(FUN) & !is.na(depvarTrans),
+                                  brf(inverse(p_local[response], depvarTrans)),
+                                  brf(p_local[response])
+                                  ),
+                                  "\n",
+                           "Arbitrado =",
+                           ifelse(missing(FUN) & !is.na(depvarTrans),
+                                  brf(inverse(av, depvarTrans)),
+                                  brf(av)
+                           )
+                           )
+           )
   }
   return(p)
   }

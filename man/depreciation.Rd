@@ -61,11 +61,6 @@ Computes Depreciation parameters according to several methods
 }
 \examples{
 linhaReta(60, 25, .20)
-# Curva de Depreciacao
-curve(linhaReta(50, x), from = 1, to = 50,
-xlab = "Idade Aparente",
-ylab = "Coeficiente de Depreciacao",
-main = "Depreciação de um bem")
 
 linhaRetaVariante(0, .07, 5)
 linhaRetaVariante(5, .07, 5)
@@ -73,13 +68,6 @@ linhaRetaVariante(10, .07, 5)
 linhaRetaVariante(15, .07, 5)
 linhaRetaVariante(20, .07, 5)
 linhaRetaVariante(25, .07, 5)
-# Curva de Depreciacao
-curve(linhaRetaVariante(x, .15, 5),
-        add = T, col = "yellow")
-
-
-# Curva de Depreciacao
-curve(kuentzle(50, x), from = 1, to = 50, add = T, col = "green")
 
 # Residencias proletario rustico a medio comercial
 valorDecrescente(25, r = 0.015)
@@ -90,11 +78,7 @@ valorDecrescente(25, r = 0.02)
 valorDecrescente(50, r = 0.02)
 valorDecrescente(50, r = 0.10)
 
-# Curva de Depreciacao
-curve(valorDecrescente(x, r = .10), from = 1, to = 50, add = T, col ="blue")
-
 ross(50, 10)
-curve(ross(50, x), add = T, col = "red")
 
 heidecke(Conservacao = "Novo")
 heidecke("Entre novo e regular")
@@ -122,6 +106,25 @@ rossheidecke(50, 20, .18, "Reparos importantes")
 rossheidecke(60, 25, Conservacao = "Reparos importantes")
 rossheidecke(60, 25, .20, Conservacao = "Reparos importantes")
 
+# Curva de Depreciacao
+plot(NULL, xlim = c(0, 50), ylim = c(0, 1), las = 2,
+xlab = "Idade Aparente",
+ylab = "Coeficiente de Depreciacao",
+main = "Depreciação de um bem")
+curve(linhaReta(50, x), from = 1, to = 50, add = T)
+
+curve(kuentzle(50, x), from = 1, to = 50, add = T, col = "green")
+
+curve(valorDecrescente(x, r = .10), from = 1, to = 50, add = T, col ="blue")
+
+curve(ross(50, x), add = T, col = "red")
+
 curve(rossheidecke(50, x, Conservacao = "Regular"),
        add = T, col = "orange")
+
+legend("topright", inset = .02,
+      title = "Metodo",
+      legend=c("Valor Decrescente", "Linha Reta", "Ross-Heideck (Regular)",
+               "Ross", "Kuentzle"), text.font = 4,
+      col=c("blue", "black", "orange", "red", "green"), cex=0.8, lty = 1)
 }

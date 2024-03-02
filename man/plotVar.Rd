@@ -7,12 +7,12 @@
 plotVar(
   object,
   variable,
-  func,
+  FUN,
   interval = c("none", "confidence", "prediction", "both"),
   level = 0.8,
   ca = FALSE,
   av,
-  local,
+  at,
   ...
 )
 }
@@ -21,7 +21,7 @@ plotVar(
 
 \item{variable}{variable to be plotted against response variable}
 
-\item{func}{function used to transform the response (optional)}
+\item{FUN}{function used to transform the response (optional)}
 
 \item{interval}{the type of interval calculation (provided to predict.lm) to
 be ploted.}
@@ -33,7 +33,7 @@ be ploted.}
 
 \item{av}{(T/F) should the arbitrated value be plotted?}
 
-\item{local}{Data Frame to be used for calculate the estimates
+\item{at}{list to be used for calculate the estimates
 (defaults for center of each variable).}
 
 \item{\dots}{further arguments passed to predict.lm.}
@@ -44,48 +44,67 @@ be ploted.}
 \examples{
 library(sf)
 data(centro_2015)
-dados <- st_drop_geometry(centro_2015)
-mod1 <- lm(sqrt(valor) ~ sqrt(area_total) + suites, dados)
-plotVar(mod1, "area_total")
-plotVar(mod1, "area_total", func = "sqrt")
-plotVar(mod1, "suites")
-plotVar(mod1, "suites", func = "sqrt")
-plotVar(mod1, "area_total", interval = "confidence", ca = TRUE)
-plotVar(mod1, "area_total", interval = "confidence", func = "sqrt", ca = TRUE)
-mod <- lm(log(valor) ~ ., data = dados)
-plotVar(mod, "area_total")
-plotVar(mod, "area_total", interval = "confidence")
-plotVar(mod, "area_total", interval = "prediction")
-plotVar(mod, "area_total", interval = "prediction", ca = TRUE)
-plotVar(mod, "area_total", interval = "both")
-plotVar(mod, "area_total", "log")
-plotVar(mod, "area_total", "log", ca = TRUE)
-plotVar(mod, "area_total", "log", interval = "confidence")
-plotVar(mod, "area_total", "log", interval = "prediction")
-plotVar(mod, "area_total", "log", interval = "both")
-plotVar(mod, "area_total", interval = "both", ca = TRUE,
-        local = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
-        dist_b_mar = 250, padrao = "medio"))
-plotVar(mod, "area_total", func = "log", interval = "both", ca = TRUE,
-        local = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
-        dist_b_mar = 250, padrao = "medio"), av = 1100000)
-plotVar(mod, "padrao")
-plotVar(mod, "padrao", ca = TRUE)
-plotVar(mod, "padrao", func = "log", ca = TRUE)
-plotVar(mod, "padrao", interval = "confidence")
-plotVar(mod, "padrao", interval = "prediction")
-plotVar(mod, "padrao", interval = "both")
-plotVar(mod, "padrao", func = "log", interval = "confidence",
-local = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
-        dist_b_mar = 250, padrao = "medio"))
-plotVar(mod, "padrao", func = "log", interval = "prediction",
-local = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
-        dist_b_mar = 250, padrao = "medio"), av = 1100000)
-plotVar(mod, "area_total", func = "log", interval = "prediction",
-local = data.frame(area_total = 205, quartos = 3, suites = 1, garagens = 2,
-        dist_b_mar = 250, padrao = "medio"), av = 1100000, ca = TRUE)
-dados$padrao <- relevel(dados$padrao, ref="alto")
-mod <- lm(log(valor) ~ ., data = dados)
-plotVar(mod, "padrao", interval = "confidence")
-plotVar(mod, "padrao", interval = "confidence", func = "log")
+centro_2015 <- within(centro_2015, VU <- valor/area_total)
+fit <- lm(log(VU) ~ log(area_total) + quartos + suites + garagens +
+            log(dist_b_mar) + padrao,
+          data = centro_2015)
+plotVar(fit, "area_total")
+plotVar(fit, "area_total", residuals = TRUE)
+plotVar(fit, "area_total", residuals = TRUE, colour = padrao)
+plotVar(fit, "area_total", interval = "confidence", residuals = TRUE)
+plotVar(fit, "area_total", interval = "prediction", residuals = TRUE)
+plotVar(fit, "area_total", interval = "both", residuals = TRUE)
+plotVar(fit, "area_total", interval = "both", ca = TRUE, residuals = TRUE)
+plotVar(fit, "area_total", FUN = "log")
+plotVar(fit, "area_total", FUN = "log",
+        interval = "both", ca = TRUE, residuals = TRUE)
+plotVar(fit, "suites")
+plotVar(fit, "suites", interval = "confidence")
+plotVar(fit, "suites", interval = "confidence", FUN = "log")
+
+# Plot model passing through point 'at'
+
+plotVar(fit, "area_total", interval = "both", ca = TRUE,
+        at = list(area_total = 205, quartos = 3, suites = 1,
+                  garagens = 2, dist_b_mar = 250, padrao = "medio"))
+# Same above + Point valuation at R$ 5.650,00 /m2
+plotVar(fit, "area_total", interval = "both",
+        at = data.frame(area_total = 205, quartos = 3, suites = 1,
+                        garagens = 2, dist_b_mar = 250, padrao = "medio"),
+        ca = TRUE, av = log(5650))
+# Same above, in the original scale
+plotVar(fit, "area_total", interval = "both", FUN = 'log',
+        at = data.frame(area_total = 205, quartos = 3, suites = 1,
+                        garagens = 2, dist_b_mar = 250, padrao = "medio"),
+        ca = TRUE, av = 5650)
+
+# Plotting factors
+
+plotVar(fit, "padrao")
+plotVar(fit, "padrao", ca = TRUE)
+plotVar(fit, "padrao", FUN = "log", ca = TRUE)
+plotVar(fit, "padrao", interval = "confidence")
+plotVar(fit, "padrao", interval = "prediction")
+plotVar(fit, "padrao", interval = "both")
+plotVar(fit, "padrao", FUN = "log", interval = "confidence",
+        at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+                  dist_b_mar = 250, padrao = "medio"))
+plotVar(fit, "padrao", FUN = "log", interval = "prediction",
+        at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+                  dist_b_mar = 250, padrao = "medio"),
+        av = 5650)
+# Remove outliers
+fit2 <- update(fit, .~.-suites, subset = -c(31,39, 45))
+plotVar(fit2, "padrao", FUN = "log", interval = "prediction",
+        at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+                  dist_b_mar = 250, padrao = "medio"),
+        av = 5650)
+plotVar(fit2, "area_total", FUN = "log", interval = "both",
+        at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+                  dist_b_mar = 250, padrao = "medio"),
+        ca = TRUE, av = 5650)
+plotVar(fit2, "dist_b_mar", FUN = "log", interval = "both",
+        at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
+                  dist_b_mar = 250, padrao = "medio"),
+        ca = TRUE, av = 5650)
 }

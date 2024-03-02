@@ -33,11 +33,33 @@ be ploted.}
 (terms) with or without confidence/prediction intervals
 }
 \examples{
+# Crete random bivariate normal data just for testing
+library(MASS)
+sample_mean <- c(10000, 250)
+sample_cov <- matrix(c(1000^2, -37500,
+                       -37500, 50^2),
+                     ncol = 2, byrow = T)
+n <- 10
+set.seed(1)
+dados <- mvrnorm(n = n,
+                mu = sample_mean,
+                Sigma = sample_cov)
+colnames(dados) <- c("VU", "Area")
+dados <- as.data.frame(dados)
+
+fit <- lm(VU ~ Area, data = dados)
+createGrid("Area", fit)
+#
+# Test with real data
 library(sf)
 data(centro_2015)
-dados <- st_drop_geometry(centro_2015)
-mod <- lm(sqrt(valor) ~ sqrt(area_total) + quartos + suites, dados)
-p <- createGrid("area_total", mod)
-p <- createGrid("area_total", mod,
-                at = list(area_total = 205, quartos = 3, suites = 1))
+centro_2015 <- within(centro_2015, VU <- valor/area_total)
+fit <- lm(sqrt(VU) ~ sqrt(area_total) + quartos + suites + garagens +
+          sqrt(dist_b_mar) + padrao,
+          data = centro_2015)
+createGrid("area_total", fit)
+createGrid("area_total", fit,
+           at = list(area_total = 205, quartos = 3, suites = 1,
+                     garagens = 2, dist_b_mar = 250, padrao = "medio"))
+
 }

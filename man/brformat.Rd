@@ -28,20 +28,14 @@ brf(
 \arguments{
 \item{x}{a number to be formatted by \code{format}}
 
-\item{decimal.mark}{%
-    used for prettying (longish) numerical and complex sequences.
-    Passed to \code{\link[base]{prettyNum}}: that help page explains the details.}
-
-\item{big.mark}{%
-    used for prettying (longish) numerical and complex sequences.
-    Passed to \code{\link[base]{prettyNum}}: that help page explains the details.}
-
-\item{digits}{how many significant digits are to be used for
+\item{digits}{a positive integer indicating how many significant digits
+    are to be used for
     numeric and complex \code{x}.  The default, \code{NULL}, uses
     \code{\link[base]{getOption}("digits")}.  This is a suggestion: enough decimal
     places will be used so that the smallest (in magnitude) number has
     this many significant digits, and also to satisfy \code{nsmall}.
-    (For the interpretation for complex numbers see \code{\link[base]{signif}}.)}
+    (For more, notably the interpretation for complex numbers see
+    \code{\link[base]{signif}}.)}
 
 \item{nsmall}{the minimum number of digits to the right of the decimal
     point in formatting real/complex numbers in non-scientific formats.

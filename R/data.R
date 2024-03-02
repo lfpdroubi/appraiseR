@@ -520,18 +520,52 @@ glebas3 <- within(glebas3,{
   SUP <- factor(SUP)
 })
 
-#' Different relations between reserved prices and listing prices
+#' Different relations between sales prices and listing prices
 #'
+#' A tibble containing a sample of 65 houses in Atibaia/SP with listing and
+#' sales prices.
 #'
+#' @format A tibble with 65 rows and 17 variables:
+#' \itemize{
+#'   \item Id: id
+#'   \item Endereco: house address
+#'   \item Descricao: Advertising text
+#'   \item Bairro: neighborhood
+#'   \item AreaConstruida: building area
+#'   \item DataTransacao: sales date
+#'   \item Data: sales date, with convenient format for modelling
+#'   \item Localizacao: indicative of house to be inside gated community or not
+#'   \item IndiceFiscal: land price per square meter
+#'   \item PadraoConstrutivo: construction
+#'   \item OrigemComprador: buyer origin
+#'   \item FinalidadeCompra: purpose of purchase
+#'   \item ValorOfertado: List prices
+#'   \item ValorVendido: Sale prices
+#'   \item FatorOferta: relation between list and sales prices
+#'   \item PUvenda: sale price per square meter
+#'   \item PUoferta: list price per square meter
+#' }
+#' @examples
+#' data(atibaia)
+#' fitOferta <- lm(log(PUoferta) ~ log(IndiceFiscal) + log(AreaConstruida) +
+#'                  PadraoConstrutivo, data = atibaia)
+#' fitVenda <- lm(log(PUvenda) ~ log(IndiceFiscal) + log(AreaConstruida) +
+#'                 PadraoConstrutivo, data = atibaia)
+#' plotModel(fitOferta, ca = TRUE,
+#'           residuals = TRUE, colour = PadraoConstrutivo)
+#' plotModel(fitVenda, ca = TRUE,
+#'           residuals = TRUE, colour = PadraoConstrutivo)
+"atibaia"
 atibaia <- readr::read_csv2('inst/atibaia.csv')
 atibaia <- within(atibaia, {
-  VUoferta <- ValorOfertado/AreaConstruida
-  VUvenda <- ValorVendido/AreaConstruida
+  PUoferta <- ValorOfertado/AreaConstruida
+  PUvenda <- ValorVendido/AreaConstruida
   FatorOferta <- ValorVendido/ValorOfertado
-  PC <- factor(PadraoConstrutivo, levels = c("Simples", "Médio", "Superior", "Fino"))
   OrigemComprador <- factor(OrigemComprador)
   Localizacao <- factor(Localizacao)
   FinalidadeCompra <- factor(FinalidadeCompra)
+  PadraoConstrutivo <- factor(PadraoConstrutivo,
+                              levels = c("Simples", "Médio", "Superior", "Fino"))
 })
 
 usethis::use_data(centro_2015, zilli_2020, trindade, jungles, loteamento,

@@ -4,12 +4,12 @@
 \alias{shrinkPlot}
 \title{Create plots to show prediction shrinkage}
 \usage{
-shrinkPlot(object, func = "identity", ...)
+shrinkPlot(object, FUN = "identity", ...)
 }
 \arguments{
 \item{object}{object of class \code{\link{bestfit}}}
 
-\item{func}{function used to transform the response (defaults to identity)}
+\item{FUN}{function used to transform the response (defaults to identity)}
 }
 \value{
 a shrinkage prediction plot
@@ -27,5 +27,5 @@ dados$padrao <- as.numeric(dados$padrao)
 fit <- lm(log(valor)~area_total + quartos + suites + garagens +
 log(dist_b_mar) + I(1/padrao), data = dados, subset = -c(31, 39))
 shrinkPlot(fit)
-shrinkPlot(fit, func = "log")
+shrinkPlot(fit, FUN = "log")
 }

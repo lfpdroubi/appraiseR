@@ -14,22 +14,23 @@ powerPlot(y, yhat, ...)
 \method{powerPlot}{default}(
   y,
   yhat,
+  system = c("base", "ggplot2", "lattice"),
   axis = c("standard", "inverted"),
-  smooth = TRUE,
+  Smooth = FALSE,
   methods = "lm",
   se = FALSE,
-  metrics = c("rmse", "mae"),
-  R2 = TRUE,
+  metrics = c("none", "rmse", "mae", "mape"),
+  R2 = FALSE,
   ...
 )
 
-\method{powerPlot}{lm}(object, func, ...)
+\method{powerPlot}{lm}(object, FUN, system = c("base", "ggplot2", "lattice"), ...)
 
 \method{powerPlot}{bestfit}(object, fit = 1, scale = c("transformed", "original"), ...)
 
-\method{powerPlot}{lmerMod}(object, func, ...)
+\method{powerPlot}{lmerMod}(object, FUN, ...)
 
-\method{powerPlot}{rq}(object, func, ...)
+\method{powerPlot}{rq}(object, FUN, ...)
 }
 \arguments{
 \item{y}{observed values}
@@ -41,7 +42,7 @@ powerPlot(y, yhat, ...)
 \item{axis}{option to plot predicted values on the x axis (inverted) or in
 the y axis (standard)}
 
-\item{smooth}{option to add a regression line to the plot}
+\item{Smooth}{option to add a regression line to the plot}
 
 \item{se}{option to add confidence interval of regression line to the plot}
 
@@ -54,7 +55,7 @@ are printed.}
 \item{object}{object of class \code{\link{lm}}, \code{\link{rq}},
 \code{\link{lmerMod}} or \code{\link{bestfit}}.}
 
-\item{func}{function used to transform the dependent variable (the inverse
+\item{FUN}{function used to transform the dependent variable (the inverse
 of this function will be used to retransform the data to the original scale).}
 
 \item{fit}{chosen fit}
@@ -70,57 +71,93 @@ a power plot
 }
 \examples{
 library(sf)
-dados <- st_drop_geometry(centro_2015[1:50, ])
-dados$padrao <- as.numeric(dados$padrao)
-fit <- lm(log(valor) ~ area_total + quartos + suites + garagens +
-log(dist_b_mar) + I(1/padrao), dados, subset = -c(31, 39))
-s <- summary(fit)
-# Mediana
+library(broom)
 library(ggplot2)
-y <- dados$valor[-c(31, 39)]
-yhat <- exp(fitted(fit))
-p <- powerPlot(y, yhat, axis = "inverted")
+centro_2015$padrao <- as.numeric(centro_2015$padrao)
+fit <- lm(log(valor) ~ area_total + quartos + suites + garagens +
+          log(dist_b_mar) + I(1/padrao),
+          data = centro_2015, subset = -c(31, 39))
+s <- summary(fit)
+centro_2015 <- expand.model.frame(fit, ~ valor + dist_b_mar + padrao,
+                                  na.expand = T)
+# Transformed Scale:
+y <- centro_2015$`log(valor)`
+powerPlot(y = y, yhat = fitted(fit),
+          system = "ggplot2", Smooth = TRUE)
+powerPlot(y = y, yhat = fitted(fit),
+          system = "ggplot2", Smooth = TRUE, axis = "inverted")
+# Original Scale:
+## Mediana
+Y <- centro_2015$valor
+YHAT <-  exp(fitted(fit))
+p <- powerPlot(y = Y,
+               yhat = YHAT,
+               system = 'ggplot2',
+               axis = "inverted",
+               Smooth = TRUE)
 p + labs(title = "Poder de Predição", subtitle = "Mediana")
-# Média
-yhat <- exp(fitted(fit) + s$sigma^2/2)
-p1 <- powerPlot(y = y, yhat = yhat , axis = "inverted")
+## Média
+YHAT1 <- exp(fitted(fit) + s$sigma^2/2)
+p1 <- powerPlot(y = Y,
+                yhat = YHAT1,
+                system = 'ggplot2',
+                axis = "inverted",
+                Smooth = TRUE)
 p1 + labs(title = "Poder de Predição", subtitle = "Média")
-# Moda
-yhat <- exp(fitted(fit) - s$sigma^2)
-p2 <- powerPlot(y = y, yhat = yhat, axis = "inverted")
+## Moda
+YHAT2 <- exp(fitted(fit) - s$sigma^2)
+p2 <- powerPlot(y = Y,
+                yhat = YHAT2,
+                system = 'ggplot2',
+                axis = "inverted",
+                Smooth = TRUE)
 p2 + labs(title = "Poder de Predição", subtitle = "Moda")
+# powerPlot.lm:
+par(pty="s") #default par(pty="m")
 powerPlot(fit)
-powerPlot(fit, se = TRUE)
-powerPlot(fit, smooth = FALSE)
+powerPlot(fit, main = "Poder de Predição")
+powerPlot(fit, FUN = "log",
+          main = "Poder de Predição")
+title(sub = "Em reais", adj = 1)
 powerPlot(fit, axis = "inverted")
-p <- powerPlot(fit, scale = "original", func = "log", axis = "inverted")
-p + labs(title = "Poder de Predição", subtitle = "Em milhões de Reais")
+p <- powerPlot(fit, system = "ggplot2",
+               FUN = "log", axis = "inverted")
+p +
+  labs(title = "Poder de Predição", subtitle = "Em Reais") +
+  theme(aspect.ratio = 1)
 # Changes Dep Var Transformation
-fit <- lm(sqrt(valor) ~ area_total + quartos + suites + garagens +
-log(dist_b_mar) + I(1/padrao), dados)
-powerPlot(fit)
-powerPlot(fit, func = "sqrt", axis = "inverted")
+fit1 <- lm(sqrt(valor) ~ area_total + quartos + suites + garagens +
+          log(dist_b_mar) + I(1/padrao), centro_2015)
+powerPlot(fit1)
+powerPlot(fit1, FUN = "sqrt", axis = "inverted")
+# powerPlot.bestfit:
+library(sf)
 dados <- st_drop_geometry(centro_2015)
-dados <- within(dados, padrao <- as.numeric(padrao))
+dados$padrao <- as.numeric(dados$padrao)
 best_fit <- bestfit(valor ~ ., dados,
                     transf = c("rec", "rsqrt", "log", "sqrt"),
                     subset = -c(31, 39))
-p1 <- powerPlot(best_fit)
-p2 <- powerPlot(best_fit, scale = "original")
+p1 <- powerPlot(best_fit, system ="ggplot2")
+p2 <- powerPlot(best_fit, system ="ggplot2", scale = "original")
 cowplot::plot_grid(p1, p2, nrow = 1, ncol = 2)
-p1 <- powerPlot(best_fit, axis = "inverted")
-p2 <- powerPlot(best_fit, axis = "inverted", scale = "original")
+p1 <- powerPlot(best_fit, system = "ggplot2",
+                axis = "inverted")
+p2 <- powerPlot(best_fit, system = "ggplot2",
+                axis = "inverted", scale = "original")
 cowplot::plot_grid(p1, p2, nrow = 1, ncol = 2)
 powerPlot(best_fit, fit = 514)
-p1 <- powerPlot(best_fit, fit = 514, axis = "inverted")
-p2 <- powerPlot(best_fit, fit = 514, scale = "original", axis = "inverted")
+p1 <- powerPlot(best_fit, fit = 514, system = "ggplot2",
+                axis = "inverted")
+p2 <- powerPlot(best_fit, fit = 514, system = "ggplot2",
+                scale = "original", axis = "inverted")
 cowplot::plot_grid(p1, p2, nrow = 1, ncol = 2)
 
+# powerPlot.lmerMod:
 library(lme4)
 Mfit <- lmer(log(valor) ~ area_total + quartos + suites + garagens +
 dist_b_mar + (1|padrao), dados)
 powerPlot(Mfit)
-powerPlot(Mfit, func = "log")
+powerPlot(Mfit, FUN = "log")
 library(quantreg)
 set.seed(1)
 dados <- data.frame(

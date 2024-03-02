@@ -8,7 +8,7 @@ equacoes(
   object,
   type = c("reg", "est"),
   inline = TRUE,
-  func,
+  FUN,
   accuracy = 100,
   f = round,
   errorTerm = TRUE
@@ -22,7 +22,7 @@ equacoes(
 \item{inline}{the equation mode. TRUE for inline equations or FALSE for
 displayed mode.}
 
-\item{func}{transformation applied to dependent variable.}
+\item{FUN}{transformation applied to dependent variable.}
 
 \item{accuracy}{number to round to; for POSIXct objects, a number of seconds}
 
@@ -32,8 +32,10 @@ displayed mode.}
 Givens a \link{lm} object, returns its regression equation
 }
 \examples{
-dados <- st_drop_geometry(centro_2015)
-fit <- lm(log(valor) ~ ., dados)
+data(centro_2015)
+centro_2015 <- within(centro_2015, VU <- valor/area_total)
+fit <- lm(log(VU) ~ log(area_total) + quartos + suites + garagens +
+           log(dist_b_mar) + padrao, centro_2015)
 equacoes(fit)
-equacoes(fit, precision = 1)
+equacoes(fit, accuracy = .01)
 }

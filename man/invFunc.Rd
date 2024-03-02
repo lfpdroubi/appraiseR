@@ -4,10 +4,10 @@
 \alias{invFunc}
 \title{Returns the inverse of the function f (character)}
 \usage{
-invFunc(func)
+invFunc(FUN)
 }
 \arguments{
-\item{func}{a function of the box-cox family (rsqr(), rec(), rsqrt(), log(),
+\item{FUN}{a function of the box-cox family (rsqr(), rec(), rsqrt(), log(),
 cubroot(), sqrt(), I() and sqr())}
 }
 \value{
