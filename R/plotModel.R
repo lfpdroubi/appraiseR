@@ -58,6 +58,11 @@
 #' colnames(dados) <- c("VU", "Area")
 #' dados <- as.data.frame(dados)
 #'
+#' # Wrong fit:
+#' wfit <- lm(VU ~ Area, data = dados)
+#' plotModel(wfit, residuals = T)
+#'
+#' # Right fit:
 #' fit <- lm(log(VU)~log(Area), data = dados)
 #'
 #' plotModel(fit)
@@ -93,6 +98,8 @@
 #' fit <- lm(VU ~ Area + Frente, data = dados)
 #'
 #' plotModel(fit, residuals = TRUE)
+#' plotModel(fit, vars = "Area", residuals=T)
+#' plotModel(fit, vars = "Frente", residuals = T)
 #' plotModel(fit, interval = "both", ca = TRUE, residuals = T,
 #'           at = list(Area = 360, Frente = 12))
 #'
@@ -233,9 +240,13 @@ plotModel.bestfit <- function(object, fit = 1,
 
 #' @rdname plotModel
 #' @export
-plotModel.lm <- function(object, ...){
-  z <- object
-  preds <- parameters(z)$predictors
+plotModel.lm <- function(object,
+                         vars = parameters(object)$predictors,
+                         ...){
+
+  #params <- parameters(object)
+  #vars <- params$predictors
+  preds <- vars
 
   r <- length(preds)
   par1 <- round(sqrt(r))
@@ -243,14 +254,14 @@ plotModel.lm <- function(object, ...){
   p <- list()
 
   for (i in preds) {
-   p[[i]] <- plotVar(object = z, variable = i, ...)
+   p[[i]] <- plotVar(object = object, variable = i, ...)
   }
 
-  est <- list(plots = p,
-              par1 = par1,
-              par2 = par2)
-  class(est) <- "plotModel.lm"
-  return(est)
+  z <- list(plots = p,
+            par1 = par1,
+            par2 = par2)
+  class(z) <- "plotModel.lm"
+  return(z)
 }
 
 #' @export

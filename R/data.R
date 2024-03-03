@@ -551,10 +551,12 @@ glebas3 <- within(glebas3,{
 #'                  PadraoConstrutivo, data = atibaia)
 #' fitVenda <- lm(log(PUvenda) ~ log(IndiceFiscal) + log(AreaConstruida) +
 #'                 PadraoConstrutivo, data = atibaia)
-#' plotModel(fitOferta, ca = TRUE,
-#'           residuals = TRUE, colour = PadraoConstrutivo)
-#' plotModel(fitVenda, ca = TRUE,
-#'           residuals = TRUE, colour = PadraoConstrutivo)
+#' plotModel(fitOferta, ca = TRUE, residuals = TRUE, colour = PadraoConstrutivo,
+#'           at = list(IndiceFiscal = 300, AreaConstruida = 300,
+#'                     PadraoConstrutivo = "Médio"))
+#' plotModel(fitVenda, ca = TRUE, residuals = TRUE, colour = PadraoConstrutivo,
+#'           at = list(IndiceFiscal = 300, AreaConstruida = 300,
+#'                     PadraoConstrutivo = "Médio"))
 "atibaia"
 atibaia <- readr::read_csv2('inst/atibaia.csv')
 atibaia <- within(atibaia, {
