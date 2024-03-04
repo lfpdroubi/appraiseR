@@ -15,5 +15,6 @@ Reciprocal of the square of a number
 \examples{
 
 rsqr(2)
+all.equal(rsqr(2), 1/2^2)
 rsqr(1:10)
 }

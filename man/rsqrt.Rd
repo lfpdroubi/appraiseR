@@ -15,5 +15,6 @@ Reciprocal of the square root of a number
 \examples{
 
 rsqrt(4)
-rsqrt(sqr(1:10))
+all.equal(rsqrt(2), 1/sqrt(2))
+rsqrt(rsqr(1:10))
 }

@@ -15,5 +15,6 @@ Reciprocal (1/x) of a number
 \examples{
 
 rec(2)
+all.equal(rec(2), 1/2)
 rec(1:10)
 }

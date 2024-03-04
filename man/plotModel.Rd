@@ -10,7 +10,7 @@ plotModel(object, ...)
 
 \method{plotModel}{bestfit}(object, fit = 1, scale = c("transformed", "original"), ...)
 
-\method{plotModel}{lm}(object, ...)
+\method{plotModel}{lm}(object, vars = parameters(object)$predictors, ...)
 }
 \arguments{
 \item{object}{Object of class \code{\link{bestfit}}}
@@ -79,6 +79,11 @@ dados <- exp(mvrnorm(n = n, mu = mu, Sigma = diag(sigma^2 - rho) + rho,
 colnames(dados) <- c("VU", "Area")
 dados <- as.data.frame(dados)
 
+# Wrong fit:
+wfit <- lm(VU ~ Area, data = dados)
+plotModel(wfit, residuals = T)
+
+# Right fit:
 fit <- lm(log(VU)~log(Area), data = dados)
 
 plotModel(fit)
@@ -114,6 +119,8 @@ dados <- as.data.frame(dados)
 fit <- lm(VU ~ Area + Frente, data = dados)
 
 plotModel(fit, residuals = TRUE)
+plotModel(fit, vars = "Area", residuals=T)
+plotModel(fit, vars = "Frente", residuals = T)
 plotModel(fit, interval = "both", ca = TRUE, residuals = T,
           at = list(Area = 360, Frente = 12))
 

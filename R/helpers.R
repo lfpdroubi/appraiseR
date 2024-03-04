@@ -49,6 +49,7 @@ power <- function(exponent) {
 #' @examples
 #'
 #' rsqr(2)
+#' all.equal(rsqr(2), 1/2^2)
 #' rsqr(1:10)
 
 rsqr <- power(-2)
@@ -60,6 +61,7 @@ rsqr <- power(-2)
 #' @examples
 #'
 #' rec(2)
+#' all.equal(rec(2), 1/2)
 #' rec(1:10)
 
 rec <- power(-1)
@@ -71,9 +73,10 @@ rec <- power(-1)
 #' @examples
 #'
 #' rsqrt(4)
-#' rsqrt(sqr(1:10))
+#' all.equal(rsqrt(2), 1/sqrt(2))
+#' rsqrt(rsqr(1:10))
 
-rsqrt <- power(1/2)
+rsqrt <- power(-.5)
 
 #' Square of a number
 #'
