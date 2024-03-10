@@ -43,9 +43,9 @@ bestfitEst <- function(X, y, t, p, response){
   ## Calculo de R2 ajustado e formatacao dos dados para impressao em tela
   n <- nrow(M)
   gl <- fit$df.residual
-  R2 <- 1-((n-1)/gl)*(1-R2)
-  AIC <- Akaike
-  BIC <- Bayes
+  R2 <- round(1-((n-1)/gl)*(1-R2), digits = 3)
+  AIC <- round(Akaike, digits = 2)
+  BIC <- round(Bayes, digits = 2)
   list(adj.R2 = R2, AIC = AIC, BIC = BIC)
 }
 
