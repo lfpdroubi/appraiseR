@@ -6,9 +6,29 @@
 #'@param object object of class "lm"
 #'@export
 #' @examples
-#' dados <- st_drop_geometry(centro_2015)
-#' fit <- lm(log(valor) ~ ., data = dados)
-#' grau(fit)
+#' library(sf)
+#' data(centro_2015)
+#' centro_2015 <- within(centro_2015, VU <- valor/area_total)
+#' fit <- lm(VU ~ log(area_total) + quartos + suites + garagens +
+#'            log(dist_b_mar) + padrao,
+#'            data = centro_2015, subset = -c(31,39))
+#' summary(fit) # R2 ajustado = 0.66
+#' grau(fit) # grau II
+#'
+#' fit2 <- lm(VU ~ log(area_total/205) + I(quartos-3) +
+#'             I(garagens-2) +  log(dist_b_mar/250) + padrao - 1,
+#'             data = centro_2015, subset = -c(31,39))
+#' summary(fit2) # R2 ajustado = 0.98
+#' grau(fit2) # grau III
+#'
+#' # Predictions
+#'
+#' p <- predict(fit, interval = 'confidence', level = 0.80,
+#'               newdata = list(area_total = 205, quartos = 3, suites = 1,
+#'                            garagens = 2, dist_b_mar = 250, padrao = 'medio'))
+#' p2 <- predict(fit2, interval = 'confidence', level = 0.80,
+#'                 newdata = list(area_total = 205, quartos = 3, suites = 1,
+#'                            garagens = 2, dist_b_mar = 250, padrao = 'medio'))
 
 grau <- function(object){
   z <- object
@@ -26,7 +46,7 @@ grau <- function(object){
                         ifelse(n >= 3*(k+1), sprintf("%i <= n = %i < %i --> Grau I", 3*(k+1), n, 4*(k+1)),
                                sprintf("n = %i < %i --> Fora de Especifica\u00E7\u00E3o", n, 3*(k+1)))))
 
-  tstats <- s$coefficients[,"Pr(>|t|)"]
+  tstats <- s$coefficients[!(rownames(s$coefficients) %in% "(Intercept)"), "Pr(>|t|)"]
   max_t <- max(tstats)
 
   tmax <- ifelse(max_t < .1, sprintf("t m\u00e1ximo = %.2f %%  < 10%% --> Grau III", 100*max_t),
