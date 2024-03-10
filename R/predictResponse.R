@@ -53,7 +53,7 @@ predictResponse <-
   if (!missing(FUN)) {
     Y <- inverse(y, FUN)
     Y <- cbind(Y, campo_arbitrio(Y))
-  } else if (is.na(depvarTrans)){
+  } else if (is.na(depvarTrans) | depvarTrans == "identity"){
     Y <- cbind(y, campo_arbitrio(y))
   } else {
     Y <- inverse(y, FUN = depvarTrans)

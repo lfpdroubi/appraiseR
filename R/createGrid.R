@@ -52,11 +52,10 @@ createGrid <- function(x, object, at, ...){
   response <- params$response
   preds <- params$predictors
   DF <- params$data
+  MF <- expand.model.frame(object, extras = preds)
 
-  variavel <- DF[, variable, drop = FALSE]
-
-  grid <- seq(min(DF[, variable], na.rm = TRUE),
-              max(DF[, variable], na.rm = TRUE),
+  grid <- seq(min(MF[, variable], na.rm = TRUE),
+              max(MF[, variable], na.rm = TRUE),
               length = 101)
 
   if (length(preds)>1) {
