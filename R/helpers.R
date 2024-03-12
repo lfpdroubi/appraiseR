@@ -235,9 +235,10 @@ parameters <- function(object, ...) {
 #' @examples
 #' # 1. Real dataset
 #'
+#' library(sf)
 #' data(centro_2015)
 #' centro_2015 <- st_drop_geometry(centro_2015)
-#' fit <- lm(log(valor) ~ ., centro_2015)
+#' fit <- lm(log(valor) ~ ., centro_2015, subset = -c(31, 39))
 #' p <- parameters(fit)
 #' p$parameters
 #' p$rhs
@@ -247,7 +248,19 @@ parameters <- function(object, ...) {
 #' p$depvarTrans
 #' p$data
 #'
-#' # 2. Random generated data
+#' # 2. Null model
+#'
+#' fit1 <- lm(log(valor) ~ 1, data = centro_2015)
+#' p1 <- parameters(fit1)
+#' p1$parameters
+#' p1$rhs
+#' p1$predictors
+#' p1$response
+#' p1$lhs
+#' p1$depvarTrans
+#' p1$data
+#'
+#' # 3. Random generated data
 #'
 #' n <- 20
 #' set.seed(1)
@@ -257,25 +270,25 @@ parameters <- function(object, ...) {
 #' # quadratic relationship
 #' VU <- 5000 - 10*Area + .005*Area^2 + 10*Frente + rnorm(n, mean = 0, sd = 150)
 #' d <- data.frame(VU, Area, Frente, Prof)
-#' fit <- lm(VU ~ poly(Area, 2) + Frente, data = d)
-#' p <- parameters(fit)
-#' p$parameters
-#' p$rhs
-#' p$predictors
-#' p$response
-#' p$lhs
-#' p$depvarTrans
-#' p$data
+#' fit2 <- lm(VU ~ poly(Area, 2) + Frente, data = d)
+#' p2 <- parameters(fit2)
+#' p2$parameters
+#' p2$rhs
+#' p2$predictors
+#' p2$response
+#' p2$lhs
+#' p2$depvarTrans
+#' p2$data
 #'
-#' fit1 <- lm(VU ~ poly(Area, 2, raw=TRUE) + Frente, data = d)
-#' p <- parameters(fit1)
-#' p$parameters
-#' p$rhs
-#' p$predictors
-#' p$response
-#' p$lhs
-#' p$depvarTrans
-#' p$data
+#' fit3 <- lm(VU ~ poly(Area, 2, raw=TRUE) + Frente, data = d)
+#' p3 <- parameters(fit3)
+#' p3$parameters
+#' p3$rhs
+#' p3$predictors
+#' p3$response
+#' p3$lhs
+#' p3$depvarTrans
+#' p3$data
 #' @export
 #'
 parameters.lm <- function(object, ...) {
@@ -283,15 +296,16 @@ parameters.lm <- function(object, ...) {
 
   cl <- stats::getCall(z)
   myformula <- stats::formula(z)
-  data <- as.data.frame(eval(object$call$data))
+  data <- as.data.frame(eval(z$call$data))
   vars <- all.vars(myformula)
   tt <- terms(myformula)
 
   resp <- all.vars(update(myformula, . ~ 1))
   preds <- setdiff(vars, resp)
 
-  lhs <- rownames(attr(z$terms, "factors"))[1]
-  rhs <- myformula[[3]]
+  #lhs <- rownames(attr(z$terms, "factors"))[1]
+  lhs <- as.character(myformula)[2]
+  rhs <- as.character(myformula)[3]
 
   if (stringr::str_detect(lhs, paste("\\(", resp, "\\)", sep = ""))) {
     depvarTrans <- stringr::str_replace(lhs,
