@@ -87,14 +87,15 @@ plotVar <- function(object, variable, FUN,
                     ca = FALSE,
                     av,
                     at,
-                    #at = lapply(eval(getCall(object)$data), centre),
                     ...){
   interval <- match.arg(interval)
+
   DF <- eval(stats::getCall(object)$data)
   vars <- all.vars(stats::formula(object))
   params <- parameters(object)
   response <- params$response
   preds <- params$predictors
+
 
   DF %<>% dplyr::as_tibble() %>% dplyr::mutate_if(is.character, as.factor)
 
@@ -103,11 +104,13 @@ plotVar <- function(object, variable, FUN,
   if (is.factor(variavel[, variable, drop = T])){
     plotFactor(variable, object,
                interval = interval, level = level,
-               FUN = FUN, ca = ca, av = av, at = at, ...)
+               FUN = FUN, ca = ca, av = av, at = at,
+               ...)
   } else {
     plotContinuousVariable(variable, object,
                            interval = interval, level = level,
-                           FUN = FUN, ca = ca, av = av, at = at, ...)
+                           FUN = FUN, ca = ca, av = av, at = at,
+                           ...)
   }
 }
 #' export
@@ -119,6 +122,7 @@ plotFactor <- function(x, object,
                        ca = FALSE,
                        av,
                        elasticidade = TRUE,
+                       palette = "Paired",
                        ...){
   interval <- match.arg(interval)
   variable <- x
@@ -126,6 +130,11 @@ plotFactor <- function(x, object,
   response <- params$response
   preds <- params$predictors
   coeffs <- coef(object)
+
+  # Creates col vector for chosen palette
+  palNum <- which(rownames(RColorBrewer::brewer.pal.info) == palette)
+  maxcolors <- RColorBrewer::brewer.pal.info[palNum, "maxcolors"]
+  col <- RColorBrewer::brewer.pal(n = maxcolors, name = palette)
 
   DF <- as.data.frame(eval(stats::getCall(object)$data))
   variavel <- DF[, variable, drop = FALSE]
@@ -160,7 +169,6 @@ plotFactor <- function(x, object,
                               value.name = response,
                               variable.name = "var")
 
-  col <- RColorBrewer::brewer.pal(n = 8, "Set1")
 
   p <- ggplot(data = pred_plot, aes(x = reorder(!!as.name(variable),
                                                 !!as.name(response),
@@ -185,7 +193,7 @@ plotFactor <- function(x, object,
     p <- p + geom_point(data = p_local,
                         aes(x = .data[[variable]],
                             y = .data[[response]]),
-                        color = col[8],
+                        color = col[6],
                         size = 3)
   }
   # if (ca == TRUE & missing(FUN)) {
@@ -196,7 +204,7 @@ plotFactor <- function(x, object,
   } else if (!missing(av)) {
     p <- p + geom_point(data = p_local,
                         aes(x = .data[[variable]], y = .data$av),
-                        color = col[4],
+                        color = col[10],
                         size = 3)
   }
   return(p)
@@ -215,6 +223,7 @@ plotContinuousVariable <-
            ca = FALSE,
            av,
            elasticidade = FALSE,
+           palette = "Paired",
            ...){
 
   system <- match.arg(system)
@@ -226,6 +235,11 @@ plotContinuousVariable <-
   predictors <- params$predictors
   depvarTrans <- params$depvarTrans
   coeffs <- coef(object)
+
+  # Creates col vector for chosen palette
+  palNum <- which(rownames(RColorBrewer::brewer.pal.info) == palette)
+  maxcolors <- RColorBrewer::brewer.pal.info[palNum, "maxcolors"]
+  col <- RColorBrewer::brewer.pal(n = maxcolors, name = palette)
 
   # Calling predictResponse()
 
@@ -255,8 +269,6 @@ plotContinuousVariable <-
   p_local <- predResp$p_local
   mframe <- predResp$mframe
   pres <- predResp$pres
-
-  col <- RColorBrewer::brewer.pal(n = 8, "Set1")
 
   if (system == 'ggplot2'){
 
@@ -343,7 +355,10 @@ plotContinuousVariable <-
       p <- p +
         geom_point(data = MODELFRAME,
                    aes(x = .data$X, y = .data$Y),
-                   pch = 19, color = col[5], alpha = .5)
+                   pch = 19, color = col[8], alpha = .5) +
+        geom_smooth(data = MODELFRAME,
+                    aes(x = .data$X, y = .data$Y),
+                    method = "loess", colour= col[7], se = FALSE)
     } else {
       p <- p +
         geom_point(data = MODELFRAME,
@@ -372,7 +387,7 @@ plotContinuousVariable <-
                         aes(x = .data[[variable]],
                             y = .data[[response]]),
                         #color = "red",
-                        color = col[8],
+                        color = col[6],
                         size = 3) +
       labs(caption = paste(variable, "=", at[variable], ";",
                            response, "=",
@@ -394,8 +409,7 @@ plotContinuousVariable <-
   } else if (!missing(av)) {
     p <- p + geom_point(data = p_local,
                         aes(x = .data[[variable]], y = .data$av),
-                        #color = "purple",
-                        color = col[4],
+                        color = col[10],
                         size = 3) +
       labs(caption = paste(variable, "=", at[variable], ";",
                            response, "=",
