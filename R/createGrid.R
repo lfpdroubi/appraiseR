@@ -36,35 +36,48 @@
 #' # Test with real data
 #' library(sf)
 #' data(centro_2015)
-#' centro_2015 <- within(centro_2015, VU <- valor/area_total)
-#' fit <- lm(sqrt(VU) ~ sqrt(area_total) + quartos + suites + garagens +
+#' centro_2015 <- within(centro_2015, PU <- valor/area_total)
+#' fit <- lm(sqrt(PU) ~ sqrt(area_total) + quartos + suites + garagens +
 #'           sqrt(dist_b_mar) + padrao,
 #'           data = centro_2015)
+#'
+#' # Continuos variables
+#'
 #' createGrid("area_total", fit)
 #' createGrid("area_total", fit,
 #'            at = list(area_total = 205, quartos = 3, suites = 1,
 #'                      garagens = 2, dist_b_mar = 250, padrao = "medio"))
 #'
+#' # Factors
+#'
+#' createGrid("padrao", fit)
+#' createGrid("padrao", fit,
+#'            at = list(area_total = 205, quartos = 3, suites = 1,
+#'                      garagens = 2, dist_b_mar = 250, padrao = "medio"))
 
 createGrid <- function(x, object, at, ...){
   variable <- x
   params <- parameters(object)
   response <- params$response
-  preds <- params$predictors
-  #DF <- params$data
-  MF <- expand.model.frame(object, extras = preds)
+  predictors <- params$predictors
+  DF <- params$data
+  MF <- expand.model.frame(object, extras = predictors, na.expand = TRUE)
 
-  grid <- seq(min(MF[, variable], na.rm = TRUE),
-              max(MF[, variable], na.rm = TRUE),
-              length = 101)
+  if (is.numeric(MF[, variable])) {
+    grid <- seq(min(MF[, variable], na.rm = TRUE),
+                max(MF[, variable], na.rm = TRUE),
+                length = 101)
+  } else if (is.factor(MF[, variable])){
+    grid <- unique(MF[, variable])
+  }
 
-  if (length(preds)>1) {
+  if (length(predictors)>1) {
     if (missing(at)) {
-      new <- data.frame(grid, lapply(MF[, setdiff(preds, variable), drop = F],
+      new <- data.frame(grid, lapply(MF[, setdiff(predictors, variable),drop=F],
                                      centre))
       p_local <- NULL
     } else {
-      new <- data.frame(grid, at[setdiff(preds, variable)])
+      new <- data.frame(grid, at[setdiff(predictors, variable)])
       p_local <- predict(object, newdata = at)
     }
   } else {

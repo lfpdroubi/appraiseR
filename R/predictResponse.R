@@ -7,12 +7,31 @@
 #' @examples
 #' library(sf)
 #' data(centro_2015)
-#' centro_2015 <- within(centro_2015, VU <- valor/area_total)
-#' fit<- lm(log(VU) ~ log(area_total) + quartos + suites +
+#' centro_2015 <- within(centro_2015, PU <- valor/area_total)
+#'
+#' # Continuous variable
+#'
+#' fit<- lm(log(PU) ~ log(area_total) + quartos + suites +
 #'           garagens + log(dist_b_mar) + padrao,
 #'           data = centro_2015, subset = -c(31, 39))
 #' p <- predictResponse("area_total", fit)
 #' p
+#'
+#' p <- predictResponse("area_total", fit,
+#'                      at = list(area_total = 205, quartos = 3, suites = 1,
+#'                            garagens = 2, dist_b_mar = 250, padrao = "medio"))
+#' p
+#'
+#' # Factor
+#'
+#' p <- predictResponse("padrao", fit)
+#' p
+#'
+#' p <- predictResponse("padrao", fit,
+#'                      at = list(area_total = 205, quartos = 3, suites = 1,
+#'                            garagens = 2, dist_b_mar = 250, padrao = "medio"))
+#' p
+#'
 predictResponse <-
   function(x, object,
            interval =  c("none", "confidence", "prediction", "both"),

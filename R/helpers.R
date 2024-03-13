@@ -268,9 +268,9 @@ parameters <- function(object, ...) {
 #' Prof <- rnorm(n = n, mean = 25, sd = 5)
 #' Area <- Frente*Prof
 #' # quadratic relationship
-#' VU <- 5000 - 10*Area + .005*Area^2 + 10*Frente + rnorm(n, mean = 0, sd = 150)
-#' d <- data.frame(VU, Area, Frente, Prof)
-#' fit2 <- lm(VU ~ poly(Area, 2) + Frente, data = d)
+#' PU <- 5000 - 10*Area + .005*Area^2 + 10*Frente + rnorm(n, mean = 0, sd = 150)
+#' d <- data.frame(PU, Area, Frente, Prof)
+#' fit2 <- lm(PU ~ poly(Area, 2) + Frente, data = d)
 #' p2 <- parameters(fit2)
 #' p2$parameters
 #' p2$rhs
@@ -280,7 +280,7 @@ parameters <- function(object, ...) {
 #' p2$depvarTrans
 #' p2$data
 #'
-#' fit3 <- lm(VU ~ poly(Area, 2, raw=TRUE) + Frente, data = d)
+#' fit3 <- lm(PU ~ poly(Area, 2, raw=TRUE) + Frente, data = d)
 #' p3 <- parameters(fit3)
 #' p3$parameters
 #' p3$rhs
@@ -459,8 +459,8 @@ pct <- porcento
 #' @param f rounding function: floor, ceiling or round
 #' @examples
 #' data(centro_2015)
-#' centro_2015 <- within(centro_2015, VU <- valor/area_total)
-#' fit <- lm(log(VU) ~ log(area_total) + quartos + suites + garagens +
+#' centro_2015 <- within(centro_2015, PU <- valor/area_total)
+#' fit <- lm(log(PU) ~ log(area_total) + quartos + suites + garagens +
 #'            log(dist_b_mar) + padrao, centro_2015)
 #' equacoes(fit)
 #' equacoes(fit, accuracy = .01)
@@ -506,5 +506,80 @@ equacoes <- function(object, type = c("reg", "est"), inline = TRUE, FUN,
     cat('$', Formula, '$', sep = "")
   } else {
     cat('$$', Formula, '$$', sep = "")
+  }
+}
+
+# copied from `insight`
+# jacobian / derivate for log models and other transformations ----------------
+
+
+# this function adjusts any IC for models with transformed response variables
+.adjust_ic_jacobian <- function(model, ic) {
+  response_transform <- insight::find_transformation(model)
+  if (!is.null(ic) && !is.null(response_transform) && !identical(response_transform, "identity")) {
+    adjustment <- .safe(.ll_analytic_adjustment(model, insight::get_weights(model, na_rm = TRUE)))
+    if (!is.null(adjustment)) {
+      ic <- ic - 2 * adjustment
+    }
+  }
+  ic
+}
+
+
+# copied from `insight`
+.ll_analytic_adjustment <- function(x, model_weights = NULL) {
+  tryCatch(
+    {
+      trans <- parameters(x)$depvarTrans
+      resp <- insight::get_response(x)
+      switch(trans,
+             identity = .weighted_sum(log(resp), w = model_weights),
+             log = .weighted_sum(log(1/resp), w = model_weights),
+             log1p = .weighted_sum(log(1/(resp + 1)), w = model_weights),
+             log2 = .weighted_sum(log(1/(resp * log(2))), w = model_weights),
+             log10 = .weighted_sum(log(1/(resp * log(10))), w = model_weights),
+             exp = .weighted_sum(resp, w = model_weights),
+             expm1 = .weighted_sum((resp-1), w = model_weights),
+             sqrt = .weighted_sum(log(0.5/ sqrt(resp)), w = model_weights),
+             .ll_jacobian_adjustment(x, model_weights)
+      )
+    },
+    error = function(e) {
+      NULL
+    }
+  )
+}
+
+
+# this function calculates the adjustment for the log-likelihood of a model
+# with transformed response
+.ll_jacobian_adjustment <- function(model, weights = NULL) {
+  tryCatch(
+    {
+      trans <- parameters(model)$depvarTrans
+      .weighted_sum(log(
+        diag(attr(with(
+          insight::get_data(model, verbose = FALSE),
+          stats::numericDeriv(
+            expr = quote(trans(
+              get(insight::find_response(model))
+            )),
+            theta = insight::find_response(model)
+          )
+        ), "gradient"))
+      ), weights)
+    },
+    error = function(e) {
+      NULL
+    }
+  )
+}
+
+
+.weighted_sum <- function(x, w = NULL, ...) {
+  if (is.null(w)) {
+    mean(x) * length(x)
+  } else {
+    stats::weighted.mean(x, w) * length(x)
   }
 }
