@@ -26,6 +26,7 @@ predictResponse <-
   variable <- x
   params <- parameters(object)
   response <- params$response
+  lhs <- params$lhs
   depvarTrans <- params$depvarTrans
   predictors <- params$predictors
 
@@ -64,7 +65,7 @@ predictResponse <-
 
   pred <- data.frame(new[, variable], Y)
   colnames(pred)[1] <- variable
-  colnames(pred)[2] <- response
+  colnames(pred)[2] <- ifelse(!missing(FUN), response, lhs)
 
   mframe <-
     expand.model.frame(model = object,

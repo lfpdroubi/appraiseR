@@ -40,12 +40,16 @@
 #' plotVar(fit, "area_total", interval = "both", ca = TRUE,
 #'         at = list(area_total = 205, quartos = 3, suites = 1,
 #'                   garagens = 2, dist_b_mar = 250, padrao = "medio"))
+#'
 #' # Same above + Point valuation at R$ 5.650,00 /m2
+#'
 #' plotVar(fit, "area_total", interval = "both",
 #'         at = data.frame(area_total = 205, quartos = 3, suites = 1,
 #'                         garagens = 2, dist_b_mar = 250, padrao = "medio"),
 #'         ca = TRUE, av = log(5650))
+#'
 #' # Same above, in the original scale
+#'
 #' plotVar(fit, "area_total", interval = "both", FUN = 'log',
 #'         at = data.frame(area_total = 205, quartos = 3, suites = 1,
 #'                         garagens = 2, dist_b_mar = 250, padrao = "medio"),
@@ -128,6 +132,7 @@ plotFactor <- function(x, object,
   variable <- x
   params <- parameters(object)
   response <- params$response
+  lhs <- ifelse(!missing(FUN), response, params$lhs)
   preds <- params$predictors
   coeffs <- coef(object)
 
@@ -166,19 +171,22 @@ plotFactor <- function(x, object,
   pred <- data.frame(new[ , variable, drop = FALSE], Y)
   pred_plot <- reshape2::melt(pred,
                               id.var = variable,
-                              value.name = response,
+                              value.name = lhs,
                               variable.name = "var")
 
 
-  p <- ggplot(data = pred_plot, aes(x = reorder(!!as.name(variable),
-                                                !!as.name(response),
+  p <- ggplot(data = pred_plot, aes(x = reorder(.data[[variable]],
+                                                .data[[lhs]],
                                                 median),
-                                    y = !!as.name(response))) +
+                                    y = .data[[lhs]]
+                                    )
+              ) +
     geom_boxplot(aes(fill = .data[[variable]])) +
     xlab(variable) +
     theme(legend.position="none") +
     scale_y_continuous(labels = scales::label_number_auto())
 
+  # Adds point of 'at' argument, if not missing
   if(!missing(at)) {
     p_local <- ifelse(missing(FUN), p_local, inverse(p_local, FUN))
     if (elasticidade == TRUE) {
@@ -196,9 +204,7 @@ plotFactor <- function(x, object,
                         color = col[6],
                         size = 3)
   }
-  # if (ca == TRUE & missing(FUN)) {
-  #   message("Campo de Arbítrio somente possivel na escala original.")
-  # }
+
   if (!missing(av) & missing(at)){
     message("Valor arbitrado somente pode ser plotado caso seja informado local.")
   } else if (!missing(av)) {
@@ -232,6 +238,7 @@ plotContinuousVariable <-
   variable <- x
   params <- parameters(object)
   response <- params$response
+  lhs <- ifelse(!missing(FUN), response, params$lhs)
   predictors <- params$predictors
   depvarTrans <- params$depvarTrans
   coeffs <- coef(object)
@@ -275,7 +282,7 @@ plotContinuousVariable <-
   # Basic Plot
   # see https://ggplot2.tidyverse.org/articles/ggplot2-in-packages.html
   p <- ggplot(data = pred,
-              aes(x = .data[[variable]], y = .data[[response]])
+              aes(x = .data[[variable]], y = .data[[lhs]])
               ) +
     #geom_line(lwd = 2, lty = 1, color = col[2]) +
     theme(legend.position="bottom") +
@@ -381,19 +388,19 @@ plotContinuousVariable <-
       p_local <- data.frame(y = p_local, at)
     }
 
-    names(p_local)[1] <- response
+    names(p_local)[1] <- lhs
 
     p <- p + geom_point(data = p_local,
                         aes(x = .data[[variable]],
-                            y = .data[[response]]),
+                            y = .data[[lhs]]),
                         #color = "red",
                         color = col[6],
                         size = 3) +
       labs(caption = paste(variable, "=", at[variable], ";",
                            response, "=",
                            ifelse(missing(FUN) & !is.na(depvarTrans),
-                                  brf(inverse(p_local[response], depvarTrans)),
-                                  brf(p_local[response])
+                                  brf(inverse(p_local[lhs], depvarTrans)),
+                                  brf(p_local[lhs])
                                   )
                            )
            )
@@ -414,8 +421,8 @@ plotContinuousVariable <-
       labs(caption = paste(variable, "=", at[variable], ";",
                            response, "=",
                            ifelse(missing(FUN) & !is.na(depvarTrans),
-                                  brf(inverse(p_local[response], depvarTrans)),
-                                  brf(p_local[response])
+                                  brf(inverse(p_local[lhs], depvarTrans)),
+                                  brf(p_local[lhs])
                                   ),
                                   "\n",
                            "Arbitrado =",
