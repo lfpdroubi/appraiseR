@@ -130,32 +130,23 @@ plotFactor <- function(x, object,
   p <- ggplot(pred, aes(x = reorder(.data[[variable]],
                                     .data[[lhs]],
                                     median),
-                        y = .data[[lhs]])) +
-    #geom_line(aes(group = .data[[variable]])) +
-    geom_errorbar(aes(ymin = .data$C.A.I., ymax = .data$C.A.S.),
-                  colour = col[8],
-                  width = .2, lwd = 1) +
+                        y = .data[[lhs]],
+                        colour = .data[[variable]])) +
+    geom_point() +
+    geom_line(aes(group = .data[[variable]])) +
     xlab(variable) +
     theme(legend.position="none") +
     scale_y_continuous(labels = scales::label_number_auto())
 
   if (residuals == TRUE & missing(FUN)) {
-    # vars <- attr(terms(object), "variables")
-    #
-    # sel <- lapply(vars, all.vars)[-1]
-    #
-    # res <- lapply(all.vars(terms(object)), \(x) which(sapply(sel, \(y) x %in% y)))
-    # res <- setNames(res, all.vars(terms(object)))
-    #
-    # new <- lapply(DF[, predictors, drop = FALSE], centre)
 
     if (length(predictors)>1) {
 
-    if (missing(at)) {
+      if (missing(at)) {
 
         predFrame <- data.frame(mframe[, c(lhs, variable), drop=F],
                                 lapply(mframe[, setdiff(predictors, variable),drop=F],
-                                centre), check.names = F)
+                                       centre), check.names = F)
       } else {
 
         predFrame <- data.frame(mframe[, c(lhs, variable), drop = F],
@@ -169,17 +160,39 @@ plotFactor <- function(x, object,
     predFrame <- broom::augment(object, newdata = predFrame)
     #predFrame <- within(predFrame, Y <- pres[, res[[variable]]-1] + .fitted)
 
-      p <- p +
-        geom_violin(data = predFrame,
-                    aes(x = .data[[variable]], y = .data$.fitted + .data$.resid,
-                        fill = .data[[variable]]),
-                    alpha = .5) +
-        geom_point(data = predFrame,
-                   position = position_jitter(seed = 1, width = 0.2),
-                   aes(x = .data[[variable]], y = .data$.fitted + .data$.resid),
-                   pch = 20, size = 2, color = col[8], alpha = .5)
+    p <- p +
+      geom_violin(data = predFrame,
+                  aes(x = .data[[variable]], y = .data$.fitted + .data$.resid,
+                      fill = .data[[variable]]),
+                  alpha = .5) +
+      geom_point(data = predFrame,
+                 position = position_jitter(seed = 1, width = 0.2),
+                 aes(x = .data[[variable]], y = .data$.fitted + .data$.resid),
+                 pch = 20, size = 2, color = col[8], alpha = .5)
 
   }
+
+  if (interval == "confidence") {
+    p <- p +
+      geom_errorbar(aes(ymin = .data$lwr, ymax = .data$upr),
+                    linewidth = 1.25, width = .2)
+  } else if (interval == "prediction") {
+    p <- p +
+      geom_pointrange(aes(ymin = .data$lwr, ymax = .data$upr), linewidth = 1)
+  } else if (interval == "both") {
+    p <- p +
+      geom_pointrange(aes(ymin = .data$lwr.pred, ymax = .data$upr.pred),
+                      linewidth = 1) +
+      geom_errorbar(aes(ymin = .data$lwr.conf, ymax = .data$upr.conf),
+                    linewidth = 1.25, width = .2, colour = col[8])
+  }
+
+  if (ca == TRUE) {
+    p <- p +
+      geom_crossbar(aes(ymin = .data$C.A.I., ymax = .data$C.A.S.),
+                    width = .3)
+  }
+
   # Adds point of 'at' argument, if not missing
   if(!missing(at)) {
     p_local <- ifelse(missing(FUN), p_local, inverse(p_local, FUN))
