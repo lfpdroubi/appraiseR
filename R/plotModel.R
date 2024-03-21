@@ -16,12 +16,14 @@
 #' (defaults for center of each variable).
 #' @export
 #' @examples
-#' # 1. Crete random bivariate normal data just for testing
+#' # 1. Random generated data
+#'
+#' # 1.1 Bivariate normal data just for testing
 #'
 #' library(MASS)
 #'
-#' sample_cov <- matrix(c(1000^2, -25000,
-#'                        -25000,  50^2),
+#' sample_cov <- matrix(c(1000^2, -40000,
+#'                        -40000,  50^2),
 #'                      ncol = 2, byrow = T)
 #' n <- 50
 #' set.seed(4)
@@ -38,11 +40,15 @@
 #' plotModel(fit, residuals = T)
 #' plotModel(fit, residuals = T, at = list(Area = 275))
 #' plotModel(fit, residuals = T, at = list(Area = 275),
+#'           interval = 'confidence', level = .95)
+#' plotModel(fit, residuals = T, at = list(Area = 275),
+#'           interval = 'prediction', level = .95)
+#' plotModel(fit, residuals = T, at = list(Area = 275),
 #'           interval = "both", level = .80,
-#'           av = 6725, ca = TRUE,
+#'           av = 7250, ca = TRUE,
 #'           )
 #'
-#' # 2. Random data with variables transformation (log-log)
+#' # 1.2 Data with variables transformation (log-log)
 #'
 #' m <- c(5000, 360)
 #' s <- c(2000, 50)
@@ -60,14 +66,15 @@
 #'
 #' # Wrong fit:
 #' wfit <- lm(PU ~ Area, data = dados)
-#' plotModel(wfit, residuals = T)
+#' plotModel(wfit, interval = 'confidence', level = .95, residuals = T)
 #' plotModel(wfit, residuals = T, at = list(Area = 450)) #~ 2.225,00 R$/m2
 #'
 #' # Right fit:
 #' fit <- lm(log(PU)~log(Area), data = dados)
 #'
-#' plotModel(fit, residuals = T)
-#' plotModel(fit, residuals = T, at = list(Area = 450)) #~ 2.765,00 R$/m2 (+24%)
+#' plotModel(fit, interval = 'confidence', level = .95, residuals = T)
+#' plotModel(fit, interval = 'confidence', level = .95,
+#'           residuals = T, at = list(Area = 450)) #~ 2.765,00 R$/m2 (+24%)
 #'
 #' # Testing if arbitrating R$ 1.400.000,00 (3.111 R$/m2) is a good idea:
 #'
@@ -81,7 +88,7 @@
 #'           interval = "both", level = .80,
 #'           ca = TRUE, av = 3111)
 #'
-#' # 3. Random data with 2 covariates
+#' # 1.3 Data with 2 covariates
 #'
 #' ##                PU      Area    Frente
 #' sigma <- matrix(c( 1000^2, -60000, -750,
@@ -99,17 +106,20 @@
 #'
 #' fit <- lm(PU ~ Area + Frente, data = dados)
 #'
-#' plotModel(fit, residuals = TRUE)
-#' plotModel(fit, vars = "Area", residuals=T)
+#' plotModel(fit, interval = 'confidence', level = .95, residuals = TRUE)
+#' plotModel(fit, vars = "Area", residuals = T)
 #' plotModel(fit, vars = "Frente", residuals = T)
-#' plotModel(fit, interval = "both", ca = TRUE, residuals = T,
-#'           at = list(Area = 360, Frente = 12))
+#' plotModel(fit, residuals = T, at = list(Area = 360, Frente = 12))
 #'
 #' plotModel(fit, interval = "both", ca = TRUE, residuals = T,
 #'           at = list(Area = 360, Frente = 12),
 #'           av = 5750)
 #'
-#' # 4. Random data with 2 covariates and transformations (Cobb-Douglas)
+#' plotModel(fit, residuals = T, at = list(Area = 600, Frente = 5))
+#' plotModel(fit, interval = "both", ca = TRUE, residuals = T,
+#'            at = list(Area = 600, Frente = 5))
+#'
+#' # 1.4 Data with 2 covariates and transformations (Cobb-Douglas)
 #'
 #' m <- c(5000, 360, 12)
 #' s <- c(500, 150, 3)
@@ -137,13 +147,15 @@
 #' # Wrong fit:
 #' wfit <- lm(PU ~ Area + Frente, data = dados)
 #'
-#' plotModel(wfit, residuals = T)
+#' plotModel(wfit, interval = 'confidence', level = .95, residuals = T)
 #' plotModel(wfit, residuals = T, at = list(Area = 360, Frente = 12))# not bad
 #' plotModel(wfit, residuals = T, at = list(Area = 875, Frente = 20))# very bad
 #'
 #' # Good fit:
 #'
 #' fit <- lm(log(PU) ~ log(Area) + log(Frente), data = dados)
+#'
+#' plotModel(fit, residuals = T)
 #'
 #' plotModel(fit, residuals = T, at = list(Area = 360, Frente = 12)) # good!
 #' plotModel(fit, residuals = T, at = list(Area = 875, Frente = 20)) # good!
@@ -152,7 +164,27 @@
 #' plotModel(fit, interval = "both", ca = TRUE, residuals = T, FUN = "log",
 #'           at = list(Area = 875, Frente = 20), av = 4800)
 #'
-#' # 5. With real data
+#' # 1.5 Data with one continuous regressor plus one factor
+#'
+#' n = 25
+#' set.seed(1)
+#' Area <- rnorm(n = 3*n, mean = 360, sd = 50)
+#'
+#' Bairro <- factor(sample(LETTERS[1:3], size = 3*n, replace = T))
+#'
+#' dados <- data.frame(Area, Bairro)
+#'
+#' dados <- within(dados, {
+#'   PU <- ifelse(Bairro == "A", 7500,
+#'                ifelse(Bairro == "B", 10000, 12500))
+#'   PU <- PU - 15*Area + rnorm(n = 3*n, mean = 0, sd = 1000)
+#' })
+#'
+#' fit <- lm(PU ~ Area + Bairro, data = dados)
+#'
+#' plotModel(fit, residuals = T, colour = Bairro)
+#'
+#' # 2 With real data
 #'
 #' library(sf)
 #' data(centro_2015)
@@ -161,13 +193,16 @@
 #'             log(dist_b_mar) + padrao, data = centro_2015)
 #' plotModel(fit)
 #' plotModel(fit, residuals = T)
-#' plotModel(fit, interval = "both", level = .80, ca = TRUE, residuals = T)
-#' plotModel(fit, at = list(area_total = 205, quartos = 3, suites = 1,
-#'                          garagens = 2, dist_b_mar = 250, padrao = 'medio'),
-#'           interval = "both", ca = TRUE)
-#' plotModel(fit, at = list(area_total = 205, quartos = 3, suites = 1,
-#'                          garagens = 2, dist_b_mar = 250, padrao = 'medio'),
-#'           interval = "both", ca = TRUE, residuals = TRUE,
+#' plotModel(fit, residuals = T,
+#'          at = data.frame(area_total = 205, quartos = 3, suites = 1,
+#'                           garagens = 2, dist_b_mar = 250, padrao = 'medio'))
+#' plotModel(fit, residuals = T, interval = 'confidence', level = .80,
+#'          at = data.frame(area_total = 205, quartos = 3, suites = 1,
+#'                           garagens = 2, dist_b_mar = 250, padrao = 'medio'))
+#' plotModel(fit, residuals = T, interval = "both", level = .80, ca = TRUE)
+#' plotModel(fit, residuals = T, interval = "both", ca = TRUE,
+#'          at = data.frame(area_total = 205, quartos = 3, suites = 1,
+#'                           garagens = 2, dist_b_mar = 250, padrao = 'medio'),
 #'           av = log(5600))
 #' ## On the original scale
 #' plotModel(fit, interval = "both", level = .80, FUN = "log", ca = TRUE)
@@ -180,19 +215,20 @@
 #'                           garagens = 2, dist_b_mar = 250, padrao = 'medio'),
 #'           ca = TRUE, av = 5600)
 #'
-#' # 5.1 Another model, with same data (apostila Prof. Norberto Hochheim)
+#' # 2.1 Another model, with same data (apostila Prof. Norberto Hochheim)
 #'
 #' dados <- within(centro_2015, padrao <- as.numeric(padrao))
 #' fit1 <- lm(log(valor) ~ area_total + quartos + suites + garagens +
 #'             log(dist_b_mar) +I(1/padrao),
 #'             data = dados, subset = -c(31, 39))
+#' plotModel(fit1, residuals = T, colour = factor(padrao))
 #' plotModel(fit1, interval = "both", level = .80,
 #'           at = data.frame(area_total = 205, quartos = 3, suites = 1,
 #'                           garagens = 2, dist_b_mar = 250, padrao = 2),
 #'           ca = TRUE, av = log(1100000),
-#'           residuals = T)
+#'           residuals = T, colou = factor(padrao))
 #'
-#' # 5.2 Yet another model with the same data
+#' # 2.2 Yet another model with the same data
 #'
 #' fit2 <- lm(rsqrt(PU) ~ rsqrt(area_total) + quartos + suites + garagens +
 #'             rsqrt(dist_b_mar) + padrao, data = centro_2015)
@@ -205,6 +241,10 @@
 #'           at = data.frame(area_total = 205, quartos = 3, suites = 1,
 #'                           garagens = 2, dist_b_mar = 250, padrao = "medio"),
 #'           av = 5335)
+#'
+#' # 2.3 Atibaia
+#'
+#' data(atibaia)
 
 plotModel <- function(object, ...) UseMethod("plotModel")
 

@@ -54,27 +54,42 @@
 #' createGrid("padrao", fit,
 #'            at = list(area_total = 205, quartos = 3, suites = 1,
 #'                      garagens = 2, dist_b_mar = 250, padrao = "medio"))
+#'
+#' # Random generated data
+#'
+#' n <- 30
+#' Bairro_A <- rnorm(n, mean = 500, sd = 100)
+#' Bairro_B <- rnorm(n, mean = 750, sd = 100)
+#' Bairro_C <- rnorm(n, mean = 1000, sd = 100)
+#'
+#' dados <- data.frame(VU = c(Bairro_A, Bairro_B, Bairro_C),
+#'                     Bairro = c(rep("A", n), rep("B", n), rep("C", n))
+#' )
+#'
+#' fit <- lm(VU ~ Bairro, data = dados)
+#'
+#' createGrid("Bairro", fit)
 
 createGrid <- function(x, object, at, ...){
   variable <- x
   params <- parameters(object)
+  parametros <- params$parameters
   response <- params$response
   predictors <- params$predictors
-  DF <- params$data
-  MF <- expand.model.frame(object, extras = predictors, na.expand = TRUE)
+  mframe <- expand.model.frame(object, extras = parametros, na.expand = TRUE)
 
-  if (is.numeric(MF[, variable])) {
-    grid <- seq(min(MF[, variable], na.rm = TRUE),
-                max(MF[, variable], na.rm = TRUE),
+  if (is.numeric(mframe[, variable])) {
+    grid <- seq(min(mframe[, variable], na.rm = TRUE),
+                max(mframe[, variable], na.rm = TRUE),
                 length = 101)
-  } else if (is.factor(MF[, variable])){
-    grid <- unique(MF[, variable])
+  } else if (is.factor(mframe[, variable]) | is.character(mframe[, variable])){
+    grid <- unique(mframe[, variable])
   }
 
   if (length(predictors)>1) {
     if (missing(at)) {
-      new <- data.frame(grid, lapply(MF[, setdiff(predictors, variable),drop=F],
-                                     centre))
+      new <- data.frame(grid, lapply(mframe[, setdiff(predictors, variable),drop=F],
+                                     FUN = centre))
       p_local <- NULL
     } else {
       new <- data.frame(grid, at[setdiff(predictors, variable)])
@@ -88,12 +103,12 @@ createGrid <- function(x, object, at, ...){
       p_local <- predict(object, newdata = at)
   }
 
-
   names(new)[1] <- variable
 
   z <- list()
   z$new <- new
   z$p_local <- p_local
+  z$mframe <- mframe
 
   return(z)
 }

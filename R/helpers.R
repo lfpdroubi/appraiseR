@@ -181,9 +181,14 @@ centre <- function(x, ...) UseMethod("centre")
 #' @rdname centre
 #' @examples
 #' x <- c(-3, -2, 0, NA, 1, 1, 3)
-#' centre(x) # .5 (default is median(x))
-#' centre(x, FUN = mean) # 0
+#' centre(x) # 0 (default is mean(x))
+#' centre(x, FUN = median) # 0.5
 #' centre(x, FUN = raster::modal) # 1
+#'
+#' data(centro_2015)
+#' lapply(centro_2015, centre)
+#' # lapply(centro_2015, FUN = centre, median)
+#' lapply(centro_2015[, -7], FUN = centre, median)
 #' @export
 centre.numeric <- function(x, FUN = median, na.rm = TRUE, ...) {
   FUN(x, na.rm = na.rm, ...)
@@ -199,15 +204,16 @@ centre.numeric <- function(x, FUN = median, na.rm = TRUE, ...) {
 #' data(centro_2015)
 #' centre(centro_2015$padrao) # the reference level
 #' centre(centro_2015$padrao, FUN = raster::modal) # the most frequent value
+#' centre(centro_2015$padrao, FUN = median)
 #' @export
 centre.factor <- function(x, FUN, na.rm = TRUE, ...){
-  #x <- raster::modal(x, na.rm = na.rm)
 
   if (missing(FUN)) {
     x <- levels(x)[1]
   } else {
+    FUN <- match.fun(FUN)
     x <- FUN(x, na.rm = na.rm, ...)
-    }
+  }
   return(x)
 }
 #' centre(centro_2015$geometry)

@@ -13,79 +13,10 @@
 #' @param at list to be used for calculate the estimates
 #' (defaults for center of each variable).
 #' @param \dots further arguments passed to predict.lm.
-#' @export
 #' @examples
-#' library(sf)
-#' data(centro_2015)
-#' centro_2015 <- within(centro_2015, PU <- valor/area_total)
-#' fit <- lm(log(PU) ~ log(area_total) + quartos + suites + garagens +
-#'             log(dist_b_mar) + padrao,
-#'           data = centro_2015)
-#' plotVar(fit, "area_total")
-#' plotVar(fit, "area_total", residuals = TRUE)
-#' plotVar(fit, "area_total", residuals = TRUE, colour = padrao)
-#' plotVar(fit, "area_total", interval = "confidence", residuals = TRUE)
-#' plotVar(fit, "area_total", interval = "prediction", residuals = TRUE)
-#' plotVar(fit, "area_total", interval = "both", residuals = TRUE)
-#' plotVar(fit, "area_total", interval = "both", ca = TRUE, residuals = TRUE)
-#' plotVar(fit, "area_total", FUN = "log")
-#' plotVar(fit, "area_total", FUN = "log",
-#'         interval = "both", ca = TRUE, residuals = TRUE)
-#' plotVar(fit, "suites")
-#' plotVar(fit, "suites", interval = "confidence")
-#' plotVar(fit, "suites", interval = "confidence", FUN = "log")
-#'
-#' # Plot model passing through point 'at'
-#'
-#' plotVar(fit, "area_total", interval = "both", ca = TRUE,
-#'         at = list(area_total = 205, quartos = 3, suites = 1,
-#'                   garagens = 2, dist_b_mar = 250, padrao = "medio"),
-#'         residuals = TRUE)
-#'
-#' # Same above + Point valuation at R$ 5.650,00 /m2
-#'
-#' plotVar(fit, "area_total", interval = "both",
-#'         at = data.frame(area_total = 205, quartos = 3, suites = 1,
-#'                         garagens = 2, dist_b_mar = 250, padrao = "medio"),
-#'         ca = TRUE, av = log(5650))
-#'
-#' # Same above, in the original scale
-#'
-#' plotVar(fit, "area_total", interval = "both", FUN = 'log',
-#'         at = data.frame(area_total = 205, quartos = 3, suites = 1,
-#'                         garagens = 2, dist_b_mar = 250, padrao = "medio"),
-#'         ca = TRUE, av = 5650)
-#'
-#' # Plotting factors
-#'
-#' plotVar(fit, "padrao")
-#' plotVar(fit, "padrao", residuals = TRUE)
-#' plotVar(fit, "padrao", FUN = "log")
-#' plotVar(fit, "padrao", interval = "confidence", residuals = TRUE)
-#' plotVar(fit, "padrao", interval = "prediction", residuals = TRUE)
-#' plotVar(fit, "padrao", interval = "confidence",
-#'         at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
-#'                   dist_b_mar = 250, padrao = "medio"),
-#'         residuals = TRUE)
-#' plotVar(fit, "padrao", FUN = "log", interval = "confidence",
-#'         at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
-#'                   dist_b_mar = 250, padrao = "medio"),
-#'         av = 5650)
-#' plotVar(fit, "padrao", FUN = "log", interval = "prediction",
-#'         at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
-#'                   dist_b_mar = 250, padrao = "medio"),
-#'         av = 5650)
-#' plotVar(fit, "padrao", FUN = "log", ca = TRUE,
-#'         at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
-#'                   dist_b_mar = 250, padrao = "medio"),
-#'         av = 5650)
-#' plotVar(fit, "padrao", residuals = TRUE,
-#'         at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
-#'                   dist_b_mar = 250, padrao = "medio"))
-#' plotVar(fit, "padrao", residuals = TRUE,
-#'         at = list(area_total = 205, quartos = 3, suites = 1, garagens = 2,
-#'                   dist_b_mar = 250, padrao = "medio"),
-#'         colour = padrao)
+#' plotVar(fit, "area_total", residuals = T)
+#' plotVar(fit, "area_total", residuals = T, palette = "Dark2")
+#' @export
 
 plotVar <- function(object, variable, FUN,
                     interval = c("none", "confidence", "prediction", "both"),
@@ -119,7 +50,8 @@ plotVar <- function(object, variable, FUN,
                            ...)
   }
 }
-#' export
+#'
+#' @export
 plotFactor <- function(x, object,
                        interval =  c("none", "confidence", "prediction", "both"),
                        level = 0.80,
@@ -136,6 +68,7 @@ plotFactor <- function(x, object,
   #DF <-  as.data.frame(eval(stats::getCall(object)$data))
   variable <- x
   params <- parameters(object)
+  parametros <- params$parameters
   response <- params$response
   lhs <- ifelse(!missing(FUN), response, params$lhs)
   predictors <- params$predictors
@@ -176,67 +109,77 @@ plotFactor <- function(x, object,
   mframe <- predResp$mframe
   pres <- predResp$pres
 
-  pred_plot <- reshape2::melt(pred,
-                              id.var = variable,
-                              value.name = lhs,
-                              variable.name = "var")
+  # pred_plot <- reshape2::melt(pred,
+  #                             id.var = variable,
+  #                             value.name = lhs,
+  #                             variable.name = "var")
+  #
+  #
+  # p <- ggplot(data = pred_plot, aes(x = reorder(.data[[variable]],
+  #                                               .data[[lhs]],
+  #                                               median),
+  #                                   y = .data[[lhs]]
+  #                                   )
+  #             ) +
+  #   geom_boxplot(aes(fill = .data[[variable]])) +
+  #   scale_fill_brewer(palette = palette) +
+  #   xlab(variable) +
+  #   theme(legend.position="none") +
+  #   scale_y_continuous(labels = scales::label_number_auto())
 
-
-  p <- ggplot(data = pred_plot, aes(x = reorder(.data[[variable]],
-                                                .data[[lhs]],
-                                                median),
-                                    y = .data[[lhs]]
-                                    )
-              ) +
-    geom_boxplot(aes(fill = .data[[variable]])) +
-    scale_fill_brewer(palette = palette) +
+  p <- ggplot(pred, aes(x = reorder(.data[[variable]],
+                                    .data[[lhs]],
+                                    median),
+                        y = .data[[lhs]])) +
+    #geom_line(aes(group = .data[[variable]])) +
+    geom_errorbar(aes(ymin = .data$C.A.I., ymax = .data$C.A.S.),
+                  colour = col[8],
+                  width = .2, lwd = 1) +
     xlab(variable) +
     theme(legend.position="none") +
     scale_y_continuous(labels = scales::label_number_auto())
 
   if (residuals == TRUE & missing(FUN)) {
-    vars <- attr(terms(object), "variables")
-
-    sel <- lapply(vars, all.vars)[-1]
-
-    res <- lapply(all.vars(terms(object)), \(x) which(sapply(sel, \(y) x %in% y)))
-    res <- setNames(res, all.vars(terms(object)))
+    # vars <- attr(terms(object), "variables")
+    #
+    # sel <- lapply(vars, all.vars)[-1]
+    #
+    # res <- lapply(all.vars(terms(object)), \(x) which(sapply(sel, \(y) x %in% y)))
+    # res <- setNames(res, all.vars(terms(object)))
     #
     # new <- lapply(DF[, predictors, drop = FALSE], centre)
 
+    if (length(predictors)>1) {
+
     if (missing(at)) {
 
-      predFrame <- data.frame(mframe[, variable, drop = F],
-                              lapply(mframe[, setdiff(predictors, variable),drop=F],
-                              centre))
-    } else {
+        predFrame <- data.frame(mframe[, c(lhs, variable), drop=F],
+                                lapply(mframe[, setdiff(predictors, variable),drop=F],
+                                centre), check.names = F)
+      } else {
 
-      predFrame <- data.frame(mframe[, variable, drop = F],
-                              at[setdiff(predictors, variable), drop = F])
+        predFrame <- data.frame(mframe[, c(lhs, variable), drop = F],
+                                at[setdiff(predictors, variable), drop = F],
+                                check.names = F)
+      }
+    } else {
+      predFrame <- mframe[, c(lhs, variable), drop = F]
     }
 
     predFrame <- broom::augment(object, newdata = predFrame)
-    predFrame <- within(predFrame, Y <- pres[, res[[variable]]-1] + .fitted)
+    #predFrame <- within(predFrame, Y <- pres[, res[[variable]]-1] + .fitted)
 
-    if (missing(colour)){
       p <- p +
+        geom_violin(data = predFrame,
+                    aes(x = .data[[variable]], y = .data$.fitted + .data$.resid,
+                        fill = .data[[variable]]),
+                    alpha = .5) +
         geom_point(data = predFrame,
-                   aes(x = .data[[variable]], y = .data$Y),
-                   pch = 19, color = col[8], alpha = .5)
-    } else {
-      p <- p +
-        geom_point(data = predFrame,
-                   aes(x = .data[[variable]], y = .data$Y, colour = {{colour}}),
-                   pch = 19, alpha = .5) +
-        theme(legend.position = "bottom",
-              legend.box="horizontal",
-              legend.title=element_text(size=10)) +
-        guides(colour = guide_legend(title.position="top",
-                                     title.hjust = 0.5))
-    }
+                   position = position_jitter(seed = 1, width = 0.2),
+                   aes(x = .data[[variable]], y = .data$.fitted + .data$.resid),
+                   pch = 20, size = 2, color = col[8], alpha = .5)
+
   }
-
-
   # Adds point of 'at' argument, if not missing
   if(!missing(at)) {
     p_local <- ifelse(missing(FUN), p_local, inverse(p_local, FUN))
@@ -309,14 +252,14 @@ plotContinuousVariable <-
 
   system <- match.arg(system)
   interval <- match.arg(interval)
-  # DF <-  as.data.frame(eval(stats::getCall(object)$data))
+
   variable <- x
   params <- parameters(object)
   response <- params$response
   lhs <- ifelse(!missing(FUN), response, params$lhs)
   predictors <- params$predictors
   depvarTrans <- params$depvarTrans
-  coeffs <- coef(object)
+  # coeffs <- coef(object)
 
   # Creates col vector for chosen palette
   palNum <- which(rownames(RColorBrewer::brewer.pal.info) == palette)
@@ -351,6 +294,7 @@ plotContinuousVariable <-
   p_local <- predResp$p_local
   mframe <- predResp$mframe
   pres <- predResp$pres
+  yAt <- predResp$yAt
 
   if (system == 'ggplot2'){
 
@@ -400,35 +344,36 @@ plotContinuousVariable <-
   # Adds partial residuals, if residuals = TRUE
 
   if (residuals == TRUE & missing(FUN)) {
-    vars <- attr(terms(object), "variables")
 
-    sel <- lapply(vars, all.vars)[-1]
+    tt <- attr(terms(object), "variables")
+
+    sel <- lapply(tt, all.vars)[-1]
 
     res <- lapply(all.vars(terms(object)), \(x) which(sapply(sel, \(y) x %in% y)))
     res <- setNames(res, all.vars(terms(object)))
 
-    new <- lapply(mframe[, predictors, drop = FALSE], centre)
-
     if (missing(at)) {
-      k <- predict(object = object,
-                   newdata = new)
+
+      # k <- mean(mframe[, response, drop = T]) # problem: response scale when transformed
+      # k <- predict(object, newdata = lapply(mframe[, predictors], centre))
+      # k <- mean(mframe[, lhs, drop = T])
+      # k <- vapply(mean(mframe[, response, drop = T]), FUN = depvarTrans,
+      #             FUN.VALUE = c(k = 0))
+      k <- attr(pres, "constant")
+      # k <- grandMean(object)
 
       partialResiduals <-
         data.frame(X = mframe[, variable, drop = T],
                    Y = pres[, res[[variable]]-1] + k
-        )
+                   #Y = pres[, variable, drop = T] + k
+                   )
       MODELFRAME <- cbind(mframe, partialResiduals)
     } else {
-        new_k <- new
-        new_k[setdiff(names(new_k), variable)] <-
-          at[setdiff(names(new_k), variable)]
-
-      k <- predict(object = object,
-                   newdata = new_k)
-
+      k <- attr(pres, "constant")
       partialResiduals <-
         data.frame(X = mframe[, variable, drop = T],
-                   Y = pres[, res[[variable]]-1] + k
+                   #Y = pres[, variable, drop = T] + k
+                   Y = pres[, res[[variable]]-1] + k + yAt
                    )
       MODELFRAME <- cbind(mframe, partialResiduals)
     }
@@ -437,15 +382,15 @@ plotContinuousVariable <-
       p <- p +
         geom_point(data = MODELFRAME,
                    aes(x = .data$X, y = .data$Y),
-                   pch = 19, color = col[8], alpha = .5) +
-        geom_smooth(data = MODELFRAME,
+                   pch = 20, size = 2, color = col[8], alpha = .5) +
+        stat_smooth(data = MODELFRAME, method = "loess", span = 1,
                     aes(x = .data$X, y = .data$Y),
-                    method = "loess", colour= col[7], se = FALSE)
+                    colour= col[7], se = FALSE)
     } else {
       p <- p +
         geom_point(data = MODELFRAME,
                    aes(x = .data$X, y = .data$Y, colour = {{colour}}),
-                   pch = 19, alpha = .5) +
+                   pch = 20, size = 2, alpha = .5) +
         theme(legend.position = "bottom",
               legend.box="horizontal",
               legend.title=element_text(size=10)) +
